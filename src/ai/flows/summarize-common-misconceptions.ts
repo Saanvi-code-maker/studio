@@ -73,15 +73,17 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
         return output;
       } catch (error: any) {
         const errorMessage = error?.message || String(error);
-        const isRetryable = errorMessage.includes('503') || 
-                          errorMessage.includes('UNAVAILABLE') || 
-                          errorMessage.includes('429') ||
-                          errorMessage.includes('404') ||
-                          errorMessage.includes('not found') ||
-                          errorMessage.includes('high demand');
+        const isRetryable = 
+          errorMessage.includes('503') || 
+          errorMessage.includes('UNAVAILABLE') || 
+          errorMessage.includes('429') ||
+          errorMessage.includes('404') || // Handle transient not found
+          errorMessage.includes('not found') ||
+          errorMessage.includes('high demand');
         
         if (isRetryable && retryCount < maxRetries - 1) {
           retryCount++;
+          // Exponential backoff
           await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
           continue;
         }

@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,10 +12,10 @@ export default function Home() {
             <GraduationCap className="w-12 h-12" />
           </div>
           <h1 className="text-5xl font-bold tracking-tight text-foreground font-headline">
-            EduSense Learn
+            ShikshaSetu
           </h1>
           <p className="text-xl text-muted-foreground max-w-xl mx-auto">
-            Interactive, AI-powered learning that understands your confusion and helps you grow, even without internet.
+            Your bridge to personalized, AI-powered learning that adapts to you, even when you're offline.
           </p>
         </header>
 

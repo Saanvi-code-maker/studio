@@ -1,10 +1,9 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'EduSense Learn - Personalized AI Learning',
-  description: 'A simple, offline-first learning app powered by AI to help students understand complex topics.',
+  title: 'ShikshaSetu - Personalized AI Learning',
+  description: 'A bridge to knowledge powered by AI to help students understand complex topics through personalized explanations.',
 };
 
 export default function RootLayout({

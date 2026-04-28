@@ -1,9 +1,8 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LayoutDashboard, User, GraduationCap } from 'lucide-react';
+import { BookOpen, User, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const Navigation = () => {
@@ -20,7 +19,7 @@ export const Navigation = () => {
       <div className="max-w-screen-xl mx-auto flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2 font-bold text-primary text-xl">
           <GraduationCap className="h-8 w-8" />
-          <span className="hidden sm:inline font-headline">EduSense</span>
+          <span className="hidden sm:inline font-headline">ShikshaSetu</span>
         </Link>
         <div className="flex gap-4 sm:gap-8">
           {navItems.map((item) => {
