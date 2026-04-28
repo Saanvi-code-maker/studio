@@ -56,6 +56,7 @@ export async function generateStudentExplanation(
 
 const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
   prompt: `You are an empathetic and clear educator creating personalized explanations for students.
