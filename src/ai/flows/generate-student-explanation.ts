@@ -18,7 +18,7 @@ const GenerateStudentExplanationInputSchema = z.object({
     .enum(['confused', 'guessing', 'partial_knowledge', 'incorrect'])
     .optional()
     .describe(
-      'An optional indicator of the student\u0027s understanding level (e.g., \'confused\', \'partial_knowledge\', \'guessing\').'
+      'An optional indicator of the student\'s understanding level (e.g., \'confused\', \'partial_knowledge\', \'guessing\').'
     ),
   context: z
     .string()
@@ -56,7 +56,6 @@ export async function generateStudentExplanation(
 
 const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
-  model: 'googleai/gemini-1.5-flash-latest',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
   prompt: `You are an empathetic and clear educator creating personalized explanations for students.

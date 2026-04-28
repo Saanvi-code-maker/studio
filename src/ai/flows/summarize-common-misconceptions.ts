@@ -34,7 +34,6 @@ export async function summarizeCommonMisconceptions(
 
 const prompt = ai.definePrompt({
   name: 'summarizeCommonMisconceptionsPrompt',
-  model: 'googleai/gemini-1.5-flash-latest',
   input: {schema: SummarizeCommonMisconceptionsInputSchema},
   output: {schema: SummarizeCommonMisconceptionsOutputSchema},
   prompt: `You are an expert educational assistant tasked with helping teachers understand student learning.
