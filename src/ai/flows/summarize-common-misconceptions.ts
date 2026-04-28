@@ -34,6 +34,7 @@ export async function summarizeCommonMisconceptions(
 
 const prompt = ai.definePrompt({
   name: 'summarizeCommonMisconceptionsPrompt',
+  model: 'googleai/gemini-1.5-flash-latest',
   input: {schema: SummarizeCommonMisconceptionsInputSchema},
   output: {schema: SummarizeCommonMisconceptionsOutputSchema},
   prompt: `You are an expert educational assistant tasked with helping teachers understand student learning.
@@ -76,17 +77,18 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
         const isRetryable = errorMessage.includes('503') || 
                           errorMessage.includes('UNAVAILABLE') || 
                           errorMessage.includes('429') ||
+                          errorMessage.includes('404') ||
+                          errorMessage.includes('not found') ||
                           errorMessage.includes('high demand');
         
         if (isRetryable && retryCount < maxRetries - 1) {
           retryCount++;
-          // Exponential backoff: 2s, 4s, 8s...
           await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
           continue;
         }
         throw error;
       }
     }
-    throw new Error('Summarization failed after multiple attempts due to high service demand.');
+    throw new Error('Summarization failed after multiple attempts due to service issues.');
   }
 );

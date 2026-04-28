@@ -56,6 +56,7 @@ export async function generateStudentExplanation(
 
 const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
+  model: 'googleai/gemini-1.5-flash-latest',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
   prompt: `You are an empathetic and clear educator creating personalized explanations for students.
@@ -111,17 +112,18 @@ const generateStudentExplanationFlow = ai.defineFlow(
         const isRetryable = errorMessage.includes('503') || 
                           errorMessage.includes('UNAVAILABLE') || 
                           errorMessage.includes('429') ||
+                          errorMessage.includes('404') ||
+                          errorMessage.includes('not found') ||
                           errorMessage.includes('high demand');
 
         if (isRetryable && retryCount < maxRetries - 1) {
           retryCount++;
-          // Exponential backoff: 2s, 4s, 8s...
           await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
           continue;
         }
         throw error;
       }
     }
-    throw new Error('Generation failed after multiple attempts due to high service demand.');
+    throw new Error('Generation failed after multiple attempts due to service issues.');
   }
 );
