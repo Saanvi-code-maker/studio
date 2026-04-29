@@ -1,12 +1,15 @@
+
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, User, GraduationCap } from 'lucide-react';
+import { BookOpen, User, GraduationCap, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
 
 export const Navigation = () => {
   const pathname = usePathname();
+  const { user } = useUser();
 
   const navItems = [
     { label: 'Learn', href: '/learn', icon: BookOpen },
@@ -22,23 +25,36 @@ export const Navigation = () => {
           <span className="hidden sm:inline font-headline">ShikshaSetu</span>
         </Link>
         <div className="flex gap-4 sm:gap-8">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex flex-col md:flex-row items-center gap-1 text-sm font-medium transition-colors p-2",
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
-                )}
-              >
-                <Icon className="h-5 w-5 md:h-4 md:w-4" />
-                <span className="text-[10px] md:text-sm">{item.label}</span>
-              </Link>
-            );
-          })}
+          {user ? (
+            navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex flex-col md:flex-row items-center gap-1 text-sm font-medium transition-colors p-2",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
+                  )}
+                >
+                  <Icon className="h-5 w-5 md:h-4 md:w-4" />
+                  <span className="text-[10px] md:text-sm">{item.label}</span>
+                </Link>
+              );
+            })
+          ) : (
+            <Link
+              href="/login"
+              className={cn(
+                "flex flex-col md:flex-row items-center gap-1 text-sm font-medium transition-colors p-2",
+                pathname === "/login" ? "text-primary" : "text-muted-foreground hover:text-primary"
+              )}
+            >
+              <LogIn className="h-5 w-5 md:h-4 md:w-4" />
+              <span className="text-[10px] md:text-sm">Sign In</span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>
