@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, LogOut, Save, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -33,6 +34,12 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName || '');
       setLanguage(profile.languagePreference || 'en');
@@ -47,10 +54,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user) {
-    router.push('/login');
-    return null;
-  }
+  if (!user) return null;
 
   const handleSave = async () => {
     if (!userDocRef) return;
@@ -145,13 +149,5 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
-  );
-}
-
-function Badge({ children, variant, className }: { children: React.ReactNode, variant?: string, className?: string }) {
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${className}`}>
-      {children}
-    </span>
   );
 }

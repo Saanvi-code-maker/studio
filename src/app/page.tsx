@@ -1,10 +1,32 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, GraduationCap, Globe, Zap, ShieldCheck, ArrowRight, CheckCircle2, Sparkles, LayoutGrid } from 'lucide-react';
+import { BookOpen, GraduationCap, Globe, Zap, ShieldCheck, ArrowRight, CheckCircle2, Sparkles, LayoutGrid, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
+import { useUser } from '@/firebase';
 
 export default function Home() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/learn');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="animate-spin h-12 w-12 text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center hero-gradient">
       <Navigation />
@@ -39,7 +61,6 @@ export default function Home() {
 
         {/* Feature Split */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          {/* Student Portal Card */}
           <Card className="pro-card group">
             <CardHeader className="p-12 pb-6">
               <div className="w-20 h-20 rounded-[2rem] bg-primary/10 flex items-center justify-center text-primary mb-8 group-hover:rotate-6 transition-transform duration-700">
@@ -73,7 +94,6 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* Teacher Dashboard Card */}
           <Card className="pro-card group">
             <CardHeader className="p-12 pb-6">
               <div className="w-20 h-20 rounded-[2rem] bg-accent/10 flex items-center justify-center text-accent mb-8 group-hover:rotate-6 transition-transform duration-700">
@@ -108,7 +128,6 @@ export default function Home() {
           </Card>
         </div>
 
-        {/* Global Footer */}
         <footer className="pt-32 pb-20 border-t-2 border-border/50">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-5xl mx-auto">
             {[
