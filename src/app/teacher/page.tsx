@@ -121,7 +121,8 @@ export default function TeacherPage() {
         ?.filter(r => !r.isCorrect && topicKeywords.some(kw => (r.lessonId || '').toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      const inputResponses = relevantResponses.length > 5 ? relevantResponses : [
+      // Fallback example data if no responses exist for the demo
+      const inputResponses = relevantResponses.length > 3 ? relevantResponses : [
         "Mitochondria is only in plant cells.",
         "Cells are the same as bricks.",
         "The nucleus is optional.",
