@@ -14,7 +14,7 @@ import { useUser } from '@/firebase';
 
 export const Navigation = () => {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
 
   const navItems = [
     { label: 'Learn', href: '/learn', icon: BookOpen },
@@ -37,7 +37,7 @@ export const Navigation = () => {
           </Link>
 
           <div className="flex items-center gap-4">
-            {user ? (
+            {!isUserLoading && user ? (
               <div className="flex items-center gap-2 bg-secondary/30 p-1.5 rounded-[1.5rem] border border-border/50">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -59,7 +59,7 @@ export const Navigation = () => {
                   );
                 })}
               </div>
-            ) : (
+            ) : !isUserLoading ? (
               <Link
                 href="/login"
                 className="flex items-center gap-2 text-sm font-black transition-all px-8 py-3 rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 hover:scale-105 active:scale-95"
@@ -67,6 +67,8 @@ export const Navigation = () => {
                 <LogIn className="h-4 w-4" />
                 <span className="uppercase tracking-widest text-[11px]">Sign In</span>
               </Link>
+            ) : (
+              <div className="h-10 w-32 bg-secondary/30 animate-pulse rounded-2xl" />
             )}
           </div>
         </div>
@@ -74,7 +76,7 @@ export const Navigation = () => {
 
       {/* Mobile Bottom Bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-border z-50 md:hidden h-20 px-4 flex items-center justify-around">
-        {user ? (
+        {!isUserLoading && user ? (
           navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname.startsWith(item.href);
@@ -95,7 +97,7 @@ export const Navigation = () => {
               </Link>
             );
           })
-        ) : (
+        ) : !isUserLoading ? (
           <Link
             href="/login"
             className="flex flex-col items-center gap-1 text-primary p-2"
@@ -103,6 +105,8 @@ export const Navigation = () => {
             <LogIn className="h-6 w-6" />
             <span className="text-[10px] font-black uppercase tracking-tighter">Sign In</span>
           </Link>
+        ) : (
+          <div className="h-10 w-full bg-secondary/10 animate-pulse rounded-xl" />
         )}
       </nav>
     </>

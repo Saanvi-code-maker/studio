@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import { collection, doc, query, where } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -91,7 +90,10 @@ export default function TeacherPage() {
   if (isUserLoading || isTeacherCheckLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 text-primary animate-spin" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-primary animate-spin" />
+          <p className="text-primary font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">Verifying Credentials</p>
+        </div>
       </div>
     );
   }
@@ -110,7 +112,7 @@ export default function TeacherPage() {
             </div>
             <CardTitle className="text-4xl font-black font-headline tracking-tighter">Access Restricted</CardTitle>
             <CardDescription className="text-xl font-medium pt-4 px-4 leading-relaxed">
-              Educator Dashboard requires verified teaching credentials.
+              The Educator Dashboard requires verified teaching credentials. Please contact administration for access.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center pb-12">

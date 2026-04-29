@@ -14,6 +14,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    // If user is already logged in, take them straight to their learning journey
     if (!isUserLoading && user) {
       router.push('/learn');
     }
@@ -22,7 +23,10 @@ export default function Home() {
   if (isUserLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="animate-spin h-12 w-12 text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin h-12 w-12 text-primary" />
+          <p className="text-primary font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">Initializing ShikshaSetu</p>
+        </div>
       </div>
     );
   }
