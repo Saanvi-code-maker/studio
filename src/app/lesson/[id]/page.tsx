@@ -28,7 +28,8 @@ import {
   Brain,
   Send,
   Zap,
-  Map
+  Map,
+  Link as LinkIcon
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -52,6 +53,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     text: string, 
     story: string, 
     visual: string,
+    mindmap: string[],
     imageUrl?: string,
     analysisType?: string,
     analysisExplanation?: string 
@@ -75,13 +77,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
 
   const currentQuestion = lesson.questions[activeQuestionIndex];
   const progressPercent = ((activeQuestionIndex) / lesson.questions.length) * 100;
-  
-  const imageMap: Record<string, string> = {
-    'biology-1': 'cell-analogy',
-    'math-1': 'geometry-analogy',
-    'history-1': 'history-analogy'
-  };
-  const placeholder = PlaceHolderImages.find(img => img.id === imageMap[id]);
 
   const handleSubmit = async (overrideAnswer?: string) => {
     const finalAnswer = overrideAnswer || answer;
@@ -107,13 +102,13 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           context: `Topic: ${lesson.topic}. ${lesson.title}. Language: ${t.nav.learn === 'ಕಲಿಯಿರಿ' ? 'Kannada' : t.nav.learn === 'सीखें' ? 'Hindi' : 'English'}`
         });
 
-        // Use the analysis type to seed a consistent conceptual image
         const seedId = `${id}-${typeResult.analysisType}-${Math.floor(Math.random() * 100)}`;
 
         analysisResult = { 
           explanation: bridgeResult.explanation, 
           story: bridgeResult.story, 
           visual: bridgeResult.visualDescription,
+          mindmap: bridgeResult.mindmap,
           imageUrl: `https://picsum.photos/seed/${seedId}/800/600`,
           analysisType: typeResult.analysisType,
           analysisExplanation: typeResult.explanation
@@ -162,7 +157,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   return (
     <div className="min-h-screen pb-24 md:pt-24 bg-background">
       <Navigation />
-      <div className="max-w-6xl mx-auto p-6 space-y-8 animate-in fade-in duration-700">
+      <div className="max-w-7xl mx-auto p-6 space-y-8 animate-in fade-in duration-700">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <Button variant="ghost" onClick={() => router.back()} className="font-bold text-primary hover:bg-primary/5 rounded-2xl">
             <ArrowLeft className="mr-2 h-5 w-5" /> {t.common.back}
@@ -296,7 +291,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         </div>
                         <div>
                           <h3 className="text-2xl font-black font-headline tracking-tighter text-foreground">{t.lesson.bridge}</h3>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Adaptive Learning Intervention</p>
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">AI Pedagogical Intervention</p>
                         </div>
                       </div>
                       <Badge className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getAnalysisBadge(explanation.analysisType).color}`}>
@@ -315,7 +310,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         </p>
                       </div>
 
-                      {/* Visual & Map Section */}
+                      {/* Visual & Mindmap Section */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-border shadow-2xl group">
                           <Image 
@@ -332,24 +327,23 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                           </div>
                         </div>
 
-                        <div className="bg-secondary/30 p-8 rounded-[2.5rem] border-2 border-dashed border-border space-y-6 flex flex-col justify-center">
-                          <div className="flex items-center gap-3 text-primary">
-                            <Map className="w-5 h-5" />
+                        <div className="bg-secondary/30 p-8 rounded-[2.5rem] border-2 border-dashed border-border space-y-6 flex flex-col justify-center relative overflow-hidden">
+                           <div className="absolute top-0 right-0 p-4 opacity-5 text-primary">
+                             <Map className="w-24 h-24" />
+                           </div>
+                          <div className="flex items-center gap-3 text-primary relative z-10">
+                            <LinkIcon className="w-5 h-5" />
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Concept Mindmap</h4>
                           </div>
-                          <div className="space-y-4">
-                            {[
-                              { label: 'Core Idea', color: 'bg-primary' },
-                              { label: 'Student Path', color: 'bg-rose-500' },
-                              { label: 'Knowledge Gap', color: 'bg-amber-500' }
-                            ].map((item) => (
-                              <div key={item.label} className="flex items-center gap-4">
-                                <div className={`w-2 h-2 rounded-full ${item.color} animate-pulse`} />
-                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">{item.label}</span>
+                          <div className="space-y-4 relative z-10">
+                            {explanation.mindmap?.map((point, i) => (
+                              <div key={i} className="flex items-start gap-3 bg-white/50 p-3 rounded-xl border border-white/50 hover:bg-white transition-colors duration-300">
+                                <div className="w-2 h-2 mt-1.5 rounded-full bg-primary shrink-0" />
+                                <span className="text-xs font-bold text-muted-foreground leading-tight">{point}</span>
                               </div>
                             ))}
                           </div>
-                          <p className="text-sm font-bold text-muted-foreground leading-relaxed pt-4 border-t border-border">
+                          <p className="text-sm font-bold text-muted-foreground leading-relaxed pt-4 border-t border-border relative z-10">
                             {explanation.text}
                           </p>
                         </div>
@@ -361,7 +355,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         <RotateCcw className="mr-3 h-5 w-5" /> {t.lesson.refine}
                       </Button>
                       <p className="text-[10px] text-center font-black uppercase tracking-[0.3em] text-muted-foreground/30">
-                        Synthesized by Gemini 1.5 Flash • {t.nav.learn} Path
+                        Synthesized by Gemini 1.5 Flash • Adaptive Learning Path
                       </p>
                     </div>
                   </div>

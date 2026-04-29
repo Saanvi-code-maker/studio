@@ -40,6 +40,7 @@ const GenerateStudentExplanationOutputSchema = z.object({
   visualDescription: z
     .string()
     .describe('A textual description for an image that visually represents the story/analogy.'),
+  mindmap: z.array(z.string()).describe('A list of 3-4 key concepts or relationships for a visual mindmap.'),
 });
 export type GenerateStudentExplanationOutput = z.infer<
   typeof GenerateStudentExplanationOutputSchema
@@ -70,6 +71,7 @@ Please generate:
 1. **Explanation**: Directly address why the answer is wrong and explain the correct concept simply.
 2. **Story**: Create a 2-3 sentence story or analogy. (e.g., If the topic is mitochondria, compare it to a power plant in a city).
 3. **Visual Description**: Describe a simple illustration that matches your story.
+4. **Mindmap**: Provide 3-4 key bullet points that show the connection between the current concept and related ideas.
 
 Structure your response as a JSON object matching the output schema.`,
 });
