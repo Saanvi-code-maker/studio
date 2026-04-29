@@ -22,6 +22,11 @@ export interface StudentProgress {
   updatedAt: string;
 }
 
+/**
+ * Global store for ShikshaSetu that leverages Firestore real-time data.
+ * Designed to provide fresh data from the server while utilizing offline persistence
+ * as a fallback only.
+ */
 export const useStore = () => {
   const { user } = useUser();
   const db = useFirestore();
@@ -31,19 +36,20 @@ export const useStore = () => {
     return doc(db, 'users', user.uid);
   }, [db, user]);
 
+  // useDoc handles the real-time subscription and ensures data is kept in sync
   const { data: progressData, isLoading } = useDoc<StudentProgress>(userDocRef);
 
   const setLanguage = async (lang: string) => {
+    // Update local state for immediate UI feedback
     localStorage.setItem('shikshasetu_lang', lang);
-    // Dispatch a custom event to notify useTranslation hook in the same tab
     window.dispatchEvent(new CustomEvent('shikshasetu_lang_change', { detail: lang }));
     
+    // Persist to Firestore for multi-device sync
     if (userDocRef) {
       updateDoc(userDocRef, {
         languagePreference: lang,
         updatedAt: serverTimestamp()
       }).catch(err => {
-        // Silently fail for UI if rules block it, local storage is primary for UI
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
@@ -114,6 +120,7 @@ export const useStore = () => {
       });
     }
 
+    // Mark user record as updated
     updateDoc(userDocRef, {
       updatedAt: serverTimestamp()
     });
