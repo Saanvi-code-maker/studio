@@ -1,4 +1,3 @@
-
 export type Language = 'en' | 'hi' | 'kn';
 
 export const translations = {
@@ -89,7 +88,7 @@ export const translations = {
       mastery: 'Avg. Mastery',
       gaps: 'Systemic Gaps',
       bridges: 'AI Bridges Built',
-      gapTitle: 'Systemic Gaps',
+      gapTitle: 'Common Gaps',
       summary: 'Executive Summary',
       intervention: 'AI Intervention',
       adaptive: 'Adaptive Teaching',
@@ -113,7 +112,7 @@ export const translations = {
     common: {
       back: 'पीछे',
       next: 'अगला',
-      submit: 'जमा करें',
+      submit: 'जಮಾ करें',
       save: 'सहेजें',
       update: 'अपडेट करें',
       cancel: 'रद्द करें',
@@ -176,7 +175,7 @@ export const translations = {
       displayName: 'प्रदर्शित नाम',
       language: 'प्राथमिक भाषा',
       verifiedEducator: 'सत्यापित शिक्षक',
-      studentScholar: 'छात्र विद्वान',
+      studentScholar: 'छाತ್ರ विद्वान',
       placeholderName: 'पूरा नाम दर्ज करें',
       updated: 'प्रोफ़ाइल अपडेट की गई',
       updatedDesc: 'आपके परिवर्तन सफलतापूर्वक सहेज लिए गए हैं।',

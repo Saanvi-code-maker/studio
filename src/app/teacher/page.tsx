@@ -23,7 +23,6 @@ import {
 } from 'recharts';
 import { 
   AlertTriangle, 
-  Lightbulb, 
   TrendingUp, 
   Loader2, 
   Sparkles, 
@@ -34,7 +33,6 @@ import {
   BrainCircuit, 
   CheckCircle2, 
   ArrowRight,
-  UserCheck,
   AlertCircle
 } from 'lucide-react';
 
@@ -70,7 +68,7 @@ export default function TeacherPage() {
   // --- Analytical Calculations ---
 
   const stats = useMemo(() => {
-    if (!responses || !analyses) return { mastery: 0, total: 0, types: [] };
+    if (!responses || !analyses) return { mastery: 0, total: 0, chartData: [] };
     
     const correct = responses.filter(r => r.isCorrect).length;
     const total = responses.length;
@@ -83,10 +81,10 @@ export default function TeacherPage() {
     }, {});
 
     const chartData = [
-      { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' },
-      { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' },
-      { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' },
-      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' }
+      { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' }, // Red
+      { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' }, // Yellow
+      { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' }, // Blue
+      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' } // Green
     ].filter(d => d.value > 0);
 
     return { mastery, total, chartData };
@@ -124,7 +122,7 @@ export default function TeacherPage() {
     try {
       const topicKeywords = topic.toLowerCase().split(' ');
       const relevantResponses = responses
-        ?.filter(r => !r.isCorrect && topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
+        ?.filter(r => !r.isCorrect && topicKeywords.some(kw => (r.lessonId || '').toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
       // Fallback for demo if no real data yet
@@ -288,7 +286,7 @@ export default function TeacherPage() {
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-rose-100">
                       <TableHead className="font-black text-[10px] uppercase text-rose-900/40">Student UID</TableHead>
-                      <TableHead className="text-right font-black text-[10px] uppercase text-rose-900/40">Gaps</TableHead>
+                      <TableHead className="text-right font-black text-[10px] uppercase text-rose-900/40">Failure Rate</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
