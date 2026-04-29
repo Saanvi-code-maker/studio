@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -57,6 +58,7 @@ export default function TeacherPage() {
         ?.filter(r => topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
+      // If no real responses, use synthetic for the demo experience
       const inputResponses = relevantResponses.length > 0 ? relevantResponses : [
         "Mitochondria is only in plant cells because they need to grow.",
         "Cells are just blocks of matter with no life.",
