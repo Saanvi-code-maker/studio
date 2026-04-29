@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { SplashScreen } from '@/components/SplashScreen';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const userDocRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -90,10 +92,10 @@ export default function ProfilePage() {
         <header className="space-y-4">
           <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
             <UserIcon className="w-4 h-4" />
-            Account Management
+            {t.profile.management}
           </div>
           <h1 className="text-6xl font-black font-headline tracking-tighter text-foreground leading-none">
-            User <span className="text-primary">Profile</span>
+            {t.profile.title} <span className="text-primary">{t.profile.subtitle}</span>
           </h1>
         </header>
 
@@ -111,7 +113,7 @@ export default function ProfilePage() {
               <CardDescription className="text-lg font-medium text-muted-foreground">{user.email}</CardDescription>
               <div className="pt-2">
                 <Badge className="bg-primary text-white border-none uppercase tracking-[0.2em] text-[9px] px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
-                  {profile?.role === 'teacher' ? 'Verified Educator' : 'Student Scholar'}
+                  {profile?.role === 'teacher' ? t.profile.verifiedEducator : t.profile.studentScholar}
                 </Badge>
               </div>
             </div>
@@ -119,7 +121,7 @@ export default function ProfilePage() {
           <CardContent className="space-y-10 p-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-3">
-                <Label htmlFor="displayName" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">Display Name</Label>
+                <Label htmlFor="displayName" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">{t.profile.displayName}</Label>
                 <div className="relative">
                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
                    <Input 
@@ -132,7 +134,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="space-y-3">
-                <Label htmlFor="language" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">Primary Language</Label>
+                <Label htmlFor="language" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">{t.profile.language}</Label>
                 <div className="relative">
                   <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary z-10" />
                   <Select value={language} onValueChange={setLanguage}>
@@ -155,7 +157,7 @@ export default function ProfilePage() {
               className="h-14 px-8 text-destructive font-black uppercase tracking-widest text-[11px] hover:bg-destructive/10 rounded-2xl transition-all" 
               onClick={handleLogout}
             >
-              <LogOut className="mr-3 h-5 w-5" /> Sign Out
+              <LogOut className="mr-3 h-5 w-5" /> {t.common.logout}
             </Button>
             <Button 
               onClick={handleSave} 
@@ -163,7 +165,7 @@ export default function ProfilePage() {
               className="h-14 px-12 font-black text-lg rounded-2xl shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95"
             >
               {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-3" /> : <Save className="mr-3 h-5 w-5" />}
-              Update Identity
+              {t.profile.identity}
             </Button>
           </CardFooter>
         </Card>

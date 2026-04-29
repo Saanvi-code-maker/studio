@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
 import { SplashScreen } from '@/components/SplashScreen';
+import { useTranslation } from '@/hooks/use-translation';
 import { 
   AlertTriangle, 
   Lightbulb, 
@@ -30,6 +31,7 @@ import {
 export default function TeacherPage() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
+  const { t } = useTranslation();
   const [activeTopic, setActiveTopic] = useState('Cell Biology');
   const [insights, setInsights] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -128,10 +130,10 @@ export default function TeacherPage() {
           <div className="space-y-6">
             <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.3em] text-[10px]">
               <BrainCircuit className="w-5 h-5" />
-              Intelligence Dashboard
+              {t.teacher.dashboard}
             </div>
             <h1 className="text-7xl md:text-8xl font-black tracking-tighter text-foreground font-headline leading-[0.85]">
-              Class <span className="text-primary">Analytics</span>
+              {t.teacher.title} <span className="text-primary">{t.teacher.subtitle}</span>
             </h1>
             <p className="text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed">
               Synthesizing individual performance into high-impact teaching strategies.
@@ -144,16 +146,16 @@ export default function TeacherPage() {
             disabled={loading}
           >
             {loading ? <Loader2 className="animate-spin mr-4 h-6 w-6" /> : <RefreshCw className="mr-4 h-6 w-6 group-hover:rotate-180 transition-transform duration-1000" />}
-            Regenerate Insights
+            {t.teacher.regenerate}
           </Button>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { label: 'Participation', value: responses?.length || 0, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
-            { label: 'Avg. Mastery', value: '74%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/5' },
-            { label: 'Systemic Gaps', value: insights?.commonMisconceptions?.length || 0, icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/5' },
-            { label: 'AI Bridges Built', value: '18', icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
+            { label: t.teacher.participation, value: responses?.length || 0, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
+            { label: t.teacher.mastery, value: '74%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/5' },
+            { label: t.teacher.gaps, value: insights?.commonMisconceptions?.length || 0, icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/5' },
+            { label: t.teacher.bridges, value: '18', icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
           ].map((stat) => (
             <Card key={stat.label} className="border-2 shadow-sm rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all">
               <CardContent className="p-8">
@@ -209,7 +211,7 @@ export default function TeacherPage() {
                           <AlertTriangle className="w-7 h-7" />
                         </div>
                         <CardTitle className="text-3xl font-black font-headline text-primary tracking-tighter">
-                          Systemic Gaps
+                          {t.teacher.gapTitle}
                         </CardTitle>
                       </div>
                       <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full uppercase tracking-widest text-[10px]">High Priority</Badge>
@@ -230,7 +232,7 @@ export default function TeacherPage() {
                     <CardHeader className="p-10 border-b-2 border-border/50 bg-secondary/20">
                       <CardTitle className="flex items-center gap-4 text-primary font-black font-headline text-2xl tracking-tighter">
                         <BarChart3 className="w-7 h-7" />
-                        Executive Summary
+                        {t.teacher.summary}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-10">
@@ -249,10 +251,10 @@ export default function TeacherPage() {
                     <CardHeader className="p-12 relative">
                       <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/10 rounded-full text-white font-black uppercase tracking-[0.2em] text-[10px] mb-6 backdrop-blur-xl border border-white/20">
                         <Sparkles className="w-5 h-5" />
-                        AI Intervention
+                        {t.teacher.intervention}
                       </div>
                       <CardTitle className="text-5xl font-black text-white font-headline leading-[0.9] tracking-tighter">
-                        Adaptive <br/>Teaching
+                        {t.teacher.adaptive.split(' ')[0]} <br/>{t.teacher.adaptive.split(' ')[1]}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-12 pt-0 space-y-8 relative">
@@ -266,7 +268,7 @@ export default function TeacherPage() {
                       ))}
                       <div className="pt-6">
                          <Button className="w-full h-16 rounded-2xl bg-white text-primary font-black text-lg hover:bg-white/90 shadow-xl group active:scale-95 transition-all">
-                            Export Lesson Plan <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
+                            {t.teacher.export} <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
                          </Button>
                       </div>
                     </CardContent>

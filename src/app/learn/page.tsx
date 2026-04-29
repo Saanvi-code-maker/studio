@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
 import { SplashScreen } from '@/components/SplashScreen';
+import { useTranslation } from '@/hooks/use-translation';
 
 const LESSONS = [
   {
@@ -56,6 +57,7 @@ export default function LearnPage() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const { progress, isLoading: isProgressLoading } = useStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -84,10 +86,10 @@ export default function LearnPage() {
               Your Academic Bridge
             </div>
             <h1 className="text-6xl md:text-7xl font-black font-headline text-foreground tracking-tighter leading-none">
-              Learning <span className="text-primary">Journey</span>
+              {t.learn.title} <span className="text-primary">{t.learn.subtitle}</span>
             </h1>
             <p className="text-xl text-muted-foreground font-medium max-w-xl">
-              Personalized AI paths designed to help you master complex topics through intuitive explanations.
+              {t.learn.desc}
             </p>
           </div>
           
@@ -98,11 +100,11 @@ export default function LearnPage() {
             <div className="flex-1 space-y-4 relative z-10">
               <div className="flex justify-between items-end">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Class Mastery</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t.learn.mastery}</span>
                   <div className="text-4xl font-black text-primary leading-none">{completionRate}%</div>
                 </div>
                 <div className="text-right">
-                   <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Lessons</div>
+                   <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t.learn.lessons}</div>
                    <div className="text-xl font-bold">{completedCount}/{totalLessons}</div>
                 </div>
               </div>
@@ -162,7 +164,7 @@ export default function LearnPage() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.1em] text-[11px] group-hover:translate-x-3 transition-transform duration-500">
-                          {isCompleted ? 'Review Lesson' : 'Begin Module'} <ChevronRight className="w-5 h-5" />
+                          {isCompleted ? t.learn.review : t.learn.begin} <ChevronRight className="w-5 h-5" />
                         </div>
                       </div>
                     </div>

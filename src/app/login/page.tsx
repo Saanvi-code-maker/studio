@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,6 +14,7 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SplashScreen } from '@/components/SplashScreen';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -24,6 +26,7 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -78,7 +81,7 @@ export default function LoginPage() {
               ShikshaSetu
             </CardTitle>
             <CardDescription className="text-base font-medium mt-1">
-              Sign in to continue your learning journey
+              {t.auth.loginDesc}
             </CardDescription>
           </div>
         </CardHeader>
@@ -91,7 +94,7 @@ export default function LoginPage() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t.auth.email}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -107,7 +110,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t.auth.password}</Label>
                 <Link href="#" className="text-xs text-primary hover:underline font-bold">Forgot password?</Link>
               </div>
               <div className="relative">
@@ -132,14 +135,14 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  Sign In <ArrowRight className="ml-2 h-5 w-5" />
+                  {t.auth.loginTitle} <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
             </Button>
             <div className="text-sm text-center font-medium">
-              <span className="text-muted-foreground">New to ShikshaSetu?</span>{" "}
+              <span className="text-muted-foreground">{t.auth.noAccount}</span>{" "}
               <Link href="/signup" className="text-primary hover:underline font-black">
-                Create an account
+                {t.auth.createAccount}
               </Link>
             </div>
           </CardFooter>

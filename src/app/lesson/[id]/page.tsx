@@ -32,6 +32,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useTranslation } from '@/hooks/use-translation';
 
 const LESSON_DATA: Record<string, any> = {
   'biology-1': {
@@ -79,6 +80,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   const { id } = use(params);
   const router = useRouter();
   const { user, isUserLoading } = useUser();
+  const { t } = useTranslation();
   const lesson = LESSON_DATA[id] || LESSON_DATA['biology-1'];
   const { saveResponseWithAnalysis, completeLesson } = useStore();
   
@@ -199,11 +201,11 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       <div className="max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-700">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <Button variant="ghost" onClick={() => router.back()} className="font-bold text-primary hover:bg-primary/5 rounded-2xl">
-            <ArrowLeft className="mr-2 h-5 w-5" /> Back to Journey
+            <ArrowLeft className="mr-2 h-5 w-5" /> {t.common.back}
           </Button>
           <div className="flex-1 max-w-md space-y-2">
              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-               <span>Module Progress</span>
+               <span>{t.lesson.progress}</span>
                <span>{Math.round(progressPercent)}%</span>
              </div>
              <Progress value={progressPercent} className="h-3 rounded-full bg-primary/10" />
@@ -217,7 +219,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{lesson.topic}</span>
                   <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground border-2 uppercase tracking-widest px-3 py-1">
-                    Question {activeQuestionIndex + 1}
+                    {t.lesson.question} {activeQuestionIndex + 1}
                   </Badge>
                 </div>
                 <CardTitle className="text-3xl font-black font-headline tracking-tighter leading-tight text-foreground">{currentQuestion.text}</CardTitle>
@@ -225,9 +227,9 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
               <CardContent className="p-8 space-y-8">
                 <Tabs defaultValue="quiz" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50 p-1 rounded-2xl h-12">
-                    <TabsTrigger value="quiz" className="rounded-xl font-bold">Options</TabsTrigger>
-                    <TabsTrigger value="text" className="rounded-xl font-bold">Write</TabsTrigger>
-                    <TabsTrigger value="voice" className="rounded-xl font-bold">Speak</TabsTrigger>
+                    <TabsTrigger value="quiz" className="rounded-xl font-bold">{t.lesson.options}</TabsTrigger>
+                    <TabsTrigger value="text" className="rounded-xl font-bold">{t.lesson.write}</TabsTrigger>
+                    <TabsTrigger value="voice" className="rounded-xl font-bold">{t.lesson.speak}</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="text" className="space-y-4">
@@ -281,7 +283,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                     className="w-full h-16 text-xl font-black rounded-2xl shadow-lg bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]" 
                     disabled={!answer || isLoading}
                   >
-                    {isLoading ? <Loader2 className="animate-spin h-6 w-6" /> : 'Confirm Understanding'}
+                    {isLoading ? <Loader2 className="animate-spin h-6 w-6" /> : t.lesson.confirm}
                   </Button>
                 )}
 
@@ -295,14 +297,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         <div className="bg-emerald-500 text-white p-4 rounded-full shadow-lg shadow-emerald-500/20">
                           <Trophy className="h-8 w-8" />
                         </div>
-                        <AlertTitle className="text-4xl font-black text-emerald-800 tracking-tighter">Perfect Bridge!</AlertTitle>
+                        <AlertTitle className="text-4xl font-black text-emerald-800 tracking-tighter">{t.lesson.perfect}</AlertTitle>
                         <AlertDescription className="text-emerald-700/80 text-lg font-medium max-w-sm">
-                          Your understanding is crystal clear. You've successfully navigated this concept.
+                          {t.lesson.perfectDesc}
                         </AlertDescription>
                       </div>
                     </Alert>
                     <Button onClick={handleNext} className="w-full h-16 text-xl font-black bg-emerald-600 hover:bg-emerald-700 rounded-2xl shadow-xl shadow-emerald-600/20 active:scale-95 transition-all">
-                      Continue Path
+                      {t.lesson.continue}
                     </Button>
                   </div>
                 )}
@@ -323,7 +325,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         <div className="p-3 bg-white/15 rounded-2xl backdrop-blur-md">
                           <Lightbulb className="w-6 h-6" />
                         </div>
-                        <h3 className="text-2xl font-black font-headline tracking-tighter">Learning Bridge</h3>
+                        <h3 className="text-2xl font-black font-headline tracking-tighter">{t.lesson.bridge}</h3>
                       </div>
                       {explanation.analysisType && (
                         <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${getAnalysisBadge(explanation.analysisType).color}`}>
@@ -373,7 +375,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                     </div>
 
                     <Button variant="outline" onClick={resetState} className="w-full h-14 rounded-2xl border-2 border-white/20 bg-white/10 hover:bg-white text-white hover:text-primary font-black text-lg transition-all active:scale-95">
-                      <RotateCcw className="mr-2 h-5 w-5" /> Refine my Answer
+                      <RotateCcw className="mr-2 h-5 w-5" /> {t.lesson.refine}
                     </Button>
                   </div>
                 </Card>
@@ -386,9 +388,9 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   <Sparkles className="w-12 h-12" />
                 </div>
                 <div className="space-y-3">
-                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter">Awaiting Insight</p>
+                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter">{t.lesson.awaiting}</p>
                   <p className="text-sm font-medium text-muted-foreground/30 max-w-[200px] mx-auto leading-relaxed">
-                    Submit your answer to activate the AI Learning Bridge.
+                    {t.lesson.awaitingDesc}
                   </p>
                 </div>
               </Card>
@@ -401,7 +403,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
                 </div>
                 <div className="text-center space-y-3">
-                  <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter">Building Knowledge Bridge</p>
+                  <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter">{t.lesson.building}</p>
                   <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[180px] mx-auto">Gemini is analyzing the context of your response...</p>
                 </div>
               </Card>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,6 +14,7 @@ import { GraduationCap, Loader2, User as UserIcon, Mail, Lock, Sparkles, AlertCi
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -26,6 +28,7 @@ export default function SignupPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -101,10 +104,10 @@ export default function SignupPage() {
           </div>
           <div>
             <CardTitle className="text-3xl font-black font-headline tracking-tight text-foreground">
-              Join ShikshaSetu
+              {t.auth.signupTitle}
             </CardTitle>
             <CardDescription className="text-base font-medium mt-1">
-              Start your journey to mastery today
+              {t.auth.signupDesc}
             </CardDescription>
           </div>
         </CardHeader>
@@ -117,7 +120,7 @@ export default function SignupPage() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t.auth.fullName}</Label>
               <div className="relative">
                 <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -131,7 +134,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t.auth.email}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -146,7 +149,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.auth.password}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input 
@@ -169,13 +172,13 @@ export default function SignupPage() {
                   Creating Account...
                 </>
               ) : (
-                "Create Account"
+                t.auth.createAccount
               )}
             </Button>
             <div className="text-sm text-center font-medium">
-              <span className="text-muted-foreground">Already have an account?</span>{" "}
+              <span className="text-muted-foreground">{t.auth.haveAccount}</span>{" "}
               <Link href="/login" className="text-primary hover:underline font-black">
-                Sign in
+                {t.nav.signIn}
               </Link>
             </div>
           </CardFooter>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -11,15 +12,17 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/firebase';
+import { useTranslation } from '@/hooks/use-translation';
 
 export const Navigation = () => {
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
+  const { t } = useTranslation();
 
   const navItems = [
-    { label: 'Learn', href: '/learn', icon: BookOpen },
-    { label: 'Teacher', href: '/teacher', icon: LayoutDashboard },
-    { label: 'Profile', href: '/profile', icon: User },
+    { label: t.nav.learn, href: '/learn', icon: BookOpen },
+    { label: t.nav.teacher, href: '/teacher', icon: LayoutDashboard },
+    { label: t.nav.profile, href: '/profile', icon: User },
   ];
 
   return (
@@ -65,7 +68,7 @@ export const Navigation = () => {
                 className="flex items-center gap-2 text-sm font-black transition-all px-8 py-3 rounded-2xl bg-primary text-white shadow-xl shadow-primary/20 hover:scale-105 active:scale-95"
               >
                 <LogIn className="h-4 w-4" />
-                <span className="uppercase tracking-widest text-[11px]">Sign In</span>
+                <span className="uppercase tracking-widest text-[11px]">{t.nav.signIn}</span>
               </Link>
             ) : (
               <div className="h-10 w-32 bg-secondary/30 animate-pulse rounded-2xl" />
@@ -103,7 +106,7 @@ export const Navigation = () => {
             className="flex flex-col items-center gap-1 text-primary p-2"
           >
             <LogIn className="h-6 w-6" />
-            <span className="text-[10px] font-black uppercase tracking-tighter">Sign In</span>
+            <span className="text-[10px] font-black uppercase tracking-tighter">{t.nav.signIn}</span>
           </Link>
         ) : (
           <div className="h-10 w-full bg-secondary/10 animate-pulse rounded-xl" />
