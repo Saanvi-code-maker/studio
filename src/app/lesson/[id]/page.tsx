@@ -90,6 +90,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     text: string, 
     story: string, 
     visual: string,
+    imageUrl?: string,
     analysisType?: string,
     analysisExplanation?: string 
   } | null>(null);
@@ -124,7 +125,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     let analysisResult;
     try {
       if (!correct) {
-        // Run both analysis flows for a comprehensive Learning Bridge
         const [bridgeResult, typeResult] = await Promise.all([
           generateStudentExplanation({
             question: currentQuestion.text,
@@ -155,7 +155,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       setIsCorrect(correct);
     } catch (error) {
       console.error("Analysis failed", error);
-      // Fallback UI
       if (!correct) {
         setExplanation({
           explanation: "It looks like there's a small misunderstanding. Let's try to look at this from a different angle.",
@@ -350,28 +349,26 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                           <BookOpen className="w-16 h-16" />
                         </div>
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-4">Conceptual Story</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-4">{t.lesson.conceptualStory}</h4>
                         <p className="text-lg font-bold leading-relaxed italic relative z-10">
                           "{explanation.story}"
                         </p>
                       </div>
 
-                      {placeholder && (
-                        <div className="relative aspect-video rounded-[2.5rem] overflow-hidden border-2 border-white/20 shadow-2xl group">
-                          <Image 
-                            src={placeholder.imageUrl} 
-                            alt={placeholder.description}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                            data-ai-hint={placeholder.imageHint}
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                          <div className="absolute bottom-6 left-6 right-6">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Visual Concept</p>
-                            <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>
-                          </div>
+                      <div className="relative aspect-video rounded-[2.5rem] overflow-hidden border-2 border-white/20 shadow-2xl group">
+                        <Image 
+                          src={explanation.imageUrl || placeholder?.imageUrl || "https://picsum.photos/seed/concept/800/600"} 
+                          alt={explanation.visual || lesson.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-1000"
+                          data-ai-hint={placeholder?.imageHint || "education concept"}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="absolute bottom-6 left-6 right-6">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t.lesson.visualConcept}</p>
+                          <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>
                         </div>
-                      )}
+                      </div>
                     </div>
 
                     <Button variant="outline" onClick={resetState} className="w-full h-14 rounded-2xl border-2 border-white/20 bg-white/10 hover:bg-white text-white hover:text-primary font-black text-lg transition-all active:scale-95">

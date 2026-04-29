@@ -51,6 +51,7 @@ export const useStore = () => {
       explanation: string, 
       story: string, 
       visual: string,
+      imageUrl?: string,
       analysisType?: string,
       analysisExplanation?: string
     }
@@ -82,7 +83,7 @@ export const useStore = () => {
         explanationText: analysis.explanation,
         storyText: analysis.story,
         visualDescription: analysis.visual,
-        teacherFeedback: analysis.analysisExplanation || '',
+        imageUrl: analysis.imageUrl || '',
         generatedAt: now
       });
     }

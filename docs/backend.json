@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -98,7 +99,7 @@
         },
         "moduleId": {
           "type": "string",
-          "description": "Reference to the LearningModule this content belongs to. (Relationship: LearningModule 1:N LearningContent)"
+          "description": "Reference to the LearningModule this content belongs to."
         },
         "title": {
           "type": "string",
@@ -110,7 +111,16 @@
         },
         "contentBody": {
           "type": "string",
-          "description": "The main textual body of the content, if applicable (e.g., a markdown lesson)."
+          "description": "The main textual body of the content."
+        },
+        "storyText": {
+          "type": "string",
+          "description": "A relatable story or analogy for the concept."
+        },
+        "conceptImageUrl": {
+          "type": "string",
+          "description": "URL to a visual representation of the concept story.",
+          "format": "uri"
         },
         "mediaUrl": {
           "type": "string",
@@ -147,7 +157,7 @@
         },
         "learningContentId": {
           "type": "string",
-          "description": "Reference to the LearningContent this question is associated with. (Relationship: LearningContent 1:N Question)"
+          "description": "Reference to the LearningContent this question is associated with."
         },
         "questionText": {
           "type": "string",
@@ -166,7 +176,7 @@
         },
         "correctAnswer": {
           "type": "string",
-          "description": "The correct answer to the question. For multiple choice, this could be the text of the correct option or an identifier."
+          "description": "The correct answer to the question."
         },
         "languageCode": {
           "type": "string",
@@ -174,7 +184,7 @@
         },
         "difficulty": {
           "type": "string",
-          "description": "The perceived difficulty level of the question (e.g., 'easy', 'medium', 'hard')."
+          "description": "The perceived difficulty level of the question."
         }
       },
       "required": [
@@ -190,7 +200,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "StudentResponse",
       "type": "object",
-      "description": "Records a student's answer to a specific question, including their response and when it was submitted.",
+      "description": "Records a student's answer to a specific question.",
       "properties": {
         "id": {
           "type": "string",
@@ -198,15 +208,19 @@
         },
         "studentId": {
           "type": "string",
-          "description": "Reference to the User (student) who submitted this response. (Relationship: User 1:N StudentResponse)"
+          "description": "Reference to the User (student) who submitted this response."
         },
         "questionId": {
           "type": "string",
-          "description": "Reference to the Question that was answered. (Relationship: Question 1:N StudentResponse)"
+          "description": "Reference to the Question that was answered."
         },
         "responseValue": {
           "type": "string",
           "description": "The actual answer provided by the student."
+        },
+        "isCorrect": {
+          "type": "boolean",
+          "description": "Whether the response was correct."
         },
         "submittedAt": {
           "type": "string",
@@ -226,7 +240,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "AIAnalysis",
       "type": "object",
-      "description": "Stores the results of the AI's analysis of a student's response, including identified issues and generated explanations.",
+      "description": "Stores the results of the AI's analysis of a student's response.",
       "properties": {
         "id": {
           "type": "string",
@@ -234,37 +248,45 @@
         },
         "studentResponseId": {
           "type": "string",
-          "description": "Reference to the StudentResponse that was analyzed. (Relationship: StudentResponse 1:1 AIAnalysis)"
+          "description": "Reference to the StudentResponse that was analyzed."
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Denormalized student ID for security rules."
         },
         "analysisResultType": {
           "type": "string",
-          "description": "The type of understanding identified by the AI (e.g., 'confusion', 'guessing', 'partialKnowledge', 'correct')."
+          "description": "The type of understanding identified by the AI."
         },
         "explanationText": {
           "type": "string",
-          "description": "The generated textual explanation provided by the AI to address the student's understanding."
+          "description": "The generated textual explanation provided by the AI."
         },
-        "explanationType": {
+        "storyText": {
           "type": "string",
-          "description": "The format or style of the explanation (e.g., 'simpleLanguage', 'story', 'imageDescription')."
+          "description": "A short story or analogy generated to clarify the concept."
+        },
+        "visualDescription": {
+          "type": "string",
+          "description": "Description for the image representation of the bridge."
         },
         "imageUrl": {
           "type": "string",
-          "description": "URL to a supplementary image, if the explanation type involves visual aids.",
+          "description": "URL to a supplementary image.",
           "format": "uri"
         },
         "generatedAt": {
           "type": "string",
-          "description": "Timestamp when the AI analysis and explanation were generated.",
+          "description": "Timestamp when the AI analysis was generated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "studentResponseId",
+        "studentId",
         "analysisResultType",
         "explanationText",
-        "explanationType",
         "generatedAt"
       ]
     }
@@ -284,13 +306,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores individual user profiles, accessible by the user themselves (read/write) and teachers (read). The `userId` matches `request.auth.uid`. Includes `role` for general identification but relies on `/teachers/{teacherId}` for explicit DBAC.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user, matching Firebase Authentication UID."
-            }
-          ]
+          "description": "Stores individual user profiles."
         }
       },
       {
@@ -300,13 +316,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "A top-level collection used for Database Access Control (DBAC). The mere existence of a document here (where `teacherId` matches `request.auth.uid`) grants teacher privileges. No specific data beyond the UID is required, though a full user profile can be mirrored.",
-          "params": [
-            {
-              "name": "teacherId",
-              "description": "The unique ID of a teacher, matching Firebase Authentication UID."
-            }
-          ]
+          "description": "DBAC collection for teachers."
         }
       },
       {
@@ -316,13 +326,7 @@
           "schema": {
             "$ref": "#/backend/entities/LearningModule"
           },
-          "description": "Globally accessible learning modules. All signed-in students and teachers can read. Only teachers can create, update, or delete modules. This structure supports QAPs for listing all available modules.",
-          "params": [
-            {
-              "name": "moduleId",
-              "description": "The unique ID of the learning module."
-            }
-          ]
+          "description": "Global learning modules."
         }
       },
       {
@@ -332,17 +336,7 @@
           "schema": {
             "$ref": "#/backend/entities/LearningContent"
           },
-          "description": "Individual pieces of learning content nested within specific learning modules. All signed-in students and teachers can read. Only teachers can manage (create, update, delete) content. Includes denormalized `moduleId` for direct content-to-module association, which also supports efficient queries.",
-          "params": [
-            {
-              "name": "moduleId",
-              "description": "The unique ID of the parent learning module."
-            },
-            {
-              "name": "contentId",
-              "description": "The unique ID of the learning content item."
-            }
-          ]
+          "description": "Content within modules."
         }
       },
       {
@@ -352,21 +346,7 @@
           "schema": {
             "$ref": "#/backend/entities/Question"
           },
-          "description": "Assessment questions nested within specific learning content. All signed-in students and teachers can read. Only teachers can manage (create, update, delete) questions. Includes denormalized `learningContentId` for direct question-to-content association, supporting efficient queries and QAPs for listing questions within content.",
-          "params": [
-            {
-              "name": "moduleId",
-              "description": "The unique ID of the parent learning module."
-            },
-            {
-              "name": "contentId",
-              "description": "The unique ID of the parent learning content item."
-            },
-            {
-              "name": "questionId",
-              "description": "The unique ID of the question."
-            }
-          ]
+          "description": "Questions within content."
         }
       },
       {
@@ -376,13 +356,7 @@
           "schema": {
             "$ref": "#/backend/entities/StudentResponse"
           },
-          "description": "Records individual student answers to questions. Students can read/write their own responses. Teachers can read all responses (for dashboard/insights). Crucially, includes `studentId` (already in schema) for authorization independence, allowing `request.auth.uid == resource.data.studentId` rules for robust QAPs and atomic operations.",
-          "params": [
-            {
-              "name": "responseId",
-              "description": "The unique ID of the student's response."
-            }
-          ]
+          "description": "Student answers."
         }
       },
       {
@@ -392,16 +366,9 @@
           "schema": {
             "$ref": "#/backend/entities/AIAnalysis"
           },
-          "description": "Stores AI-generated analyses and explanations tied to student responses. Students can read their own analyses. Teachers can read all analyses. **CRITICAL: This document must include a denormalized `studentId` (copied from the associated `StudentResponse`) for authorization independence, enabling `request.auth.uid == resource.data.studentId` in security rules without fetching parent documents.** Also includes `studentResponseId` for 1:1 association.",
-          "params": [
-            {
-              "name": "analysisId",
-              "description": "The unique ID of the AI analysis."
-            }
-          ]
+          "description": "AI-generated feedback."
         }
       }
-    ],
-    "reasoning": "The Firestore data structure is designed to adhere strictly to the CORE DESIGN PRINCIPLES and DESIGN STRATEGY MANDATES, prioritizing Authorization Independence, Clarity of Intent, DBAC, and QAPs. \n\n1.  **Authorization Independence (Denormalization Strategy):**\n    *   **User Profiles (`/users/{userId}`):** User profiles are stored under `/users/{userId}`, where `userId` is directly derived from `request.auth.uid`. This path-based ownership inherently provides authorization independence, as users can only access their own document directly. \n    *   **Teacher Roles (`/teachers/{teacherId}`):** A dedicated top-level collection `/teachers/{teacherId}` is used for Database Access Control (DBAC). The mere existence of a document at `/teachers/{request.auth.uid}` explicitly grants teacher privileges, eliminating the need for `get()` calls on `User` profiles to check roles in rules, thus ensuring authorization independence for role checks.\n    *   **Student Responses (`/studentResponses/{responseId}`):** To ensure authorization independence, each `StudentResponse` document includes the `studentId` field. This allows security rules to evaluate access (`request.auth.uid == resource.data.studentId`) without needing to fetch any parent document, supporting atomic operations.\n    *   **AI Analysis (`/aiAnalyses/{analysisId}`):** Similarly, each `AIAnalysis` document **critically denormalizes the `studentId`** (copied from its associated `StudentResponse`). This enables direct authorization checks (`request.auth.uid == resource.data.studentId`) within the rules, completely independent of fetching the parent `StudentResponse` or `User` document. \n    *   **Learning Content (`/learningModules/.../questions`):** Learning content, modules, and questions are public for students (read-only) and managed by teachers (read/write). Their hierarchical structure (`/learningModules/{moduleId}/contents/{contentId}/questions/{questionId}`) primarily serves organization and efficient querying, rather than defining unique authorization per parent. Since their access posture is uniform, no specific denormalization for sub-collections is required beyond the inherent rule for the collection itself.\n\n2.  **QAPs (Secure List Operations):**\n    *   **Public Content (`/learningModules`, `/learningModules/{moduleId}/contents`, `/learningModules/{moduleId}/contents/{contentId}/questions`):** These collections are designed for broad `list` access by all authenticated users (students and teachers), fulfilling QAPs. Teachers have `create`/`update`/`delete` access, which is controlled by the `isTeacher()` DBAC check.\n    *   **Student-Specific Data (`/studentResponses`, `/aiAnalyses`):** For students, `list` operations are secured by explicitly filtering on the denormalized `studentId` (e.g., `db.collection('studentResponses').where('studentId', '==', auth.uid)`). Rules ensure `request.auth.uid == resource.data.studentId` for individual document access. For teachers, `list` access is granted across all documents in these collections, secured by the `isTeacher()` DBAC check.\n    *   **User Profiles (`/users`):** Students can `list` their own profile, teachers can `list` all profiles, which is handled by a combination of `request.auth.uid == userId` and `isTeacher()` rules, supporting QAPs.\n\nThis structure ensures a clear, debuggable, and scalable security model by minimizing rule complexity and maximizing authorization independence through strategic denormalization and structural segregation."
+    ]
   }
 }
