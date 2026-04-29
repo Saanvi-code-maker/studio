@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -42,7 +43,6 @@ export default function TeacherPage() {
 
   const responsesQuery = useMemoFirebase(() => {
     if (!db || !user || !teacherDoc) return null;
-    // Querying student responses for the whole class
     return collection(db, 'studentResponses');
   }, [db, user, teacherDoc]);
 
@@ -57,7 +57,7 @@ export default function TeacherPage() {
         ?.filter(r => topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      // AI Analysis
+      // If no actual responses yet, use indicative data for demonstration
       const inputResponses = relevantResponses.length > 0 ? relevantResponses : [
         "Mitochondria is only in plant cells because they need to grow.",
         "Cells are just blocks of matter with no life.",
