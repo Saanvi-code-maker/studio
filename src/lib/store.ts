@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -7,13 +8,7 @@ export interface StudentProgress {
   userId: string;
   completedLessons: string[];
   lastAccessed: any;
-  responses: {
-    lessonId: string;
-    questionId: string;
-    answer: string;
-    isCorrect: boolean;
-    timestamp: string;
-  }[];
+  responses: any[];
 }
 
 export const useStore = () => {
@@ -27,46 +22,49 @@ export const useStore = () => {
 
   const { data: progressData, isLoading } = useDoc(userDocRef);
 
-  const saveResponse = (lessonId: string, questionId: string, answer: string, isCorrect: boolean) => {
+  const saveResponseWithAnalysis = (
+    lessonId: string, 
+    questionId: string, 
+    answer: string, 
+    isCorrect: boolean,
+    analysis?: { explanation: string, story: string, visual: string }
+  ) => {
     if (!db || !user || !userDocRef) return;
     
     const responseId = crypto.randomUUID();
     const now = new Date().toISOString();
     
     const responseData = {
-      lessonId,
-      questionId,
-      answer,
-      isCorrect,
-      timestamp: now,
-    };
-
-    // 1. Update user profile for student view
-    updateDoc(userDocRef, {
-      responses: arrayUnion(responseData),
-      updatedAt: serverTimestamp()
-    }).catch(err => {
-      // Initialize if doesn't exist (failsafe)
-      setDoc(userDocRef, {
-        id: user.uid,
-        email: user.email,
-        responses: [responseData],
-        completedLessons: [],
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    });
-
-    // 2. Save to top-level studentResponses for teacher visibility
-    const studentResponseRef = doc(db, 'studentResponses', responseId);
-    setDoc(studentResponseRef, {
       id: responseId,
-      studentId: user.uid,
       lessonId,
       questionId,
       responseValue: answer,
       isCorrect,
-      submittedAt: now
+      submittedAt: now,
+      studentId: user.uid,
+    };
+
+    // 1. Save to top-level studentResponses
+    setDoc(doc(db, 'studentResponses', responseId), responseData);
+
+    // 2. If wrong, save AI Analysis
+    if (!isCorrect && analysis) {
+      const analysisId = crypto.randomUUID();
+      setDoc(doc(db, 'aiAnalyses', analysisId), {
+        id: analysisId,
+        studentResponseId: responseId,
+        studentId: user.uid,
+        analysisResultType: 'incorrect',
+        explanationText: analysis.explanation,
+        storyText: analysis.story,
+        visualDescription: analysis.visual,
+        generatedAt: now
+      });
+    }
+
+    // 3. Update user profile
+    updateDoc(userDocRef, {
+      updatedAt: serverTimestamp()
     });
   };
 
@@ -82,7 +80,7 @@ export const useStore = () => {
   return { 
     progress: progressData, 
     isLoading,
-    saveResponse, 
+    saveResponseWithAnalysis, 
     completeLesson 
   };
 };

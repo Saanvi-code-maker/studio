@@ -1,3 +1,23 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "cell-analogy",
+      "description": "A bustling city representing a cell",
+      "imageUrl": "https://picsum.photos/seed/cellcity/800/600",
+      "imageHint": "busy city"
+    },
+    {
+      "id": "geometry-analogy",
+      "description": "Pieces of a pie forming a circle or triangle",
+      "imageUrl": "https://picsum.photos/seed/geometry/800/600",
+      "imageHint": "geometry shapes"
+    },
+    {
+      "id": "history-analogy",
+      "description": "Ancient architects planning a monumental build",
+      "imageUrl": "https://picsum.photos/seed/history/800/600",
+      "imageHint": "ancient egypt"
+    }
+  ]
 }

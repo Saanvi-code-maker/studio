@@ -1,8 +1,9 @@
+
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for generating personalized explanations for students.
+ * @fileOverview This file defines a Genkit flow for generating personalized stories and visual explanations for students.
  *
- * - generateStudentExplanation - A function that handles the generation of a personalized explanation.
+ * - generateStudentExplanation - A function that handles the generation of a personalized story-based explanation.
  * - GenerateStudentExplanationInput - The input type for the generateStudentExplanation function.
  * - GenerateStudentExplanationOutput - The return type for the generateStudentExplanation function.
  */
@@ -18,16 +19,12 @@ const GenerateStudentExplanationInputSchema = z.object({
     .enum(['confused', 'guessing', 'partial_knowledge', 'incorrect'])
     .optional()
     .describe(
-      'An optional indicator of the student\'s understanding level (e.g., \'confused\', \'partial_knowledge\', \'guessing\').'
+      'An optional indicator of the student\'s understanding level.'
     ),
   context: z
     .string()
     .optional()
     .describe('Any additional context about the lesson or topic.'),
-  language: z
-    .string()
-    .optional()
-    .describe('The desired language for the explanation, e.g., \'English\', \'Spanish\'.'),
 });
 export type GenerateStudentExplanationInput = z.infer<
   typeof GenerateStudentExplanationInputSchema
@@ -36,13 +33,13 @@ export type GenerateStudentExplanationInput = z.infer<
 const GenerateStudentExplanationOutputSchema = z.object({
   explanation: z
     .string()
-    .describe('The personalized explanation for the student.'),
+    .describe('A clear, simple explanation addressed to the student.'),
+  story: z
+    .string()
+    .describe('A short, relatable story or analogy (max 3 sentences) that simplifies the core concept.'),
   visualDescription: z
     .string()
-    .optional()
-    .describe(
-      'An optional textual description for an image that could visually represent the explanation, to be used by an image generation model.'
-    ),
+    .describe('A textual description for an image that visually represents the story/analogy.'),
 });
 export type GenerateStudentExplanationOutput = z.infer<
   typeof GenerateStudentExplanationOutputSchema
@@ -58,35 +55,23 @@ const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
-  prompt: `You are an empathetic and clear educator creating personalized explanations for students.
-The student answered a question, and their response indicates some confusion or incorrect understanding.
-Your goal is to provide a clear, simple explanation tailored to their specific misunderstanding, using analogies, short stories, or visual concepts.
+  prompt: `You are an empathetic and creative educator creating "Learning Bridges" for students.
+When a student is incorrect, you provide a clear explanation AND a short, relatable story/analogy.
 
-Here's the information:
 Question: {{{question}}}
 Correct Answer: {{{correctAnswer}}}
 Student's Answer: {{{studentAnswer}}}
 
-{{#if studentUnderstandingLevel}}
-Based on my assessment, the student's understanding level is: {{{studentUnderstandingLevel}}}.
-{{/if}}
-
 {{#if context}}
-Additional context for the lesson: {{{context}}}
+Context: {{{context}}}
 {{/if}}
 
-{{#if language}}
-Provide the explanation in {{{language}}}.
-{{/if}}
+Please generate:
+1. **Explanation**: Directly address why the answer is wrong and explain the correct concept simply.
+2. **Story**: Create a 2-3 sentence story or analogy. (e.g., If the topic is mitochondria, compare it to a power plant in a city).
+3. **Visual Description**: Describe a simple illustration that matches your story.
 
-Please generate an explanation that:
-1.  Directly addresses the likely misunderstanding based on the student's answer and the correct answer.
-2.  Uses simple language appropriate for a student.
-3.  Incorporates an analogy or a short, relatable story to make the concept clearer.
-4.  Provides a textual description for an image that would visually represent the explanation, if an image would significantly aid understanding. If no image is needed, leave the 'visualDescription' empty.
-
-Your response should be structured as a JSON object matching the output schema described. Do not include any other text besides the JSON.
-`,
+Structure your response as a JSON object matching the output schema.`,
 });
 
 const generateStudentExplanationFlow = ai.defineFlow(
@@ -96,34 +81,10 @@ const generateStudentExplanationFlow = ai.defineFlow(
     outputSchema: GenerateStudentExplanationOutputSchema,
   },
   async (input) => {
-    let retryCount = 0;
-    const maxRetries = 3;
-
-    while (retryCount < maxRetries) {
-      try {
-        const { output } = await prompt(input);
-        if (!output) {
-          throw new Error('Failed to generate explanation: AI output was empty.');
-        }
-        return output;
-      } catch (error: any) {
-        const errorMessage = error?.message || String(error);
-        const isRetryable = 
-          errorMessage.includes('503') || 
-          errorMessage.includes('UNAVAILABLE') || 
-          errorMessage.includes('429') ||
-          errorMessage.includes('404') ||
-          errorMessage.includes('not found') ||
-          errorMessage.includes('high demand');
-
-        if (isRetryable && retryCount < maxRetries - 1) {
-          retryCount++;
-          await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-          continue;
-        }
-        throw error;
-      }
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error('Failed to generate explanation.');
     }
-    throw new Error('Generation failed after multiple attempts due to service issues.');
+    return output;
   }
 );
