@@ -82,8 +82,8 @@ export default function TeacherPage() {
       { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' },
       { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' },
       { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' },
-      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' }
-    ].filter(d => d.value > 0);
+      { name: 'Correct', value: Math.max(0, total - analyses.length), color: '#10b981' }
+    ].filter(d => d.value > 0 || d.name === 'Correct');
 
     return { mastery, total, chartData };
   }, [responses, analyses]);
@@ -122,12 +122,12 @@ export default function TeacherPage() {
         .map(r => r.responseValue) || [];
 
       // Fallback example data if no responses exist for the demo
-      const inputResponses = relevantResponses.length > 3 ? relevantResponses : [
-        "Mitochondria is only in plant cells.",
-        "Cells are the same as bricks.",
-        "The nucleus is optional.",
-        "Plant cells don't have energy.",
-        "Triangle sum is 90 degrees."
+      const inputResponses = relevantResponses.length > 2 ? relevantResponses : [
+        "Cells are just blocks of meat.",
+        "Mitochondria doesn't exist in plants.",
+        "The nucleus is only for DNA storage but does nothing else.",
+        "Angle sum in triangle can be anything depending on size.",
+        "History pyramids were made by aliens maybe."
       ];
 
       const result = await summarizeCommonMisconceptions({
@@ -151,10 +151,10 @@ export default function TeacherPage() {
     if (teacherDoc && responses) {
       fetchInsights(activeTopic);
     }
-  }, [activeTopic, teacherDoc, responses?.length]);
+  }, [activeTopic, !!teacherDoc, !!responses]);
 
   if (isUserLoading || isTeacherCheckLoading || isResponsesLoading || isAnalysesLoading) {
-    return <SplashScreen message="Syncing Educator Intelligence" />;
+    return <SplashScreen message={t.teacher.synthesizing} />;
   }
 
   if (!user) return null;
@@ -198,7 +198,7 @@ export default function TeacherPage() {
               {t.teacher.title} <span className="text-primary">{t.teacher.subtitle}</span>
             </h1>
             <p className="text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed">
-              Converting student cognitive patterns into specialized teaching interventions.
+              Turning student response patterns into specialized adaptive teaching strategies.
             </p>
           </div>
           <Button 
