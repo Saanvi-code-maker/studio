@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 129 44% 97%; /* #EFF9F0 - Soft background */
-    --foreground: 129 40% 10%;
+    --background: 210 40% 98%; /* Very light blue-tinted white */
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 129 40% 10%;
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 129 40% 10%;
-    --primary: 129 33% 49%; /* #52A65F - Growth Green */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 129 30% 90%;
-    --secondary-foreground: 129 40% 20%;
-    --muted: 129 10% 92%;
-    --muted-foreground: 129 20% 40%;
-    --accent: 82 59% 54%; /* #9ECF46 - Lively Chartreuse */
-    --accent-foreground: 129 40% 10%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%; /* Professional Blue */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 217.2 91.2% 59.8%; /* Lively Accent Blue */
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 129 20% 85%;
-    --input: 129 20% 85%;
-    --ring: 129 33% 49%;
-    --radius: 0.75rem;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
   }
 }
 
@@ -35,11 +35,10 @@
     @apply bg-background text-foreground font-body antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-bold;
+    @apply font-headline font-bold tracking-tight;
   }
 }
 
-/* Smooth transitions for interactive elements */
 .lesson-card-transition {
   @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
 }

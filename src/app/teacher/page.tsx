@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
-import { AlertTriangle, Lightbulb, TrendingUp, Loader2, Sparkles, RefreshCw, BarChart3, ShieldAlert } from 'lucide-react';
+import { AlertTriangle, Lightbulb, TrendingUp, Loader2, Sparkles, RefreshCw, BarChart3, ShieldAlert, Users, BrainCircuit } from 'lucide-react';
 
 export default function TeacherPage() {
   const router = useRouter();
@@ -19,7 +19,6 @@ export default function TeacherPage() {
   const [loading, setLoading] = useState(false);
   const db = useFirestore();
 
-  // Check if user is a teacher via DBAC
   const teacherDocRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'teachers', user.uid);
@@ -27,7 +26,6 @@ export default function TeacherPage() {
 
   const { data: teacherDoc, isLoading: isTeacherCheckLoading } = useDoc(teacherDocRef);
 
-  // Real-time student responses for the dashboard - teachers only
   const responsesQuery = useMemoFirebase(() => {
     if (!db || !user || !teacherDoc) return null;
     return collection(db, 'studentResponses');
@@ -39,18 +37,15 @@ export default function TeacherPage() {
     if (!user || !teacherDoc) return;
     setLoading(true);
     try {
-      // Filter responses for the specific topic
       const relevantResponses = responses
         ?.filter(r => r.lessonId?.includes(topic.toLowerCase().split(' ')[0]))
-        .map(r => r.answer || r.responseValue) || [];
+        .map(r => r.responseValue) || [];
 
-      // Use mocks if no real data yet to keep dashboard useful for initial view
-      const inputResponses = relevantResponses.length > 5 ? relevantResponses : [
-        "The mitochondria is just a decoration in the cell.",
-        "Ribosomes make energy for the cell.",
-        "Cells are only found in humans, not plants.",
-        "The nucleus is the powerhouse of the cell.",
-        "Cells are made of tiny blocks of plastic."
+      const inputResponses = relevantResponses.length > 3 ? relevantResponses : [
+        "Mitochondria is only in plants.",
+        "Cells are just blocks of matter.",
+        "The nucleus has no function.",
+        "Energy is created by the cell walls."
       ];
 
       const result = await summarizeCommonMisconceptions({
@@ -59,7 +54,7 @@ export default function TeacherPage() {
       });
       setInsights(result);
     } catch (error) {
-      console.error("Failed to fetch teacher insights", error);
+      console.error("Teacher insights failure", error);
     }
     setLoading(false);
   };
@@ -79,33 +74,30 @@ export default function TeacherPage() {
   if (isUserLoading || isTeacherCheckLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <p className="text-muted-foreground animate-pulse">Verifying credentials...</p>
-        </div>
+        <Loader2 className="h-10 w-10 text-primary animate-spin" />
       </div>
     );
   }
 
   if (!user) return null;
 
-  if (!teacherDoc && !isTeacherCheckLoading) {
+  if (!teacherDoc) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-background">
         <Navigation />
         <Card className="max-w-md w-full border-2 border-destructive/20 shadow-2xl">
           <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center text-destructive mb-4">
+            <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center text-destructive mb-6">
               <ShieldAlert className="w-10 h-10" />
             </div>
-            <CardTitle className="text-2xl font-black">Access Restricted</CardTitle>
-            <CardDescription className="text-lg">
-              This dashboard is only available for verified educators.
+            <CardTitle className="text-3xl font-black">Access Denied</CardTitle>
+            <CardDescription className="text-lg font-medium">
+              Verified educator credentials are required to access this dashboard.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center pb-8">
-            <Button variant="outline" onClick={() => router.push('/learn')}>
-              Return to Student View
+          <CardContent className="flex justify-center pb-10">
+            <Button variant="outline" className="border-2 font-bold" onClick={() => router.push('/learn')}>
+              Return to Student Portal
             </Button>
           </CardContent>
         </Card>
@@ -114,119 +106,112 @@ export default function TeacherPage() {
   }
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background">
+    <div className="min-h-screen pb-24 md:pt-24 bg-background">
       <Navigation />
-      <div className="max-w-6xl mx-auto p-6 space-y-8">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground font-headline">
-              Teacher Insights
+      <div className="max-w-7xl mx-auto px-6 space-y-12">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
+              <BrainCircuit className="w-4 h-4" />
+              Educator Analytics
+            </div>
+            <h1 className="text-6xl font-black tracking-tight text-foreground font-headline">
+              Class intelligence.
             </h1>
-            <p className="text-lg text-muted-foreground">Actionable intelligence to bridge learning gaps.</p>
+            <p className="text-xl text-muted-foreground font-medium max-w-2xl">
+              AI-driven insights to bridge learning gaps and optimize student outcomes.
+            </p>
           </div>
           <Button 
-            className="shadow-lg h-12 px-6 font-bold bg-primary hover:bg-primary/90" 
+            className="h-14 px-8 text-lg font-bold shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95" 
             onClick={() => fetchInsights(activeTopic)} 
             disabled={loading}
           >
-            {loading ? <Loader2 className="animate-spin mr-2" /> : <RefreshCw className="mr-2 h-5 w-5" />}
-            Regenerate Insights
+            {loading ? <Loader2 className="animate-spin mr-3 h-5 w-5" /> : <RefreshCw className="mr-3 h-5 w-5" />}
+            Refresh Analysis
           </Button>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-l-4 border-l-primary shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Active Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-primary">{responses?.length || 0}</div>
-              <div className="flex items-center gap-1 mt-2 text-xs font-medium text-primary">
-                <TrendingUp className="w-3 h-3" />
-                <span>Student Responses</span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-accent shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Global Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-accent">72%</div>
-              <p className="text-xs font-medium text-muted-foreground mt-2">Class average completion</p>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-orange-400 shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Topic Alerts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-orange-500">3</div>
-              <p className="text-xs font-medium text-orange-500/80 mt-2">High misconception rate</p>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-blue-400 shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-bold uppercase text-muted-foreground tracking-widest">AI Bridges</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-black text-blue-500">24</div>
-              <p className="text-xs font-medium text-muted-foreground mt-2">Individual explanations</p>
-            </CardContent>
-          </Card>
+          {[
+            { label: 'Participation', value: responses?.length || 0, icon: Users, color: 'text-primary', border: 'border-l-primary' },
+            { label: 'Avg. Mastery', value: '74%', icon: TrendingUp, color: 'text-emerald-600', border: 'border-l-emerald-500' },
+            { label: 'Critical Gaps', value: '2', icon: AlertTriangle, color: 'text-orange-500', border: 'border-l-orange-500' },
+            { label: 'AI Bridges', value: '18', icon: Sparkles, color: 'text-indigo-600', border: 'border-l-indigo-500' }
+          ].map((stat, i) => (
+            <Card key={stat.label} className={`border-2 border-l-[6px] ${stat.border} shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-lg`}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-2">
+                  <stat.icon className={`w-5 h-5 ${stat.color} opacity-60`} />
+                  <Badge variant="outline" className="text-[10px] font-bold opacity-40 uppercase">Stat {i+1}</Badge>
+                </div>
+                <div className={`text-4xl font-black ${stat.color}`}>{stat.value}</div>
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 mt-1">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <Tabs defaultValue="Cell Biology" className="w-full" onValueChange={setActiveTopic}>
-          <div className="bg-card p-1 rounded-xl shadow-sm border-2 mb-8 max-w-fit">
+          <div className="bg-white p-1.5 rounded-2xl shadow-sm border-2 inline-flex mb-10">
              <TabsList className="bg-transparent h-auto p-0">
-               <TabsTrigger value="Cell Biology" className="data-[state=active]:bg-primary data-[state=active]:text-white h-11 px-8 font-bold transition-all rounded-lg">Cell Biology</TabsTrigger>
-               <TabsTrigger value="Geometry" className="data-[state=active]:bg-primary data-[state=active]:text-white h-11 px-8 font-bold transition-all rounded-lg">Geometry</TabsTrigger>
-               <TabsTrigger value="History" className="data-[state=active]:bg-primary data-[state=active]:text-white h-11 px-8 font-bold transition-all rounded-lg">History</TabsTrigger>
+               {['Cell Biology', 'Geometry', 'History'].map(topic => (
+                 <TabsTrigger 
+                   key={topic}
+                   value={topic} 
+                   className="data-[state=active]:bg-primary data-[state=active]:text-white h-12 px-10 font-black transition-all rounded-xl text-muted-foreground uppercase tracking-widest text-xs"
+                 >
+                   {topic}
+                 </TabsTrigger>
+               ))}
              </TabsList>
           </div>
 
-          <TabsContent value={activeTopic} className="space-y-8 mt-0 outline-none">
+          <TabsContent value={activeTopic} className="space-y-10 outline-none">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-32 space-y-6 bg-card rounded-3xl border-2 border-dashed border-primary/20 animate-in fade-in zoom-in-95">
+              <div className="flex flex-col items-center justify-center py-40 space-y-8 bg-white rounded-[2.5rem] border-2 border-dashed border-primary/20 animate-in fade-in zoom-in-95">
                 <div className="relative">
-                  <Loader2 className="w-20 h-20 text-primary animate-spin" />
-                  <Sparkles className="absolute -top-3 -right-3 w-8 h-8 text-accent animate-pulse" />
+                  <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
+                  <Loader2 className="w-24 h-24 text-primary animate-spin relative" />
+                  <Sparkles className="absolute -top-4 -right-4 w-10 h-10 text-accent animate-bounce" />
                 </div>
-                <div className="text-center space-y-2">
-                  <p className="text-2xl font-black text-foreground font-headline">AI Analysis Engine</p>
-                  <p className="text-muted-foreground max-w-sm">Synthesizing common misunderstandings from real-time student data...</p>
+                <div className="text-center space-y-3">
+                  <p className="text-3xl font-black text-foreground font-headline">Synthesizing Class Data</p>
+                  <p className="text-muted-foreground max-w-sm font-medium">Processing student responses with AI to identify systemic misunderstandings...</p>
                 </div>
               </div>
             ) : insights ? (
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 animate-in slide-in-from-bottom-4 duration-700">
-                <div className="lg:col-span-3 space-y-8">
-                  <Card className="overflow-hidden border-2 shadow-xl">
-                    <div className="bg-orange-50 px-6 py-5 border-b-2 border-orange-100 flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-orange-700 font-black font-headline">
-                        <AlertTriangle className="w-7 h-7" />
-                        Key Misconceptions
-                      </CardTitle>
-                      <BarChart3 className="w-6 h-6 text-orange-300" />
-                    </div>
-                    <CardContent className="p-8">
-                      <div className="space-y-5">
-                        {insights.commonMisconceptions.map((m: string, i: number) => (
-                          <div key={i} className="group flex items-start gap-5 p-6 bg-orange-50/20 rounded-2xl border-2 border-transparent hover:border-orange-200 transition-all cursor-default">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-black text-lg">
-                              {i+1}
-                            </div>
-                            <p className="text-foreground text-lg leading-relaxed font-medium">{m}</p>
-                          </div>
-                        ))}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 animate-in slide-in-from-bottom-8 duration-1000">
+                <div className="lg:col-span-7 space-y-10">
+                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[2rem]">
+                    <div className="bg-primary/5 px-8 py-6 border-b-2 border-primary/10 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-primary rounded-xl text-white">
+                          <AlertTriangle className="w-6 h-6" />
+                        </div>
+                        <CardTitle className="text-2xl font-black font-headline text-primary">
+                          Major Misconceptions
+                        </CardTitle>
                       </div>
+                      <Badge variant="outline" className="border-primary/20 text-primary font-bold">Priority View</Badge>
+                    </div>
+                    <CardContent className="p-8 space-y-6">
+                      {insights.commonMisconceptions.map((m: string, i: number) => (
+                        <div key={i} className="group flex items-start gap-6 p-6 bg-secondary/30 rounded-2xl border-2 border-transparent hover:border-primary/20 transition-all">
+                          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white border-2 flex items-center justify-center text-primary font-black text-xl shadow-sm">
+                            {i+1}
+                          </div>
+                          <p className="text-foreground text-lg leading-relaxed font-bold group-hover:text-primary transition-colors">{m}</p>
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
 
-                  <Card className="border-2 shadow-xl">
-                    <CardHeader className="border-b-2 border-muted/30 p-6">
-                      <CardTitle className="flex items-center gap-2 text-primary font-black font-headline">
-                        <TrendingUp className="w-7 h-7" />
-                        Pattern Synthesis
+                  <Card className="border-2 shadow-xl rounded-[2rem] bg-secondary/10">
+                    <CardHeader className="p-8 border-b-2 border-border/50">
+                      <CardTitle className="flex items-center gap-3 text-primary font-black font-headline text-xl">
+                        <BarChart3 className="w-6 h-6" />
+                        Executive Summary
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-8">
@@ -237,27 +222,30 @@ export default function TeacherPage() {
                   </Card>
                 </div>
 
-                <div className="lg:col-span-2 space-y-8">
-                  <Card className="border-2 border-accent/40 bg-accent/5 shadow-2xl relative overflow-hidden h-full">
-                    <div className="absolute -top-10 -right-10 p-4 opacity-10">
-                      <Sparkles className="w-48 h-48 text-accent" />
+                <div className="lg:col-span-5">
+                  <Card className="border-2 border-primary/20 bg-primary shadow-2xl rounded-[2.5rem] h-full overflow-hidden relative">
+                    <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12">
+                      <Lightbulb className="w-64 h-64 text-white" />
                     </div>
-                    <CardHeader className="relative p-8">
-                      <CardTitle className="flex items-center gap-2 text-accent-foreground font-black uppercase tracking-widest text-sm mb-2">
-                        <Lightbulb className="w-6 h-6 text-accent" />
-                        Teaching Strategy
+                    <CardHeader className="p-10 relative">
+                      <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/10 rounded-full text-white font-bold uppercase tracking-widest text-[10px] mb-4 backdrop-blur-md">
+                        <Sparkles className="w-4 h-4" />
+                        AI Teaching Assistant
+                      </div>
+                      <CardTitle className="text-4xl font-black text-white font-headline leading-tight">
+                        Next Lesson Strategies
                       </CardTitle>
-                      <CardDescription className="text-lg font-bold text-accent-foreground/80 leading-snug">
-                        AI-generated interventions for your next lesson
+                      <CardDescription className="text-lg font-medium text-white/70 leading-relaxed mt-4">
+                        Data-driven interventions tailored to your current class performance.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6 relative p-8 pt-0">
+                    <CardContent className="p-10 pt-0 space-y-6 relative">
                       {insights.suggestedTeachingPoints.map((point: string, i: number) => (
-                        <div key={i} className="flex gap-5 p-6 bg-white rounded-2xl shadow-sm border-2 border-accent/20 hover:scale-[1.03] transition-transform duration-300">
-                          <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-                            <Sparkles className="w-6 h-6" />
+                        <div key={i} className="flex gap-6 p-6 bg-white rounded-2xl shadow-xl hover:translate-x-2 transition-all duration-300">
+                          <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                            <CheckCircle2 className="w-6 h-6" />
                           </div>
-                          <p className="text-base font-bold leading-relaxed text-foreground/90">{point}</p>
+                          <p className="text-base font-black leading-snug text-foreground/90">{point}</p>
                         </div>
                       ))}
                     </CardContent>
@@ -265,9 +253,11 @@ export default function TeacherPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-32 bg-card rounded-3xl border-2 border-dashed border-muted/50">
-                <BarChart3 className="w-20 h-20 mx-auto text-muted-foreground/20 mb-6" />
-                <p className="text-2xl font-black text-muted-foreground font-headline">Select a module to reveal class intelligence.</p>
+              <div className="text-center py-40 bg-white rounded-[2.5rem] border-2 border-dashed border-muted/50">
+                <div className="w-24 h-24 mx-auto mb-8 bg-secondary/50 rounded-full flex items-center justify-center">
+                  <BarChart3 className="w-12 h-12 text-muted-foreground/30" />
+                </div>
+                <p className="text-3xl font-black text-muted-foreground/40 font-headline">Select a topic to generate intelligence.</p>
               </div>
             )}
           </TabsContent>
