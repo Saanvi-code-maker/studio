@@ -11,6 +11,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const AnalyzeAnswerInputSchema = z.object({
   question: z.string().describe('The question posed to the student.'),
@@ -36,6 +37,7 @@ export async function analyzeStudentAnswer(input: AnalyzeAnswerInput): Promise<A
 
 const prompt = ai.definePrompt({
   name: 'analyzeStudentAnswerPrompt',
+  model: googleAI.model('gemini-1.5-flash'),
   input: { schema: AnalyzeAnswerInputSchema },
   output: { schema: AnalyzeAnswerOutputSchema },
   config: {

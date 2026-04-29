@@ -4,7 +4,7 @@ import { googleAI } from '@genkit-ai/google-genai';
 
 /**
  * Genkit initialization for ShikshaSetu.
- * Configured with Google AI plugin using the robust Gemini 1.5 Flash model.
+ * Configured with Google AI plugin using the stable Gemini 1.5 Flash model.
  */
 export const ai = genkit({
   plugins: [
