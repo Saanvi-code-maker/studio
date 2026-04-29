@@ -70,7 +70,7 @@ export default function LearnPage() {
     <div className="min-h-screen pb-24 md:pt-24 bg-background">
       <Navigation />
       <div className="max-w-6xl mx-auto px-6 space-y-12">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-700">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[11px]">
               <LayoutGrid className="w-4 h-4" />
@@ -84,7 +84,7 @@ export default function LearnPage() {
             </p>
           </div>
           
-          <div className="bg-white p-6 rounded-[2rem] border-2 shadow-sm flex items-center gap-8 min-w-[320px] relative overflow-hidden">
+          <div className="bg-white p-6 rounded-[2.5rem] border-2 shadow-sm flex items-center gap-8 min-w-[320px] relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5">
                <Sparkles className="w-20 h-20 text-primary" />
              </div>
@@ -106,7 +106,7 @@ export default function LearnPage() {
             const isCompleted = progress?.completedLessons?.includes(lesson.id);
             return (
               <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                <Card className="group border-2 hover:border-primary/40 transition-all duration-500 overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl rounded-[2.5rem] bg-white">
+                <Card className="pro-card group overflow-hidden border-2 rounded-[2.5rem]">
                   <div className="flex flex-col md:flex-row h-full">
                     <div className="relative w-full md:w-96 h-72 md:h-auto overflow-hidden shrink-0">
                       <Image

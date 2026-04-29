@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, User, GraduationCap, LogIn, LayoutDashboard, Home } from 'lucide-react';
+import { BookOpen, User, GraduationCap, LogIn, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/firebase';
 
@@ -11,14 +11,14 @@ export const Navigation = () => {
   const { user } = useUser();
 
   const navItems = [
-    { label: 'Learn', href: '/learn', icon: BookOpen, type: 'student' },
-    { label: 'Analytics', href: '/teacher', icon: LayoutDashboard, type: 'teacher' },
-    { label: 'Account', href: '/profile', icon: User, type: 'both' },
+    { label: 'Learn', href: '/learn', icon: BookOpen },
+    { label: 'Teacher', href: '/teacher', icon: LayoutDashboard },
+    { label: 'Profile', href: '/profile', icon: User },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-border z-50 md:top-0 md:bottom-auto md:border-b md:border-t-0 px-6 h-20">
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between h-full">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-border z-50 md:top-0 md:bottom-auto md:border-b md:border-t-0 px-6 h-20">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-full">
         <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-105 active:scale-95 group">
           <div className="bg-primary p-2.5 rounded-2xl shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
             <GraduationCap className="h-6 w-6 text-white" />
@@ -42,13 +42,13 @@ export const Navigation = () => {
                       "flex flex-col md:flex-row items-center gap-1 md:gap-2 text-sm font-black transition-all px-4 py-2 rounded-xl group relative overflow-hidden",
                       isActive 
                         ? "text-primary bg-primary/5" 
-                        : "text-muted-foreground hover:text-primary hover:bg-secondary"
+                        : "text-muted-foreground hover:text-primary hover:bg-secondary/50"
                     )}
                   >
                     <Icon className={cn("h-5 w-5 md:h-4 md:w-4 transition-transform group-hover:scale-110", isActive && "animate-pulse")} />
-                    <span className="text-[10px] md:text-sm tracking-tight uppercase">{item.label}</span>
+                    <span className="text-[10px] md:text-sm tracking-tight uppercase tracking-widest">{item.label}</span>
                     {isActive && (
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full" />
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full md:hidden" />
                     )}
                   </Link>
                 );
@@ -56,9 +56,6 @@ export const Navigation = () => {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-muted-foreground hover:text-primary font-bold transition-colors hidden md:block">
-                Home
-              </Link>
               <Link
                 href="/login"
                 className={cn(

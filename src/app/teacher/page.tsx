@@ -8,8 +8,9 @@ import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
-import { AlertTriangle, Lightbulb, TrendingUp, Loader2, Sparkles, RefreshCw, BarChart3, ShieldAlert, Users, BrainCircuit } from 'lucide-react';
+import { AlertTriangle, Lightbulb, TrendingUp, Loader2, Sparkles, RefreshCw, BarChart3, ShieldAlert, Users, BrainCircuit, CheckCircle2 } from 'lucide-react';
 
 export default function TeacherPage() {
   const router = useRouter();
@@ -41,7 +42,8 @@ export default function TeacherPage() {
         ?.filter(r => r.lessonId?.includes(topic.toLowerCase().split(' ')[0]))
         .map(r => r.responseValue) || [];
 
-      const inputResponses = relevantResponses.length > 3 ? relevantResponses : [
+      // Fallback mocks if data is insufficient for AI analysis
+      const inputResponses = relevantResponses.length > 2 ? relevantResponses : [
         "Mitochondria is only in plants.",
         "Cells are just blocks of matter.",
         "The nucleus has no function.",
@@ -83,20 +85,20 @@ export default function TeacherPage() {
 
   if (!teacherDoc) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-screen flex items-center justify-center p-6 hero-gradient">
         <Navigation />
-        <Card className="max-w-md w-full border-2 border-destructive/20 shadow-2xl">
-          <CardHeader className="text-center">
+        <Card className="max-w-md w-full border-2 border-destructive/20 shadow-2xl rounded-[2.5rem]">
+          <CardHeader className="text-center pt-10">
             <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center text-destructive mb-6">
               <ShieldAlert className="w-10 h-10" />
             </div>
-            <CardTitle className="text-3xl font-black">Access Denied</CardTitle>
-            <CardDescription className="text-lg font-medium">
-              Verified educator credentials are required to access this dashboard.
+            <CardTitle className="text-3xl font-black font-headline">Access Restricted</CardTitle>
+            <CardDescription className="text-lg font-medium pt-2">
+              Verified educator credentials are required to access these analytics.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center pb-10">
-            <Button variant="outline" className="border-2 font-bold" onClick={() => router.push('/learn')}>
+          <CardContent className="flex justify-center pb-12">
+            <Button variant="outline" className="border-2 font-bold h-12 px-8 rounded-xl" onClick={() => router.push('/learn')}>
               Return to Student Portal
             </Button>
           </CardContent>
@@ -109,14 +111,14 @@ export default function TeacherPage() {
     <div className="min-h-screen pb-24 md:pt-24 bg-background">
       <Navigation />
       <div className="max-w-7xl mx-auto px-6 space-y-12">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-700">
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
               <BrainCircuit className="w-4 h-4" />
               Educator Analytics
             </div>
             <h1 className="text-6xl font-black tracking-tight text-foreground font-headline">
-              Class intelligence.
+              Class Intelligence
             </h1>
             <p className="text-xl text-muted-foreground font-medium max-w-2xl">
               AI-driven insights to bridge learning gaps and optimize student outcomes.
@@ -139,7 +141,7 @@ export default function TeacherPage() {
             { label: 'Critical Gaps', value: '2', icon: AlertTriangle, color: 'text-orange-500', border: 'border-l-orange-500' },
             { label: 'AI Bridges', value: '18', icon: Sparkles, color: 'text-indigo-600', border: 'border-l-indigo-500' }
           ].map((stat, i) => (
-            <Card key={stat.label} className={`border-2 border-l-[6px] ${stat.border} shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-lg`}>
+            <Card key={stat.label} className={`border-2 border-l-[6px] ${stat.border} shadow-sm transition-all hover:translate-y-[-4px] hover:shadow-lg rounded-2xl`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
                   <stat.icon className={`w-5 h-5 ${stat.color} opacity-60`} />
@@ -173,7 +175,6 @@ export default function TeacherPage() {
                 <div className="relative">
                   <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
                   <Loader2 className="w-24 h-24 text-primary animate-spin relative" />
-                  <Sparkles className="absolute -top-4 -right-4 w-10 h-10 text-accent animate-bounce" />
                 </div>
                 <div className="text-center space-y-3">
                   <p className="text-3xl font-black text-foreground font-headline">Synthesizing Class Data</p>
@@ -183,7 +184,7 @@ export default function TeacherPage() {
             ) : insights ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 animate-in slide-in-from-bottom-8 duration-1000">
                 <div className="lg:col-span-7 space-y-10">
-                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[2rem]">
+                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[2.5rem]">
                     <div className="bg-primary/5 px-8 py-6 border-b-2 border-primary/10 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="p-2 bg-primary rounded-xl text-white">
@@ -207,7 +208,7 @@ export default function TeacherPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-2 shadow-xl rounded-[2rem] bg-secondary/10">
+                  <Card className="border-2 shadow-xl rounded-[2.5rem] bg-secondary/10">
                     <CardHeader className="p-8 border-b-2 border-border/50">
                       <CardTitle className="flex items-center gap-3 text-primary font-black font-headline text-xl">
                         <BarChart3 className="w-6 h-6" />
@@ -233,10 +234,10 @@ export default function TeacherPage() {
                         AI Teaching Assistant
                       </div>
                       <CardTitle className="text-4xl font-black text-white font-headline leading-tight">
-                        Next Lesson Strategies
+                        Adaptive Intervention
                       </CardTitle>
                       <CardDescription className="text-lg font-medium text-white/70 leading-relaxed mt-4">
-                        Data-driven interventions tailored to your current class performance.
+                        Data-driven teaching points tailored to your current class performance.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-10 pt-0 space-y-6 relative">
