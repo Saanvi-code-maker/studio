@@ -6,7 +6,7 @@ import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2 } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
