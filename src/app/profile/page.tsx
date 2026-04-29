@@ -130,9 +130,8 @@ export default function ProfilePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="hi">हिन्दी</SelectItem>
+                  <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
+                  <SelectItem value="kn">ಕನ್ನಡ (Kannada)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
