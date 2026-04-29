@@ -112,13 +112,12 @@ const generateStudentExplanationFlow = ai.defineFlow(
           errorMessage.includes('503') || 
           errorMessage.includes('UNAVAILABLE') || 
           errorMessage.includes('429') ||
-          errorMessage.includes('404') || // Handle transient not found
+          errorMessage.includes('404') ||
           errorMessage.includes('not found') ||
           errorMessage.includes('high demand');
 
         if (isRetryable && retryCount < maxRetries - 1) {
           retryCount++;
-          // Exponential backoff
           await new Promise((resolve) => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
           continue;
         }
