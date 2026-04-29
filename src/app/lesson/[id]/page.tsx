@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, use, useEffect } from 'react';
@@ -25,7 +26,9 @@ import {
   AlertCircle,
   HelpCircle,
   Brain,
-  Send
+  Send,
+  Zap,
+  Map
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -40,7 +43,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   const { user, isUserLoading } = useUser();
   const { t } = useTranslation();
   
-  // Dynamic lesson data from translations
   const lesson = (t.content[id as keyof typeof t.content] || t.content['biology-1']) as any;
   const { saveResponseWithAnalysis, completeLesson } = useStore();
   
@@ -74,7 +76,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   const currentQuestion = lesson.questions[activeQuestionIndex];
   const progressPercent = ((activeQuestionIndex) / lesson.questions.length) * 100;
   
-  // Map images for analogies
   const imageMap: Record<string, string> = {
     'biology-1': 'cell-analogy',
     'math-1': 'geometry-analogy',
@@ -106,10 +107,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           context: `Topic: ${lesson.topic}. ${lesson.title}. Language: ${t.nav.learn === 'ಕಲಿಯಿರಿ' ? 'Kannada' : t.nav.learn === 'सीखें' ? 'Hindi' : 'English'}`
         });
 
+        // Use the analysis type to seed a consistent conceptual image
+        const seedId = `${id}-${typeResult.analysisType}-${Math.floor(Math.random() * 100)}`;
+
         analysisResult = { 
           explanation: bridgeResult.explanation, 
           story: bridgeResult.story, 
           visual: bridgeResult.visualDescription,
+          imageUrl: `https://picsum.photos/seed/${seedId}/800/600`,
           analysisType: typeResult.analysisType,
           analysisExplanation: typeResult.explanation
         };
@@ -157,7 +162,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   return (
     <div className="min-h-screen pb-24 md:pt-24 bg-background">
       <Navigation />
-      <div className="max-w-5xl mx-auto p-6 space-y-8 animate-in fade-in duration-700">
+      <div className="max-w-6xl mx-auto p-6 space-y-8 animate-in fade-in duration-700">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <Button variant="ghost" onClick={() => router.back()} className="font-bold text-primary hover:bg-primary/5 rounded-2xl">
             <ArrowLeft className="mr-2 h-5 w-5" /> {t.common.back}
@@ -172,7 +177,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-6 space-y-6">
             <Card className="pro-card shadow-xl overflow-hidden border-2">
               <CardHeader className="p-8 border-b bg-secondary/10">
                 <div className="flex justify-between items-center mb-4">
@@ -192,18 +197,13 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   </TabsList>
                   
                   <TabsContent value="text" className="space-y-4">
-                    <div className="relative">
-                      <Textarea 
-                        placeholder={t.lesson.write + "..."} 
-                        className="min-h-[160px] text-lg border-2 focus-visible:ring-primary rounded-2xl px-6 py-4 resize-none"
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        disabled={isCorrect !== null || isLoading}
-                      />
-                      <div className="absolute bottom-4 right-4 text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
-                        AI will judge conceptual accuracy
-                      </div>
-                    </div>
+                    <Textarea 
+                      placeholder={t.lesson.write + "..."} 
+                      className="min-h-[160px] text-lg border-2 focus-visible:ring-primary rounded-2xl px-6 py-4 resize-none"
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      disabled={isCorrect !== null || isLoading}
+                    />
                   </TabsContent>
                   
                   <TabsContent value="quiz" className="space-y-4">
@@ -280,81 +280,103 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
             </Card>
           </div>
 
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-6 space-y-8">
             {isCorrect === false && explanation && (
               <div className="space-y-6 animate-in slide-in-from-right-12 duration-700">
-                <Card className="border-none bg-primary shadow-[0_40px_100px_-20px_rgba(59,130,246,0.5)] rounded-[3rem] overflow-hidden text-white relative">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Sparkles className="w-32 h-32" />
+                <Card className="border-none bg-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] rounded-[3rem] overflow-hidden relative">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 text-primary">
+                    <Sparkles className="w-48 h-48" />
                   </div>
-                  <div className="p-10 space-y-8 relative z-10">
-                    <div className="flex items-center justify-between">
+                  
+                  <div className="p-10 space-y-10 relative z-10">
+                    <header className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white/15 rounded-2xl backdrop-blur-md">
+                        <div className="p-4 bg-primary rounded-2xl text-white shadow-lg shadow-primary/20">
                           <Lightbulb className="w-6 h-6" />
                         </div>
-                        <h3 className="text-2xl font-black font-headline tracking-tighter">{t.lesson.bridge}</h3>
-                      </div>
-                      {explanation.analysisType && (
-                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${getAnalysisBadge(explanation.analysisType).color}`}>
-                          {getAnalysisBadge(explanation.analysisType).label}
+                        <div>
+                          <h3 className="text-2xl font-black font-headline tracking-tighter text-foreground">{t.lesson.bridge}</h3>
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Adaptive Learning Intervention</p>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                      <Badge className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getAnalysisBadge(explanation.analysisType).color}`}>
+                        {getAnalysisBadge(explanation.analysisType).label}
+                      </Badge>
+                    </header>
                     
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                         <p className="text-xl font-bold leading-relaxed text-white">
-                          {explanation.text}
-                        </p>
-                        {explanation.analysisExplanation && (
-                          <p className="text-sm font-medium text-white/70 leading-relaxed italic">
-                            "{explanation.analysisExplanation}"
-                          </p>
-                        )}
-                      </div>
-                      
-                      <div className="bg-white/10 p-8 rounded-[2.5rem] border border-white/20 backdrop-blur-sm relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                          <BookOpen className="w-16 h-16" />
+                    <div className="grid grid-cols-1 gap-8">
+                      {/* Story Card */}
+                      <div className="bg-primary/5 p-8 rounded-[2.5rem] border-2 border-primary/10 relative group hover:bg-white hover:border-primary transition-all duration-500">
+                        <div className="absolute -top-4 left-8 bg-primary text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                           <BookOpen className="w-3 h-3" /> {t.lesson.conceptualStory}
                         </div>
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-4">{t.lesson.conceptualStory}</h4>
-                        <p className="text-lg font-bold leading-relaxed italic relative z-10">
+                        <p className="text-xl font-bold leading-relaxed text-foreground italic">
                           "{explanation.story}"
                         </p>
                       </div>
 
-                      <div className="relative aspect-video rounded-[2.5rem] overflow-hidden border-2 border-white/20 shadow-2xl group">
-                        <Image 
-                          src={explanation.imageUrl || placeholder?.imageUrl || `https://picsum.photos/seed/${explanation.analysisType || 'concept'}/800/600`} 
-                          alt={explanation.visual || lesson.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                        <div className="absolute bottom-6 left-6 right-6">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t.lesson.visualConcept}</p>
-                          <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>
+                      {/* Visual & Map Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-border shadow-2xl group">
+                          <Image 
+                            src={explanation.imageUrl || `https://picsum.photos/seed/${explanation.analysisType || 'concept'}/800/600`} 
+                            alt={explanation.visual}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-1000"
+                            data-ai-hint="conceptual illustration"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute bottom-6 left-6 right-6">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t.lesson.visualConcept}</p>
+                            <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-secondary/30 p-8 rounded-[2.5rem] border-2 border-dashed border-border space-y-6 flex flex-col justify-center">
+                          <div className="flex items-center gap-3 text-primary">
+                            <Map className="w-5 h-5" />
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Concept Mindmap</h4>
+                          </div>
+                          <div className="space-y-4">
+                            {[
+                              { label: 'Core Idea', color: 'bg-primary' },
+                              { label: 'Student Path', color: 'bg-rose-500' },
+                              { label: 'Knowledge Gap', color: 'bg-amber-500' }
+                            ].map((item) => (
+                              <div key={item.label} className="flex items-center gap-4">
+                                <div className={`w-2 h-2 rounded-full ${item.color} animate-pulse`} />
+                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">{item.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-sm font-bold text-muted-foreground leading-relaxed pt-4 border-t border-border">
+                            {explanation.text}
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    <Button variant="outline" onClick={resetState} className="w-full h-14 rounded-2xl border-2 border-white/20 bg-white/10 hover:bg-white text-white hover:text-primary font-black text-lg transition-all active:scale-95">
-                      <RotateCcw className="mr-2 h-5 w-5" /> {t.lesson.refine}
-                    </Button>
+                    <div className="flex flex-col gap-4">
+                      <Button onClick={resetState} className="h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95">
+                        <RotateCcw className="mr-3 h-5 w-5" /> {t.lesson.refine}
+                      </Button>
+                      <p className="text-[10px] text-center font-black uppercase tracking-[0.3em] text-muted-foreground/30">
+                        Synthesized by Gemini 1.5 Flash • {t.nav.learn} Path
+                      </p>
+                    </div>
                   </div>
                 </Card>
               </div>
             )}
 
             {isCorrect === null && !isLoading && (
-              <Card className="border-4 border-dashed border-muted/50 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center space-y-6 bg-white/40">
+              <Card className="border-4 border-dashed border-muted/50 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center space-y-6 bg-white/40 min-h-[500px]">
                 <div className="w-24 h-24 bg-primary/5 rounded-[2.5rem] flex items-center justify-center text-primary/30 animate-pulse">
-                  <Sparkles className="w-12 h-12" />
+                  <Zap className="w-12 h-12" />
                 </div>
                 <div className="space-y-3">
-                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter">{t.lesson.awaiting}</p>
-                  <p className="text-sm font-medium text-muted-foreground/30 max-w-[200px] mx-auto leading-relaxed">
+                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter uppercase">{t.lesson.awaiting}</p>
+                  <p className="text-sm font-medium text-muted-foreground/30 max-w-[240px] mx-auto leading-relaxed">
                     {t.lesson.awaitingDesc}
                   </p>
                 </div>
@@ -362,14 +384,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
             )}
             
             {isLoading && (
-              <Card className="border-none bg-secondary/30 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center space-y-8 animate-pulse">
+              <Card className="border-none bg-secondary/30 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center space-y-8 animate-pulse min-h-[500px]">
                 <div className="relative">
                   <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
                   <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
                 </div>
                 <div className="text-center space-y-3">
-                  <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter">{t.lesson.building}</p>
-                  <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[180px] mx-auto">{t.lesson.analyzing}</p>
+                  <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter uppercase">{t.lesson.building}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[200px] mx-auto">{t.lesson.analyzing}</p>
                 </div>
               </Card>
             )}
