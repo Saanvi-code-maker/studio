@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, LogOut, Save, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -91,36 +90,38 @@ export default function ProfilePage() {
           <p className="text-muted-foreground">Manage your account settings and preferences.</p>
         </header>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={`https://picsum.photos/seed/${user.uid}/200`} />
-              <AvatarFallback><UserIcon /></AvatarFallback>
+        <Card className="border-2 rounded-[2rem] overflow-hidden">
+          <CardHeader className="flex flex-row items-center gap-6 bg-primary/5 p-8 border-b">
+            <Avatar className="h-24 w-24 border-4 border-white shadow-xl">
+              <AvatarFallback className="bg-primary text-white">
+                <UserIcon className="w-10 h-10" />
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <CardTitle className="text-xl">{profile?.displayName || user.email}</CardTitle>
-              <CardDescription>{user.email}</CardDescription>
-              <div className="mt-1">
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary uppercase">
+              <CardTitle className="text-2xl font-black font-headline tracking-tight">{profile?.displayName || user.email}</CardTitle>
+              <CardDescription className="text-base font-medium">{user.email}</CardDescription>
+              <div className="mt-2">
+                <Badge variant="secondary" className="bg-primary text-white border-none uppercase tracking-widest text-[9px] px-3 py-1">
                   {profile?.role || 'Student'}
-                </span>
+                </Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 p-8">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
+              <Label htmlFor="displayName" className="font-black uppercase tracking-widest text-[10px] text-muted-foreground">Display Name</Label>
               <Input 
                 id="displayName" 
                 value={displayName} 
                 onChange={(e) => setDisplayName(e.target.value)} 
                 placeholder="Your name"
+                className="h-12 border-2 rounded-xl focus-visible:ring-primary"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="language">Preferred Language</Label>
+              <Label htmlFor="language" className="font-black uppercase tracking-widest text-[10px] text-muted-foreground">Preferred Language</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger id="language">
+                <SelectTrigger id="language" className="h-12 border-2 rounded-xl focus:ring-primary">
                   <SelectValue placeholder="Select language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -132,11 +133,11 @@ export default function ProfilePage() {
               </Select>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t p-6 mt-6">
-            <Button variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={handleLogout}>
+          <CardFooter className="flex justify-between bg-muted/30 p-8">
+            <Button variant="ghost" className="text-destructive font-bold hover:bg-destructive/10 rounded-xl" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" /> Sign Out
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={handleSave} disabled={isSaving} className="font-bold px-8 h-11 rounded-xl shadow-lg shadow-primary/20">
               {isSaving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="mr-2 h-4 w-4" />}
               Save Changes
             </Button>
@@ -144,5 +145,13 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function Badge({ children, variant, className }: { children: React.ReactNode, variant?: string, className?: string }) {
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${className}`}>
+      {children}
+    </span>
   );
 }

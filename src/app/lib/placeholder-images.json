@@ -1,29 +1,3 @@
-
 {
-  "placeholderImages": [
-    {
-      "id": "biology-lesson",
-      "description": "Biological cells under microscope",
-      "imageUrl": "https://picsum.photos/seed/biology/800/600",
-      "imageHint": "biology cells"
-    },
-    {
-      "id": "math-lesson",
-      "description": "Geometry shapes and calculations",
-      "imageUrl": "https://picsum.photos/seed/math/800/600",
-      "imageHint": "geometry math"
-    },
-    {
-      "id": "history-lesson",
-      "description": "Ancient ruins in sunset",
-      "imageUrl": "https://picsum.photos/seed/history/800/600",
-      "imageHint": "ancient ruins"
-    },
-    {
-      "id": "student-avatar",
-      "description": "A cheerful student icon",
-      "imageUrl": "https://picsum.photos/seed/student/200/200",
-      "imageHint": "student person"
-    }
-  ]
+  "placeholderImages": []
 }

@@ -6,12 +6,10 @@ import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles, LayoutGrid } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles, LayoutGrid, Beaker, Calculator, Landmark } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const LESSONS = [
   {
@@ -19,7 +17,7 @@ const LESSONS = [
     title: 'Cell Biology Essentials',
     subject: 'Biology',
     duration: '15 min',
-    image: PlaceHolderImages.find(img => img.id === 'biology-lesson')?.imageUrl,
+    icon: Beaker,
     description: 'Master the fundamental building blocks of complex life and their intricate functions.',
     difficulty: 'Introductory'
   },
@@ -28,7 +26,7 @@ const LESSONS = [
     title: 'Advanced Geometry',
     subject: 'Mathematics',
     duration: '20 min',
-    image: PlaceHolderImages.find(img => img.id === 'math-lesson')?.imageUrl,
+    icon: Calculator,
     description: 'Explore spatial relationships, logical proofs, and geometric properties.',
     difficulty: 'Intermediate'
   },
@@ -37,7 +35,7 @@ const LESSONS = [
     title: 'Foundations of Civilization',
     subject: 'History',
     duration: '10 min',
-    image: PlaceHolderImages.find(img => img.id === 'history-lesson')?.imageUrl,
+    icon: Landmark,
     description: 'Trace the development of early societies and the dawn of governance.',
     difficulty: 'Beginner'
   }
@@ -104,60 +102,54 @@ export default function LearnPage() {
         <div className="grid grid-cols-1 gap-10">
           {LESSONS.map((lesson) => {
             const isCompleted = progress?.completedLessons?.includes(lesson.id);
+            const Icon = lesson.icon;
             return (
               <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
                 <Card className="pro-card group overflow-hidden border-2 rounded-[2.5rem]">
                   <div className="flex flex-col md:flex-row h-full">
-                    <div className="relative w-full md:w-96 h-72 md:h-auto overflow-hidden shrink-0">
-                      <Image
-                        src={lesson.image || 'https://picsum.photos/seed/learn/800/600'}
-                        alt={lesson.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-1000"
-                        data-ai-hint="educational topic"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
-                      <div className="absolute top-6 left-6">
-                        <Badge className="bg-white/95 text-primary hover:bg-white backdrop-blur-xl border-none font-black px-4 py-1.5 shadow-xl rounded-full text-[10px] uppercase tracking-widest">
-                          {lesson.subject}
-                        </Badge>
-                      </div>
+                    <div className="w-full md:w-32 h-32 md:h-auto bg-primary/5 flex items-center justify-center shrink-0 border-r border-border/50">
+                      <Icon className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <div className="flex-1 p-10 flex flex-col justify-between">
-                      <div className="space-y-6">
+                    <div className="flex-1 p-8 flex flex-col justify-between">
+                      <div className="space-y-4">
                         <div className="flex items-start justify-between">
-                          <div className="space-y-3">
-                            <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/10 font-black uppercase tracking-widest text-[10px] px-3 py-1">
-                              {lesson.difficulty}
-                            </Badge>
-                            <CardTitle className="text-4xl font-black font-headline group-hover:text-primary transition-colors tracking-tight">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-primary/90 text-white border-none font-black px-3 py-1 shadow-sm rounded-full text-[9px] uppercase tracking-widest">
+                                {lesson.subject}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/10 font-black uppercase tracking-widest text-[9px] px-3 py-1">
+                                {lesson.difficulty}
+                              </Badge>
+                            </div>
+                            <CardTitle className="text-3xl font-black font-headline group-hover:text-primary transition-colors tracking-tight">
                               {lesson.title}
                             </CardTitle>
                           </div>
                           {isCompleted && (
-                            <div className="bg-green-50 p-3 rounded-2xl border-2 border-green-100 shadow-sm animate-in zoom-in-90">
-                              <CheckCircle2 className="text-green-500 h-10 w-10" />
+                            <div className="bg-green-50 p-2 rounded-xl border border-green-100 shadow-sm animate-in zoom-in-90">
+                              <CheckCircle2 className="text-green-500 h-6 w-6" />
                             </div>
                           )}
                         </div>
-                        <CardDescription className="text-xl leading-relaxed text-muted-foreground line-clamp-2 font-medium">
+                        <CardDescription className="text-lg leading-relaxed text-muted-foreground line-clamp-2 font-medium">
                           {lesson.description}
                         </CardDescription>
                       </div>
                       
-                      <div className="pt-10 flex items-center justify-between border-t border-border mt-10">
-                        <div className="flex items-center gap-10 text-sm font-black text-muted-foreground/60 uppercase tracking-widest">
+                      <div className="pt-6 flex items-center justify-between border-t border-border mt-6">
+                        <div className="flex items-center gap-8 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                           <span className="flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-primary/60" />
+                            <Clock className="w-4 h-4 text-primary/60" />
                             {lesson.duration}
                           </span>
                           <span className="flex items-center gap-2">
-                            <BookOpen className="w-5 h-5 text-primary/60" />
+                            <BookOpen className="w-4 h-4 text-primary/60" />
                             AI Adaptive
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 text-primary font-black uppercase tracking-widest text-xs group-hover:translate-x-2 transition-transform bg-primary/5 px-6 py-3 rounded-full">
-                          Continue Learning <ChevronRight className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] group-hover:translate-x-2 transition-transform">
+                          Continue Learning <ChevronRight className="w-4 h-4" />
                         </div>
                       </div>
                     </div>
