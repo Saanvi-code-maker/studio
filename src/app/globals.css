@@ -1,23 +1,22 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 129 44% 96%;
+    --background: 129 44% 97%; /* #EFF9F0 - Soft background */
     --foreground: 129 40% 10%;
     --card: 0 0% 100%;
     --card-foreground: 129 40% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 129 40% 10%;
-    --primary: 129 33% 49%;
+    --primary: 129 33% 49%; /* #52A65F - Growth Green */
     --primary-foreground: 0 0% 100%;
     --secondary: 129 30% 90%;
     --secondary-foreground: 129 40% 20%;
     --muted: 129 10% 92%;
     --muted-foreground: 129 20% 40%;
-    --accent: 82 59% 54%;
+    --accent: 82 59% 54%; /* #9ECF46 - Lively Chartreuse */
     --accent-foreground: 129 40% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -26,25 +25,6 @@
     --ring: 129 33% 49%;
     --radius: 0.75rem;
   }
-  .dark {
-    --background: 129 30% 10%;
-    --foreground: 129 44% 96%;
-    --card: 129 30% 12%;
-    --card-foreground: 129 44% 96%;
-    --popover: 129 30% 12%;
-    --popover-foreground: 129 44% 96%;
-    --primary: 129 33% 49%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 129 30% 15%;
-    --secondary-foreground: 129 44% 96%;
-    --muted: 129 20% 15%;
-    --muted-foreground: 129 20% 65%;
-    --accent: 82 59% 54%;
-    --accent-foreground: 129 40% 10%;
-    --border: 129 30% 20%;
-    --input: 129 30% 20%;
-    --ring: 129 33% 49%;
-  }
 }
 
 @layer base {
@@ -52,6 +32,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
   }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline font-bold;
+  }
+}
+
+/* Smooth transitions for interactive elements */
+.lesson-card-transition {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
 }
