@@ -2,373 +2,73 @@
 {
   "entities": {
     "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the application, either a student or a teacher, with their basic profile information.",
+      "description": "Represents a user of the application, either a student or a teacher.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the User entity."
-        },
-        "displayName": {
-          "type": "string",
-          "description": "The user's display name."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address, used for authentication (password not stored).",
-          "format": "email"
-        },
-        "role": {
-          "type": "string",
-          "description": "The role of the user within the application (student or teacher)."
-        },
-        "languagePreference": {
-          "type": "string",
-          "description": "The user's preferred language for the application interface and content (e.g., 'en', 'es')."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was last updated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["student", "teacher"] },
+        "languagePreference": { "type": "string", "enum": ["en", "hi", "kn"] },
+        "completedLessons": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "displayName",
-        "email",
-        "role",
-        "createdAt"
-      ]
-    },
-    "LearningModule": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "LearningModule",
-      "type": "object",
-      "description": "Represents a structured learning unit or course module within a specific subject.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the LearningModule entity."
-        },
-        "title": {
-          "type": "string",
-          "description": "The title of the learning module."
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description of what the module covers."
-        },
-        "subject": {
-          "type": "string",
-          "description": "The subject category this module belongs to (e.g., 'Mathematics', 'Science')."
-        },
-        "order": {
-          "type": "number",
-          "description": "The sequential order of this module within its subject or a learning path."
-        },
-        "languageCode": {
-          "type": "string",
-          "description": "The language code for this module's content (e.g., 'en', 'es')."
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "description",
-        "subject",
-        "order",
-        "languageCode"
-      ]
-    },
-    "LearningContent": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "LearningContent",
-      "type": "object",
-      "description": "Represents an individual piece of learning material within a module, such as a lesson, explanation, or visual aid.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the LearningContent entity."
-        },
-        "moduleId": {
-          "type": "string",
-          "description": "Reference to the LearningModule this content belongs to."
-        },
-        "title": {
-          "type": "string",
-          "description": "The title or heading of the content piece."
-        },
-        "contentType": {
-          "type": "string",
-          "description": "The type of content (e.g., 'text', 'image', 'video', 'audio')."
-        },
-        "contentBody": {
-          "type": "string",
-          "description": "The main textual body of the content."
-        },
-        "storyText": {
-          "type": "string",
-          "description": "A relatable story or analogy for the concept."
-        },
-        "conceptImageUrl": {
-          "type": "string",
-          "description": "URL to a visual representation of the concept story.",
-          "format": "uri"
-        },
-        "mediaUrl": {
-          "type": "string",
-          "description": "URL to external media if contentType is 'image', 'video', or 'audio'.",
-          "format": "uri"
-        },
-        "orderInModule": {
-          "type": "number",
-          "description": "The sequential order of this content within its parent module."
-        },
-        "languageCode": {
-          "type": "string",
-          "description": "The language code for this specific content item (e.g., 'en', 'es')."
-        }
-      },
-      "required": [
-        "id",
-        "moduleId",
-        "title",
-        "contentType",
-        "orderInModule",
-        "languageCode"
-      ]
-    },
-    "Question": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Question",
-      "type": "object",
-      "description": "Represents an assessment question presented to students to test their understanding.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Question entity."
-        },
-        "learningContentId": {
-          "type": "string",
-          "description": "Reference to the LearningContent this question is associated with."
-        },
-        "questionText": {
-          "type": "string",
-          "description": "The text of the question posed to the student."
-        },
-        "questionType": {
-          "type": "string",
-          "description": "The type of question format (e.g., 'textInput', 'multipleChoice', 'voiceInput')."
-        },
-        "options": {
-          "type": "array",
-          "description": "An array of possible answer options for 'multipleChoice' questions.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "correctAnswer": {
-          "type": "string",
-          "description": "The correct answer to the question."
-        },
-        "languageCode": {
-          "type": "string",
-          "description": "The language code for this question (e.g., 'en', 'es')."
-        },
-        "difficulty": {
-          "type": "string",
-          "description": "The perceived difficulty level of the question."
-        }
-      },
-      "required": [
-        "id",
-        "learningContentId",
-        "questionText",
-        "questionType",
-        "correctAnswer",
-        "languageCode"
-      ]
+      "required": ["id", "displayName", "email", "role", "createdAt"]
     },
     "StudentResponse": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "StudentResponse",
       "type": "object",
       "description": "Records a student's answer to a specific question.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the StudentResponse entity."
-        },
-        "studentId": {
-          "type": "string",
-          "description": "Reference to the User (student) who submitted this response."
-        },
-        "questionId": {
-          "type": "string",
-          "description": "Reference to the Question that was answered."
-        },
-        "responseValue": {
-          "type": "string",
-          "description": "The actual answer provided by the student."
-        },
-        "isCorrect": {
-          "type": "boolean",
-          "description": "Whether the response was correct."
-        },
-        "submittedAt": {
-          "type": "string",
-          "description": "Timestamp when the student submitted their response.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "lessonId": { "type": "string" },
+        "questionId": { "type": "string" },
+        "responseValue": { "type": "string" },
+        "isCorrect": { "type": "boolean" },
+        "submittedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "studentId",
-        "questionId",
-        "responseValue",
-        "submittedAt"
-      ]
+      "required": ["id", "studentId", "lessonId", "questionId", "responseValue", "isCorrect", "submittedAt"]
     },
     "AIAnalysis": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "AIAnalysis",
       "type": "object",
-      "description": "Stores the results of the AI's analysis of a student's response.",
+      "description": "AI-generated feedback for a student response.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the AIAnalysis entity."
-        },
-        "studentResponseId": {
-          "type": "string",
-          "description": "Reference to the StudentResponse that was analyzed."
-        },
-        "studentId": {
-          "type": "string",
-          "description": "Denormalized student ID for security rules."
-        },
-        "analysisResultType": {
-          "type": "string",
-          "description": "The type of understanding identified by the AI."
-        },
-        "explanationText": {
-          "type": "string",
-          "description": "The generated textual explanation provided by the AI."
-        },
-        "storyText": {
-          "type": "string",
-          "description": "A short story or analogy generated to clarify the concept."
-        },
-        "visualDescription": {
-          "type": "string",
-          "description": "Description for the image representation of the bridge."
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL to a supplementary image.",
-          "format": "uri"
-        },
-        "generatedAt": {
-          "type": "string",
-          "description": "Timestamp when the AI analysis was generated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "studentResponseId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "analysisResultType": { "type": "string", "enum": ["correct", "confused", "partial_understanding", "guessing"] },
+        "explanationText": { "type": "string" },
+        "storyText": { "type": "string" },
+        "visualDescription": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "generatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "studentResponseId",
-        "studentId",
-        "analysisResultType",
-        "explanationText",
-        "generatedAt"
-      ]
+      "required": ["id", "studentResponseId", "studentId", "analysisResultType", "explanationText", "generatedAt"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores individual user profiles."
-        }
-      },
-      {
-        "path": "/teachers/{teacherId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "DBAC collection for teachers."
-        }
-      },
-      {
-        "path": "/learningModules/{moduleId}",
-        "definition": {
-          "entityName": "LearningModule",
-          "schema": {
-            "$ref": "#/backend/entities/LearningModule"
-          },
-          "description": "Global learning modules."
-        }
-      },
-      {
-        "path": "/learningModules/{moduleId}/contents/{contentId}",
-        "definition": {
-          "entityName": "LearningContent",
-          "schema": {
-            "$ref": "#/backend/entities/LearningContent"
-          },
-          "description": "Content within modules."
-        }
-      },
-      {
-        "path": "/learningModules/{moduleId}/contents/{contentId}/questions/{questionId}",
-        "definition": {
-          "entityName": "Question",
-          "schema": {
-            "$ref": "#/backend/entities/Question"
-          },
-          "description": "Questions within content."
-        }
-      },
-      {
-        "path": "/studentResponses/{responseId}",
-        "definition": {
-          "entityName": "StudentResponse",
-          "schema": {
-            "$ref": "#/backend/entities/StudentResponse"
-          },
-          "description": "Student answers."
-        }
-      },
-      {
-        "path": "/aiAnalyses/{analysisId}",
-        "definition": {
-          "entityName": "AIAnalysis",
-          "schema": {
-            "$ref": "#/backend/entities/AIAnalysis"
-          },
-          "description": "AI-generated feedback."
-        }
-      }
-    ]
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/User" },
+      "description": "Individual user profiles."
+    },
+    "/teachers/{teacherId}": {
+      "schema": { "$ref": "#/backend/entities/User" },
+      "description": "Teacher verification records."
+    },
+    "/studentResponses/{responseId}": {
+      "schema": { "$ref": "#/backend/entities/StudentResponse" },
+      "description": "Student answer logs."
+    },
+    "/aiAnalyses/{analysisId}": {
+      "schema": { "$ref": "#/backend/entities/AIAnalysis" },
+      "description": "AI-generated cognitive feedback."
+    }
   }
 }

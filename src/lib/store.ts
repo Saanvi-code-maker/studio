@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -70,12 +71,12 @@ export const useStore = () => {
     
     const responseData = {
       id: responseId,
+      studentId: user.uid,
       lessonId,
       questionId,
       responseValue: answer,
       isCorrect,
       submittedAt: now,
-      studentId: user.uid,
     };
 
     const responseRef = doc(db, 'studentResponses', responseId);

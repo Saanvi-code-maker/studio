@@ -1,21 +1,7 @@
-/**
- * # Firestore Security Rules
- *
- * ## Core Philosophy
- * This ruleset implements a robust, role-based access control (RBAC) and ownership model.
- * It distinguishes between 'Students' and 'Teachers' to manage permissions.
- *
- * ## Key Security Decisions
- * - **DBAC (Database Access Control):** Teacher privileges are verified by checking for the 
- *   existence of a document in the `/teachers` collection.
- * - **Student Privacy:** Students can only read and create their own responses and analyses.
- */
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
 
     function isSignedIn() {
       return request.auth != null;
@@ -33,8 +19,6 @@ service cloud.firestore {
       return isSignedIn() && resource.data.studentId == request.auth.uid;
     }
 
-    // --- Rules ---
-
     match /users/{userId} {
       allow get: if isSignedIn();
       allow list: if isTeacher() || isOwner(userId);
@@ -50,21 +34,6 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    match /learningModules/{moduleId} {
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if isTeacher();
-
-      match /contents/{contentId} {
-        allow get, list: if isSignedIn();
-        allow create, update, delete: if isTeacher();
-
-        match /questions/{questionId} {
-          allow get, list: if isSignedIn();
-          allow create, update, delete: if isTeacher();
-        }
-      }
-    }
-
     match /studentResponses/{responseId} {
       allow get: if isTeacher() || isDocOwner();
       allow list: if isTeacher() || (isSignedIn() && request.query.limit <= 100); 
@@ -76,7 +45,6 @@ service cloud.firestore {
     match /aiAnalyses/{analysisId} {
       allow get: if isTeacher() || isDocOwner();
       allow list: if isTeacher() || (isSignedIn() && request.query.limit <= 100);
-      // Allow students to create their own analysis records during the learning flow
       allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
       allow update, delete: if isTeacher();
     }
