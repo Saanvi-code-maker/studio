@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -10,9 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
 import { SplashScreen } from '@/components/SplashScreen';
 import { useTranslation } from '@/hooks/use-translation';
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  ResponsiveContainer, 
+  Tooltip as RechartsTooltip,
+  Legend
+} from 'recharts';
 import { 
   AlertTriangle, 
   Lightbulb, 
@@ -25,7 +33,9 @@ import {
   Users, 
   BrainCircuit, 
   CheckCircle2, 
-  ArrowRight 
+  ArrowRight,
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
 
 export default function TeacherPage() {
@@ -49,7 +59,64 @@ export default function TeacherPage() {
     return collection(db, 'studentResponses');
   }, [db, user, teacherDoc]);
 
+  const analysesQuery = useMemoFirebase(() => {
+    if (!db || !user || !teacherDoc) return null;
+    return collection(db, 'aiAnalyses');
+  }, [db, user, teacherDoc]);
+
   const { data: responses, isLoading: isResponsesLoading } = useCollection(responsesQuery);
+  const { data: analyses, isLoading: isAnalysesLoading } = useCollection(analysesQuery);
+
+  // --- Analytical Calculations ---
+
+  const stats = useMemo(() => {
+    if (!responses || !analyses) return { mastery: 0, total: 0, types: [] };
+    
+    const correct = responses.filter(r => r.isCorrect).length;
+    const total = responses.length;
+    const mastery = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    const typeCounts = analyses.reduce((acc: any, curr: any) => {
+      const type = curr.analysisResultType || 'unknown';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+
+    const chartData = [
+      { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' },
+      { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' },
+      { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' },
+      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' }
+    ].filter(d => d.value > 0);
+
+    return { mastery, total, chartData };
+  }, [responses, analyses]);
+
+  const atRiskStudents = useMemo(() => {
+    if (!responses) return [];
+    
+    const studentStats = responses.reduce((acc: any, curr: any) => {
+      if (!acc[curr.studentId]) {
+        acc[curr.studentId] = { id: curr.studentId, total: 0, incorrect: 0, lastSeen: curr.submittedAt };
+      }
+      acc[curr.studentId].total += 1;
+      if (!curr.isCorrect) acc[curr.studentId].incorrect += 1;
+      if (new Date(curr.submittedAt) > new Date(acc[curr.studentId].lastSeen)) {
+        acc[curr.studentId].lastSeen = curr.submittedAt;
+      }
+      return acc;
+    }, {});
+
+    return Object.values(studentStats)
+      .map((s: any) => ({
+        ...s,
+        failRate: Math.round((s.incorrect / s.total) * 100)
+      }))
+      .filter((s: any) => s.failRate > 40)
+      .sort((a, b) => b.failRate - a.failRate);
+  }, [responses]);
+
+  // --- Fetch AI Insights ---
 
   const fetchInsights = async (topic: string) => {
     if (!user || !teacherDoc) return;
@@ -57,15 +124,16 @@ export default function TeacherPage() {
     try {
       const topicKeywords = topic.toLowerCase().split(' ');
       const relevantResponses = responses
-        ?.filter(r => topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
+        ?.filter(r => !r.isCorrect && topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      // If no real responses, use synthetic for the demo experience
-      const inputResponses = relevantResponses.length > 0 ? relevantResponses : [
-        "Mitochondria is only in plant cells because they need to grow.",
-        "Cells are just blocks of matter with no life.",
-        "The nucleus has no function in a small cell.",
-        "Energy is created by the cell walls of the plant."
+      // Fallback for demo if no real data yet
+      const inputResponses = relevantResponses.length > 5 ? relevantResponses : [
+        "Mitochondria is only in plant cells.",
+        "Cells are the same as bricks.",
+        "The nucleus is optional.",
+        "Plant cells don't have energy.",
+        "Triangle sum is 90 degrees."
       ];
 
       const result = await summarizeCommonMisconceptions({
@@ -91,8 +159,8 @@ export default function TeacherPage() {
     }
   }, [activeTopic, teacherDoc, responses?.length]);
 
-  if (isUserLoading || isTeacherCheckLoading) {
-    return <SplashScreen message="Verifying Educator Credentials" />;
+  if (isUserLoading || isTeacherCheckLoading || isResponsesLoading || isAnalysesLoading) {
+    return <SplashScreen message="Syncing Educator Intelligence" />;
   }
 
   if (!user) return null;
@@ -136,7 +204,7 @@ export default function TeacherPage() {
               {t.teacher.title} <span className="text-primary">{t.teacher.subtitle}</span>
             </h1>
             <p className="text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed">
-              Synthesizing individual performance into high-impact teaching strategies.
+              Converting student cognitive patterns into specialized teaching interventions.
             </p>
           </div>
           <Button 
@@ -150,12 +218,13 @@ export default function TeacherPage() {
           </Button>
         </header>
 
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { label: t.teacher.participation, value: responses?.length || 0, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
-            { label: t.teacher.mastery, value: '74%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/5' },
-            { label: t.teacher.gaps, value: insights?.commonMisconceptions?.length || 0, icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/5' },
-            { label: t.teacher.bridges, value: '18', icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
+            { label: t.teacher.participation, value: stats.total, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
+            { label: t.teacher.mastery, value: `${stats.mastery}%`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/5' },
+            { label: t.teacher.gaps, value: insights?.commonMisconceptions?.length || 0, icon: AlertTriangle, color: 'text-rose-500', bg: 'bg-rose-500/5' },
+            { label: t.teacher.bridges, value: analyses?.length || 0, icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
           ].map((stat) => (
             <Card key={stat.label} className="border-2 shadow-sm rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all">
               <CardContent className="p-8">
@@ -172,119 +241,146 @@ export default function TeacherPage() {
           ))}
         </div>
 
-        <Tabs defaultValue="Cell Biology" className="w-full" onValueChange={setActiveTopic}>
-          <div className="bg-white/50 backdrop-blur-sm p-2 rounded-[2.5rem] shadow-xl border-2 inline-flex mb-12">
-             <TabsList className="bg-transparent h-auto p-0 gap-2">
-               {['Cell Biology', 'Geometry', 'History'].map(topic => (
-                 <TabsTrigger 
-                   key={topic}
-                   value={topic} 
-                   className="data-[state=active]:bg-primary data-[state=active]:text-white h-14 px-12 font-black transition-all rounded-[1.8rem] text-muted-foreground uppercase tracking-widest text-xs"
-                 >
-                   {topic}
-                 </TabsTrigger>
-               ))}
-             </TabsList>
+        {/* Main Content Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* Left: Misunderstanding Analysis & At-Risk */}
+          <div className="lg:col-span-4 space-y-12">
+            <Card className="pro-card p-10 space-y-8">
+              <div className="space-y-2">
+                <CardTitle className="text-2xl font-black font-headline tracking-tighter text-foreground uppercase">Cognitive Distribution</CardTitle>
+                <CardDescription className="font-medium">Types of misunderstanding detected across class</CardDescription>
+              </div>
+              <div className="h-[280px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {stats.chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card className="pro-card p-0 overflow-hidden border-rose-100 bg-rose-50/20">
+              <CardHeader className="p-10 border-b border-rose-100 bg-rose-500/5">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-rose-500 rounded-2xl text-white">
+                    <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <CardTitle className="text-2xl font-black font-headline tracking-tighter text-rose-800 uppercase">At-Risk Students</CardTitle>
+                </div>
+              </CardHeader>
+              <div className="p-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-rose-100">
+                      <TableHead className="font-black text-[10px] uppercase text-rose-900/40">Student UID</TableHead>
+                      <TableHead className="text-right font-black text-[10px] uppercase text-rose-900/40">Gaps</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {atRiskStudents.length > 0 ? atRiskStudents.map((s: any) => (
+                      <TableRow key={s.id} className="border-rose-100 hover:bg-white transition-colors">
+                        <TableCell className="font-bold text-rose-950 truncate max-w-[120px]">{s.id}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge className="bg-rose-500 text-white font-black">{s.failRate}%</Badge>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center py-10 text-muted-foreground italic font-medium">All students currently on track.</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
           </div>
 
-          <TabsContent value={activeTopic} className="space-y-12 outline-none">
-            {loading ? (
-              <div className="flex flex-col items-center justify-center py-48 space-y-10 bg-white rounded-[4rem] border-2 border-dashed border-primary/20">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
-                  <div className="w-32 h-32 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
-                    <Loader2 className="w-16 h-16 text-primary animate-spin" />
+          {/* Right: AI Insights & Intervention */}
+          <div className="lg:col-span-8 space-y-12">
+            <Tabs defaultValue="Cell Biology" className="w-full" onValueChange={setActiveTopic}>
+              <div className="bg-white/50 backdrop-blur-sm p-2 rounded-[2.5rem] shadow-xl border-2 inline-flex mb-8">
+                <TabsList className="bg-transparent h-auto p-0 gap-2">
+                  {['Cell Biology', 'Geometry', 'History'].map(topic => (
+                    <TabsTrigger 
+                      key={topic}
+                      value={topic} 
+                      className="data-[state=active]:bg-primary data-[state=active]:text-white h-12 px-8 font-black transition-all rounded-[1.8rem] text-muted-foreground uppercase tracking-widest text-[10px]"
+                    >
+                      {topic}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              <TabsContent value={activeTopic} className="space-y-12 outline-none">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-32 space-y-10 bg-white rounded-[3rem] border-2 border-dashed border-primary/20">
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    <p className="text-xl font-black text-muted-foreground/60">{t.teacher.synthesizing}</p>
                   </div>
-                </div>
-                <div className="text-center space-y-4">
-                  <p className="text-4xl font-black text-foreground font-headline tracking-tighter leading-none">{t.teacher.synthesizing}</p>
-                  <p className="text-xl text-muted-foreground max-w-sm font-medium mx-auto">{t.teacher.synthesizingDesc}</p>
-                </div>
-              </div>
-            ) : insights ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in slide-in-from-bottom-12 duration-1000">
-                <div className="lg:col-span-7 space-y-12">
-                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[3rem] bg-white">
-                    <div className="bg-primary/5 px-10 py-8 border-b-2 border-primary/10 flex items-center justify-between">
-                      <div className="flex items-center gap-6">
-                        <div className="p-4 bg-primary rounded-2xl text-white shadow-lg">
-                          <AlertTriangle className="w-7 h-7" />
-                        </div>
-                        <CardTitle className="text-3xl font-black font-headline text-primary tracking-tighter">
-                          {t.teacher.gapTitle}
-                        </CardTitle>
+                ) : insights ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Card className="pro-card overflow-hidden">
+                      <div className="bg-primary/5 px-8 py-6 border-b-2 border-primary/10 flex items-center gap-4">
+                        <AlertTriangle className="text-primary w-6 h-6" />
+                        <CardTitle className="text-xl font-black font-headline text-primary tracking-tighter uppercase">{t.teacher.gapTitle}</CardTitle>
                       </div>
-                      <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full uppercase tracking-widest text-[10px]">{t.teacher.highPriority}</Badge>
-                    </div>
-                    <CardContent className="p-10 space-y-8">
-                      {insights.commonMisconceptions.map((m: string, i: number) => (
-                        <div key={i} className="group flex items-start gap-8 p-8 bg-secondary/30 rounded-[2.5rem] border-2 border-transparent hover:border-primary/30 hover:bg-white transition-all duration-500 shadow-sm">
-                          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white border-2 border-primary/10 flex items-center justify-center text-primary font-black text-2xl shadow-sm group-hover:scale-110 transition-transform">
-                            {i+1}
+                      <CardContent className="p-8 space-y-4">
+                        {insights.commonMisconceptions.map((m: string, i: number) => (
+                          <div key={i} className="flex items-start gap-4 p-5 bg-secondary/30 rounded-2xl">
+                            <span className="font-black text-primary/30 text-lg">{i+1}</span>
+                            <p className="text-sm font-bold leading-relaxed">{m}</p>
                           </div>
-                          <p className="text-foreground text-xl leading-relaxed font-bold tracking-tight group-hover:text-primary transition-colors">{m}</p>
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
+                        ))}
+                      </CardContent>
+                    </Card>
 
-                  <Card className="border-2 shadow-2xl rounded-[3rem] bg-white overflow-hidden">
-                    <CardHeader className="p-10 border-b-2 border-border/50 bg-secondary/20">
-                      <CardTitle className="flex items-center gap-4 text-primary font-black font-headline text-2xl tracking-tighter">
-                        <BarChart3 className="w-7 h-7" />
-                        {t.teacher.summary}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-10">
-                      <p className="text-2xl leading-relaxed text-foreground font-medium italic">
-                        "{insights.summaryExplanation}"
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="lg:col-span-5">
-                  <Card className="border-none bg-primary shadow-[0_50px_100px_-20px_rgba(59,130,246,0.5)] rounded-[3rem] h-full overflow-hidden relative">
-                    <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12 scale-150">
-                      <Lightbulb className="w-64 h-64 text-white" />
-                    </div>
-                    <CardHeader className="p-12 relative">
-                      <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/10 rounded-full text-white font-black uppercase tracking-[0.2em] text-[10px] mb-6 backdrop-blur-xl border border-white/20">
-                        <Sparkles className="w-5 h-5" />
-                        {t.teacher.intervention}
+                    <Card className="border-none bg-primary text-white shadow-2xl rounded-[3rem] overflow-hidden relative">
+                      <div className="absolute top-0 right-0 p-10 opacity-10">
+                        <Sparkles className="w-48 h-48" />
                       </div>
-                      <CardTitle className="text-5xl font-black text-white font-headline leading-[0.9] tracking-tighter">
-                        {t.teacher.adaptive.split(' ')[0]} <br/>{t.teacher.adaptive.split(' ')[1]}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-12 pt-0 space-y-8 relative">
-                      {insights.suggestedTeachingPoints.map((point: string, i: number) => (
-                        <div key={i} className="flex gap-6 p-8 bg-white/95 backdrop-blur-sm rounded-[2.5rem] shadow-2xl hover:translate-x-3 transition-all duration-500 group">
-                          <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                            <CheckCircle2 className="w-7 h-7" />
+                      <CardHeader className="p-10 relative">
+                        <Badge className="bg-white/20 text-white border-none uppercase text-[9px] mb-4 w-fit">{t.teacher.intervention}</Badge>
+                        <CardTitle className="text-4xl font-black font-headline tracking-tighter leading-none">{t.teacher.adaptive}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-10 pt-0 space-y-6 relative">
+                        {insights.suggestedTeachingPoints.map((point: string, i: number) => (
+                          <div key={i} className="flex gap-4 p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
+                            <CheckCircle2 className="w-6 h-6 shrink-0 text-white" />
+                            <p className="text-sm font-bold leading-snug">{point}</p>
                           </div>
-                          <p className="text-lg font-black leading-snug text-foreground/90">{point}</p>
-                        </div>
-                      ))}
-                      <div className="pt-6">
-                         <Button className="w-full h-16 rounded-2xl bg-white text-primary font-black text-lg hover:bg-white/90 shadow-xl group active:scale-95 transition-all">
-                            {t.teacher.export} <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
-                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-48 bg-white rounded-[4rem] border-2 border-dashed border-muted/50 group">
-                <div className="w-32 h-32 mx-auto mb-10 bg-secondary/50 rounded-[2.5rem] flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                  <BarChart3 className="w-16 h-16 text-muted-foreground/30" />
-                </div>
-                <p className="text-4xl font-black text-muted-foreground/30 font-headline tracking-tighter">{t.teacher.selectTopic}</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                        ))}
+                        <Button className="w-full h-14 rounded-2xl bg-white text-primary font-black hover:bg-white/90 active:scale-95 transition-all mt-6">
+                          {t.teacher.export} <ArrowRight className="ml-2 w-5 h-5" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="text-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-muted/50">
+                    <BarChart3 className="w-16 h-16 text-muted-foreground/30 mx-auto mb-6" />
+                    <p className="text-2xl font-black text-muted-foreground/30 font-headline uppercase">{t.teacher.selectTopic}</p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );
