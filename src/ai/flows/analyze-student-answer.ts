@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for analyzing student answers.
@@ -37,6 +38,9 @@ const prompt = ai.definePrompt({
   name: 'analyzeStudentAnswerPrompt',
   input: { schema: AnalyzeAnswerInputSchema },
   output: { schema: AnalyzeAnswerOutputSchema },
+  config: {
+    temperature: 0.4,
+  },
   prompt: `You are an expert pedagogical assistant. Analyze the student's understanding based on their answer to a specific question.
 
 Question: {{{question}}}

@@ -56,6 +56,9 @@ const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
+  config: {
+    temperature: 0.7,
+  },
   prompt: `You are an empathetic and creative educator creating "Learning Bridges" for students.
 When a student is incorrect, you provide a clear explanation AND a short, relatable story/analogy.
 
