@@ -1,30 +1,29 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 40% 98%; /* Professional blue-tinted white */
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%; /* Academic Blue */
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 217.2 91.2% 59.8%; /* Vibrant Bridge Blue */
+    --accent: 217.2 91.2% 59.8%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 1.25rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -36,12 +35,12 @@
     @apply bg-background text-foreground font-body antialiased selection:bg-primary/20;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline font-bold tracking-tight;
+    @apply font-headline font-black tracking-tighter;
   }
 }
 
 .pro-card {
-  @apply rounded-[2.5rem] border-2 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 active:scale-[0.98];
+  @apply rounded-[3rem] border-2 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 active:scale-[0.98];
 }
 
 .glass-nav {
@@ -50,18 +49,6 @@
 
 .hero-gradient {
   @apply bg-gradient-to-br from-white via-white to-primary/5;
-}
-
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
-}
-
-.lesson-progress-bar {
-  @apply h-2 rounded-full bg-secondary overflow-hidden;
-}
-
-.lesson-progress-fill {
-  @apply h-full bg-primary transition-all duration-700 ease-out;
 }
 
 @keyframes float {
@@ -82,4 +69,9 @@
 
 .animate-progress-loop {
   animation: progress-loop 2s infinite ease-in-out;
+}
+
+/* Properly aligned grid systems */
+.academic-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch;
 }
