@@ -19,6 +19,7 @@ export const translations = {
       loading: 'Loading...',
       logout: 'Sign Out',
       welcome: 'Welcome',
+      confirm: 'Confirm',
     },
     auth: {
       loginTitle: 'Sign In',
@@ -31,6 +32,10 @@ export const translations = {
       noAccount: 'New to ShikshaSetu?',
       haveAccount: 'Already have an account?',
       createAccount: 'Create Account',
+      forgotPassword: 'Forgot password?',
+      signingIn: 'Signing In...',
+      creatingAccount: 'Creating Account...',
+      passwordRequirement: 'Password must be at least 6 characters long.',
     },
     learn: {
       title: 'Learning',
@@ -40,6 +45,8 @@ export const translations = {
       lessons: 'Lessons',
       begin: 'Begin Module',
       review: 'Review Lesson',
+      academicBridge: 'Your Academic Bridge',
+      snapshot: 'Snapshot',
     },
     lesson: {
       progress: 'Module Progress',
@@ -56,6 +63,9 @@ export const translations = {
       awaiting: 'Awaiting Insight',
       awaitingDesc: 'Submit your answer to activate the AI Learning Bridge.',
       building: 'Building Knowledge Bridge',
+      analyzing: 'Gemini is analyzing the context of your response...',
+      conceptualStory: 'Conceptual Story',
+      visualConcept: 'Visual Concept',
     },
     profile: {
       title: 'User',
@@ -66,6 +76,9 @@ export const translations = {
       language: 'Primary Language',
       verifiedEducator: 'Verified Educator',
       studentScholar: 'Student Scholar',
+      placeholderName: 'Enter full name',
+      updated: 'Profile updated',
+      updatedDesc: 'Your changes have been saved successfully.',
     },
     teacher: {
       title: 'Class',
@@ -81,6 +94,13 @@ export const translations = {
       intervention: 'AI Intervention',
       adaptive: 'Adaptive Teaching',
       export: 'Export Lesson Plan',
+      highPriority: 'High Priority',
+      restricted: 'Access Restricted',
+      restrictedDesc: 'The Educator Dashboard requires verified teaching credentials. Please contact administration for access.',
+      returnStudent: 'Return to Student Portal',
+      synthesizing: 'Synthesizing Trends',
+      synthesizingDesc: 'AI is scanning response patterns to identify recurring cognitive gaps.',
+      selectTopic: 'Select a topic to generate insights.',
     }
   },
   hi: {
@@ -100,6 +120,7 @@ export const translations = {
       loading: 'लोड हो रहा है...',
       logout: 'साइन आउट',
       welcome: 'स्वागत है',
+      confirm: 'पुष्टि करें',
     },
     auth: {
       loginTitle: 'साइन इन करें',
@@ -112,6 +133,10 @@ export const translations = {
       noAccount: 'ShikshaSetu में नए हैं?',
       haveAccount: 'पहले से ही एक खाता है?',
       createAccount: 'खाता बनाएँ',
+      forgotPassword: 'पासवर्ड भूल गए?',
+      signingIn: 'साइन इन हो रहा है...',
+      creatingAccount: 'खाता बनाया जा रहा है...',
+      passwordRequirement: 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।',
     },
     learn: {
       title: 'सीखने की',
@@ -121,6 +146,8 @@ export const translations = {
       lessons: 'पाठ',
       begin: 'मॉड्यूल शुरू करें',
       review: 'पाठ की समीक्षा करें',
+      academicBridge: 'आपका शैक्षणिक सेतु',
+      snapshot: 'स्नैपशॉट',
     },
     lesson: {
       progress: 'मॉड्यूल प्रगति',
@@ -137,6 +164,9 @@ export const translations = {
       awaiting: 'इनसाइट की प्रतीक्षा',
       awaitingDesc: 'AI लर्निंग ब्रिज को सक्रिय करने के लिए अपना उत्तर सबमिट करें।',
       building: 'नॉलेज ब्रिज बनाना',
+      analyzing: 'जेमिनी आपके उत्तर के संदर्भ का विश्लेषण कर रहा है...',
+      conceptualStory: 'वैचारिक कहानी',
+      visualConcept: 'दृश्य अवधारणा',
     },
     profile: {
       title: 'उपयोगकर्ता',
@@ -147,6 +177,9 @@ export const translations = {
       language: 'प्राथमिक भाषा',
       verifiedEducator: 'सत्यापित शिक्षक',
       studentScholar: 'छात्र विद्वान',
+      placeholderName: 'पूरा नाम दर्ज करें',
+      updated: 'प्रोफ़ाइल अपडेट की गई',
+      updatedDesc: 'आपके परिवर्तन सफलतापूर्वक सहेज लिए गए हैं।',
     },
     teacher: {
       title: 'कक्षा',
@@ -162,6 +195,13 @@ export const translations = {
       intervention: 'AI हस्तक्षेप',
       adaptive: 'अनुकूलन शिक्षण',
       export: 'पाठ योजना निर्यात करें',
+      highPriority: 'उच्च प्राथमिकता',
+      restricted: 'पहुंच प्रतिबंधित',
+      restrictedDesc: 'शिक्षक डैशबोर्ड के लिए सत्यापित शिक्षण क्रेडेंशियल्स की आवश्यकता होती है। कृपया पहुंच के लिए प्रशासन से संपर्क करें।',
+      returnStudent: 'छात्र पोर्टल पर वापस लौटें',
+      synthesizing: 'रुझानों का संश्लेषण',
+      synthesizingDesc: 'AI बार-बार होने वाले संज्ञानात्मक अंतराल की पहचान करने के लिए प्रतिक्रिया पैटर्न को स्कैन कर रहा है।',
+      selectTopic: 'इनसाइट्स जनरेट करने के लिए एक विषय चुनें।',
     }
   },
   kn: {
@@ -181,6 +221,7 @@ export const translations = {
       loading: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...',
       logout: 'ಸೈನ್ ಔಟ್',
       welcome: 'ಸ್ವಾಗತ',
+      confirm: 'ದೃಢೀಕರಿಸಿ',
     },
     auth: {
       loginTitle: 'ಸೈನ್ ಇನ್',
@@ -193,6 +234,10 @@ export const translations = {
       noAccount: 'ShikshaSetu ಗೆ ಹೊಸಬರೇ?',
       haveAccount: 'ಈಗಾಗಲೇ ಖಾತೆ ಹೊಂದಿದ್ದೀರಾ?',
       createAccount: 'ಖಾತೆ ರಚಿಸಿ',
+      forgotPassword: 'ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ?',
+      signingIn: 'ಸೈನ್ ಇನ್ ಆಗುತ್ತಿದೆ...',
+      creatingAccount: 'ಖಾತೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...',
+      passwordRequirement: 'ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
     },
     learn: {
       title: 'ಕಲಿಕೆಯ',
@@ -202,6 +247,8 @@ export const translations = {
       lessons: 'ಪಾಠಗಳು',
       begin: 'ಮಾಡ್ಯೂಲ್ ಪ್ರಾರಂಭಿಸಿ',
       review: 'ಪಾಠವನ್ನು ಪರಿಶೀಲಿಸಿ',
+      academicBridge: 'ನಿಮ್ಮ ಶೈಕ್ಷಣಿಕ ಸೇತುವೆ',
+      snapshot: 'ಸ್ನ್ಯಾಪ್‌ಶಾಟ್',
     },
     lesson: {
       progress: 'ಮಾಡ್ಯೂಲ್ ಪ್ರಗತಿ',
@@ -218,6 +265,9 @@ export const translations = {
       awaiting: 'ಒಳನೋಟಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ',
       awaitingDesc: 'AI ಲರ್ನಿಂಗ್ ಬ್ರಿಡ್ಜ್ ಸಕ್ರಿಯಗೊಳಿಸಲು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಸಲ್ಲಿಸಿ.',
       building: 'ಜ್ಞಾನದ ಸೇತುವೆ ನಿರ್ಮಾಣ',
+      analyzing: 'ಜೆಮಿನಿ ನಿಮ್ಮ ಉತ್ತರದ ಸಂದರ್ಭವನ್ನು ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ...',
+      conceptualStory: 'ಪರಿಕಲ್ಪನೆಯ ಕಥೆ',
+      visualConcept: 'ದೃಶ್ಯ ಪರಿಕಲ್ಪನೆ',
     },
     profile: {
       title: 'ಬಳಕೆದಾರರ',
@@ -228,6 +278,9 @@ export const translations = {
       language: 'ಪ್ರಾಥಮಿಕ ಭಾಷೆ',
       verifiedEducator: 'ಪರಿಶೀಲಿಸಿದ ಶಿಕ್ಷಕರು',
       studentScholar: 'ವಿದ್ಯಾರ್ಥಿ ವಿದ್ವಾಂಸರು',
+      placeholderName: 'ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+      updated: 'ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಲಾಗಿದೆ',
+      updatedDesc: 'ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ.',
     },
     teacher: {
       title: 'ತರಗತಿ',
@@ -243,6 +296,13 @@ export const translations = {
       intervention: 'AI ಹಸ್ತಕ್ಷೇಪ',
       adaptive: 'ಅಡಾಪ್ಟಿವ್ ಬೋಧನೆ',
       export: 'ಪಾಠದ ಯೋಜನೆಯನ್ನು ರಫ್ತು ಮಾಡಿ',
+      highPriority: 'ಹೆಚ್ಚಿನ ಆದ್ಯತೆ',
+      restricted: 'ಪ್ರವೇಶ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ',
+      restrictedDesc: 'ಶಿಕ್ಷಕರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗಾಗಿ ಪರಿಶೀಲಿಸಿದ ಬೋಧನಾ ದಾಖಲೆಗಳ ಅಗತ್ಯವಿದೆ. ದಯವಿಟ್ಟು ಪ್ರವೇಶಕ್ಕಾಗಿ ಆಡಳಿತವನ್ನು ಸಂಪರ್ಕಿಸಿ.',
+      returnStudent: 'ವಿದ್ಯಾರ್ಥಿ ಪೋರ್ಟಲ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+      synthesizing: 'ಟ್ರೆಂಡ್‌ಗಳ ಸಂಶ್ಲೇಷಣೆ',
+      synthesizingDesc: 'ಮರುಕಳಿಸುವ ಜ್ಞಾನದ ಅಂತರಗಳನ್ನು ಗುರುತಿಸಲು AI ಪ್ರತಿಕ್ರಿಯೆ ಮಾದರಿಗಳನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡುತ್ತಿದೆ.',
+      selectTopic: 'ಒಳನೋಟಗಳನ್ನು ಪಡೆಯಲು ವಿಷಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ.',
     }
   }
 };

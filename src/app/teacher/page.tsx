@@ -107,14 +107,14 @@ export default function TeacherPage() {
             <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-[2.5rem] flex items-center justify-center text-destructive mb-8 rotate-12">
               <ShieldAlert className="w-12 h-12" />
             </div>
-            <CardTitle className="text-4xl font-black font-headline tracking-tighter">Access Restricted</CardTitle>
+            <CardTitle className="text-4xl font-black font-headline tracking-tighter">{t.teacher.restricted}</CardTitle>
             <CardDescription className="text-xl font-medium pt-4 px-4 leading-relaxed">
-              The Educator Dashboard requires verified teaching credentials. Please contact administration for access.
+              {t.teacher.restrictedDesc}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center pb-12">
             <Button size="lg" className="rounded-2xl font-black h-16 px-10 shadow-xl" onClick={() => router.push('/learn')}>
-              Return to Student Portal
+              {t.teacher.returnStudent}
             </Button>
           </CardContent>
         </Card>
@@ -163,7 +163,7 @@ export default function TeacherPage() {
                   <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
                     <stat.icon className="w-6 h-6" />
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-black opacity-30 uppercase border-2">Snapshot</Badge>
+                  <Badge variant="outline" className="text-[10px] font-black opacity-30 uppercase border-2">{t.learn.snapshot}</Badge>
                 </div>
                 <div className={`text-5xl font-black ${stat.color} tracking-tighter`}>{stat.value}</div>
                 <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-3">{stat.label}</p>
@@ -197,8 +197,8 @@ export default function TeacherPage() {
                   </div>
                 </div>
                 <div className="text-center space-y-4">
-                  <p className="text-4xl font-black text-foreground font-headline tracking-tighter leading-none">Synthesizing Trends</p>
-                  <p className="text-xl text-muted-foreground max-w-sm font-medium mx-auto">AI is scanning response patterns to identify recurring cognitive gaps.</p>
+                  <p className="text-4xl font-black text-foreground font-headline tracking-tighter leading-none">{t.teacher.synthesizing}</p>
+                  <p className="text-xl text-muted-foreground max-w-sm font-medium mx-auto">{t.teacher.synthesizingDesc}</p>
                 </div>
               </div>
             ) : insights ? (
@@ -214,7 +214,7 @@ export default function TeacherPage() {
                           {t.teacher.gapTitle}
                         </CardTitle>
                       </div>
-                      <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full uppercase tracking-widest text-[10px]">High Priority</Badge>
+                      <Badge className="bg-primary text-white font-black px-4 py-1 rounded-full uppercase tracking-widest text-[10px]">{t.teacher.highPriority}</Badge>
                     </div>
                     <CardContent className="p-10 space-y-8">
                       {insights.commonMisconceptions.map((m: string, i: number) => (
@@ -280,7 +280,7 @@ export default function TeacherPage() {
                 <div className="w-32 h-32 mx-auto mb-10 bg-secondary/50 rounded-[2.5rem] flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
                   <BarChart3 className="w-16 h-16 text-muted-foreground/30" />
                 </div>
-                <p className="text-4xl font-black text-muted-foreground/30 font-headline tracking-tighter">Select a topic <br/> to generate insights.</p>
+                <p className="text-4xl font-black text-muted-foreground/30 font-headline tracking-tighter">{t.teacher.selectTopic}</p>
               </div>
             )}
           </TabsContent>

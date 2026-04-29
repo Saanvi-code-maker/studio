@@ -111,7 +111,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t.auth.password}</Label>
-                <Link href="#" className="text-xs text-primary hover:underline font-bold">Forgot password?</Link>
+                <Link href="#" className="text-xs text-primary hover:underline font-bold">{t.auth.forgotPassword}</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -131,7 +131,7 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin h-5 w-5 mr-2" />
-                  Signing In...
+                  {t.auth.signingIn}
                 </>
               ) : (
                 <>

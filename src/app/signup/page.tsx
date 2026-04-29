@@ -40,7 +40,7 @@ export default function SignupPage() {
     e.preventDefault();
     if (!name || !email || !password) return;
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+      setError(t.auth.passwordRequirement);
       return;
     }
 
@@ -169,7 +169,7 @@ export default function SignupPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin h-5 w-5 mr-2" />
-                  Creating Account...
+                  {t.auth.creatingAccount}
                 </>
               ) : (
                 t.auth.createAccount

@@ -66,8 +66,8 @@ export default function ProfilePage() {
         updatedAt: new Date().toISOString()
       });
       toast({
-        title: "Profile updated",
-        description: "Your changes have been saved successfully.",
+        title: t.profile.updated,
+        description: t.profile.updatedDesc,
       });
     } catch (error: any) {
       toast({
@@ -128,7 +128,7 @@ export default function ProfilePage() {
                     id="displayName" 
                     value={displayName} 
                     onChange={(e) => setDisplayName(e.target.value)} 
-                    placeholder="Enter full name"
+                    placeholder={t.profile.placeholderName}
                     className="h-14 pl-12 border-2 rounded-2xl focus-visible:ring-primary font-bold text-lg"
                   />
                 </div>
