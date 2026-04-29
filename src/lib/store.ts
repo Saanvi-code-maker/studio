@@ -35,6 +35,8 @@ export const useStore = () => {
 
   const setLanguage = async (lang: string) => {
     localStorage.setItem('shikshasetu_lang', lang);
+    // Dispatch a custom event to notify useTranslation hook in the same tab
+    window.dispatchEvent(new CustomEvent('shikshasetu_lang_change', { detail: lang }));
     
     if (userDocRef) {
       updateDoc(userDocRef, {

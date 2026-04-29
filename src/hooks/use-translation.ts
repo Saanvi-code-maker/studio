@@ -6,7 +6,7 @@ import { translations, type Language } from '@/lib/translations';
 
 /**
  * Custom hook to manage application-wide translations.
- * It synchronizes with Firestore for logged-in users and localStorage for persistence.
+ * It synchronizes with Firestore for logged-in users and localStorage/events for instant updates.
  */
 export const useTranslation = () => {
   const { progress } = useStore();
@@ -31,8 +31,18 @@ export const useTranslation = () => {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  // Sync state if custom event is fired in the same tab
+  useEffect(() => {
+    const handleCustomEvent = (e: any) => {
+      if (e.detail && ['en', 'hi', 'kn'].includes(e.detail)) {
+        setLocalLang(e.detail);
+      }
+    };
+    window.addEventListener('shikshasetu_lang_change', handleCustomEvent);
+    return () => window.removeEventListener('shikshasetu_lang_change', handleCustomEvent);
+  }, []);
+
   // Preferred order: Remote (Firestore) -> Local (State/Storage) -> Default
-  // We prioritize state/local for instant UI updates, then sync from Firestore if available
   const lang = (progress?.languagePreference as Language) || localLang || 'en';
   const t = translations[lang] || translations.en;
 
