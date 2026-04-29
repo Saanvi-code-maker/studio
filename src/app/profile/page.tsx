@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,10 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2, LogOut, Save, User as UserIcon } from 'lucide-react';
+import { Loader2, LogOut, Save, User as UserIcon, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { SplashScreen } from '@/components/SplashScreen';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -47,11 +49,7 @@ export default function ProfilePage() {
   }, [profile]);
 
   if (isUserLoading || isProfileLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="animate-spin h-8 w-8 text-primary" />
-      </div>
-    );
+    return <SplashScreen message="Accessing Secure Profile" />;
   }
 
   if (!user) return null;
@@ -82,70 +80,99 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     await auth.signOut();
-    router.push('/');
+    router.push('/login');
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pt-20 bg-background">
+    <div className="min-h-screen pb-20 md:pt-24 bg-background hero-gradient">
       <Navigation />
-      <div className="max-w-2xl mx-auto p-4 space-y-8">
-        <header>
-          <h1 className="text-3xl font-bold font-headline">My Profile</h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences.</p>
+      <div className="max-w-3xl mx-auto px-6 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <header className="space-y-4">
+          <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
+            <UserIcon className="w-4 h-4" />
+            Account Management
+          </div>
+          <h1 className="text-6xl font-black font-headline tracking-tighter text-foreground leading-none">
+            User <span className="text-primary">Profile</span>
+          </h1>
         </header>
 
-        <Card className="border-2 rounded-[2rem] overflow-hidden">
-          <CardHeader className="flex flex-row items-center gap-6 bg-primary/5 p-8 border-b">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-xl">
+        <Card className="pro-card overflow-hidden">
+          <CardHeader className="flex flex-row items-center gap-8 bg-primary/5 p-10 border-b">
+            <Avatar className="h-28 w-28 border-4 border-white shadow-2xl">
               <AvatarFallback className="bg-primary text-white">
-                <UserIcon className="w-10 h-10" />
+                <UserIcon className="w-12 h-12" />
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1">
-              <CardTitle className="text-2xl font-black font-headline tracking-tight">{profile?.displayName || user.email}</CardTitle>
-              <CardDescription className="text-base font-medium">{user.email}</CardDescription>
-              <div className="mt-2">
-                <Badge variant="secondary" className="bg-primary text-white border-none uppercase tracking-widest text-[9px] px-3 py-1">
-                  {profile?.role || 'Student'}
+            <div className="flex-1 space-y-2">
+              <CardTitle className="text-4xl font-black font-headline tracking-tight text-foreground">
+                {profile?.displayName || user.email?.split('@')[0]}
+              </CardTitle>
+              <CardDescription className="text-lg font-medium text-muted-foreground">{user.email}</CardDescription>
+              <div className="pt-2">
+                <Badge className="bg-primary text-white border-none uppercase tracking-[0.2em] text-[9px] px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
+                  {profile?.role === 'teacher' ? 'Verified Educator' : 'Student Scholar'}
                 </Badge>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div className="space-y-2">
-              <Label htmlFor="displayName" className="font-black uppercase tracking-widest text-[10px] text-muted-foreground">Display Name</Label>
-              <Input 
-                id="displayName" 
-                value={displayName} 
-                onChange={(e) => setDisplayName(e.target.value)} 
-                placeholder="Your name"
-                className="h-12 border-2 rounded-xl focus-visible:ring-primary"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="language" className="font-black uppercase tracking-widest text-[10px] text-muted-foreground">Preferred Language</Label>
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger id="language" className="h-12 border-2 rounded-xl focus:ring-primary">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
-                  <SelectItem value="kn">ಕನ್ನಡ (Kannada)</SelectItem>
-                </SelectContent>
-              </Select>
+          <CardContent className="space-y-10 p-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-3">
+                <Label htmlFor="displayName" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">Display Name</Label>
+                <div className="relative">
+                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+                   <Input 
+                    id="displayName" 
+                    value={displayName} 
+                    onChange={(e) => setDisplayName(e.target.value)} 
+                    placeholder="Enter full name"
+                    className="h-14 pl-12 border-2 rounded-2xl focus-visible:ring-primary font-bold text-lg"
+                  />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Label htmlFor="language" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">Primary Language</Label>
+                <div className="relative">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary z-10" />
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language" className="h-14 pl-12 border-2 rounded-2xl focus:ring-primary font-bold text-lg">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl">
+                      <SelectItem value="en" className="font-bold py-3">English (US)</SelectItem>
+                      <SelectItem value="hi" className="font-bold py-3">हिन्दी (Hindi)</SelectItem>
+                      <SelectItem value="kn" className="font-bold py-3">ಕನ್ನಡ (Kannada)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between bg-muted/30 p-8">
-            <Button variant="ghost" className="text-destructive font-bold hover:bg-destructive/10 rounded-xl" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" /> Sign Out
+          <CardFooter className="flex items-center justify-between bg-secondary/30 p-10 border-t">
+            <Button 
+              variant="ghost" 
+              className="h-14 px-8 text-destructive font-black uppercase tracking-widest text-[11px] hover:bg-destructive/10 rounded-2xl transition-all" 
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-3 h-5 w-5" /> Sign Out
             </Button>
-            <Button onClick={handleSave} disabled={isSaving} className="font-bold px-8 h-11 rounded-xl shadow-lg shadow-primary/20">
-              {isSaving ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Save className="mr-2 h-4 w-4" />}
-              Save Changes
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving} 
+              className="h-14 px-12 font-black text-lg rounded-2xl shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95"
+            >
+              {isSaving ? <Loader2 className="animate-spin h-5 w-5 mr-3" /> : <Save className="mr-3 h-5 w-5" />}
+              Update Identity
             </Button>
           </CardFooter>
         </Card>
+
+        <div className="text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
+            ShikshaSetu Secure Academic Profile • v1.0.4
+          </p>
+        </div>
       </div>
     </div>
   );
