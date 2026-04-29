@@ -12,6 +12,7 @@ import { GraduationCap, Loader2, ArrowRight, Mail, Lock, AlertCircle } from 'luc
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SplashScreen } from '@/components/SplashScreen';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -61,11 +62,7 @@ export default function LoginPage() {
   };
 
   if (isUserLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="animate-spin h-12 w-12 text-primary" />
-      </div>
-    );
+    return <SplashScreen message="Preparing Secure Access" />;
   }
 
   return (

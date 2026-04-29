@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
+import { SplashScreen } from '@/components/SplashScreen';
 import { 
   AlertTriangle, 
   Lightbulb, 
@@ -56,7 +57,6 @@ export default function TeacherPage() {
         ?.filter(r => topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      // If no actual responses yet, use indicative data for demonstration
       const inputResponses = relevantResponses.length > 0 ? relevantResponses : [
         "Mitochondria is only in plant cells because they need to grow.",
         "Cells are just blocks of matter with no life.",
@@ -88,14 +88,7 @@ export default function TeacherPage() {
   }, [activeTopic, teacherDoc, responses?.length]);
 
   if (isUserLoading || isTeacherCheckLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <p className="text-primary font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">Verifying Credentials</p>
-        </div>
-      </div>
-    );
+    return <SplashScreen message="Verifying Educator Credentials" />;
   }
 
   if (!user) return null;

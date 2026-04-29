@@ -10,7 +10,6 @@ import {
   CheckCircle2, 
   ChevronRight, 
   Clock, 
-  Loader2, 
   Sparkles, 
   Beaker, 
   Calculator, 
@@ -20,6 +19,7 @@ import {
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
+import { SplashScreen } from '@/components/SplashScreen';
 
 const LESSONS = [
   {
@@ -63,14 +63,7 @@ export default function LearnPage() {
   }, [user, isUserLoading, router]);
 
   if (isUserLoading || isProgressLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin h-12 w-12 text-primary" />
-          <p className="text-primary font-black uppercase tracking-[0.2em] text-[10px] animate-pulse">Syncing Progress</p>
-        </div>
-      </div>
-    );
+    return <SplashScreen message="Syncing Academic Progress" />;
   }
 
   if (!user) return null;
