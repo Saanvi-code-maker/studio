@@ -34,11 +34,14 @@ export const useStore = () => {
   const { data: progressData, isLoading } = useDoc<StudentProgress>(userDocRef);
 
   const setLanguage = async (lang: string) => {
+    localStorage.setItem('shikshasetu_lang', lang);
+    
     if (userDocRef) {
       updateDoc(userDocRef, {
         languagePreference: lang,
         updatedAt: serverTimestamp()
       }).catch(err => {
+        // Silently fail for UI if rules block it, local storage is primary for UI
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
@@ -46,7 +49,6 @@ export const useStore = () => {
         }));
       });
     }
-    localStorage.setItem('shikshasetu_lang', lang);
   };
 
   const saveResponseWithAnalysis = (

@@ -100,6 +100,12 @@ export const translations = {
       synthesizing: 'Synthesizing Trends',
       synthesizingDesc: 'AI is scanning response patterns to identify recurring cognitive gaps.',
       selectTopic: 'Select a topic to generate insights.',
+      cognitiveDistribution: 'Cognitive Distribution',
+      misunderstandingTypes: 'Types of misunderstanding detected across class',
+      atRisk: 'At-Risk Students',
+      studentUid: 'Student UID',
+      failureRate: 'Failure Rate',
+      onTrack: 'All students currently on track.',
     }
   },
   hi: {
@@ -201,6 +207,12 @@ export const translations = {
       synthesizing: 'रुझानों का संश्लेषण',
       synthesizingDesc: 'AI बार-बार होने वाले संज्ञानात्मक अंतराल की पहचान करने के लिए प्रतिक्रिया पैटर्न को स्कैन कर रहा है।',
       selectTopic: 'इनसाइट्स जनरेट करने के लिए एक विषय चुनें।',
+      cognitiveDistribution: 'संज्ञानात्मक वितरण',
+      misunderstandingTypes: 'पूरी कक्षा में गलतफहमी के प्रकार',
+      atRisk: 'जोखिम में छात्र',
+      studentUid: 'छात्र आईडी',
+      failureRate: 'विफलता दर',
+      onTrack: 'सभी छात्र अभी ट्रैक पर हैं।',
     }
   },
   kn: {
@@ -302,6 +314,12 @@ export const translations = {
       synthesizing: 'ಟ್ರೆಂಡ್‌ಗಳ ಸಂಶ್ಲೇಷಣೆ',
       synthesizingDesc: 'ಮರುಕಳಿಸುವ ಜ್ಞಾನದ ಅಂತರಗಳನ್ನು ಗುರುತಿಸಲು AI ಪ್ರತಿಕ್ರಿಯೆ ಮಾದರಿಗಳನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡುತ್ತಿದೆ.',
       selectTopic: 'ಒಳನೋಟಗಳನ್ನು ಪಡೆಯಲು ವಿಷಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ.',
+      cognitiveDistribution: 'ಅರಿವಿನ ವಿತರಣೆ',
+      misunderstandingTypes: 'ತರಗತಿಯಲ್ಲಿ ಕಂಡುಬರುವ ತಪ್ಪು ತಿಳುವಳಿಕೆಗಳ ವಿಧಗಳು',
+      atRisk: 'ಅಪಾಯದಲ್ಲಿರುವ ವಿದ್ಯಾರ್ಥಿಗಳು',
+      studentUid: 'ವಿದ್ಯಾರ್ಥಿ ಐಡಿ',
+      failureRate: 'ವಿಫಲತೆ ದರ',
+      onTrack: 'ಎಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿಗಳು ಪ್ರಸ್ತುತ ಸರಿಯಾದ ಹಾದಿಯಲ್ಲಿದ್ದಾರೆ.',
     }
   }
 };

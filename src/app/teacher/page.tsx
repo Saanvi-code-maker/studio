@@ -65,8 +65,6 @@ export default function TeacherPage() {
   const { data: responses, isLoading: isResponsesLoading } = useCollection(responsesQuery);
   const { data: analyses, isLoading: isAnalysesLoading } = useCollection(analysesQuery);
 
-  // --- Analytical Calculations ---
-
   const stats = useMemo(() => {
     if (!responses || !analyses) return { mastery: 0, total: 0, chartData: [] };
     
@@ -81,10 +79,10 @@ export default function TeacherPage() {
     }, {});
 
     const chartData = [
-      { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' }, // Red
-      { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' }, // Yellow
-      { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' }, // Blue
-      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' } // Green
+      { name: 'Confused', value: typeCounts['confused'] || 0, color: '#f43f5e' },
+      { name: 'Partial', value: typeCounts['partial_understanding'] || 0, color: '#eab308' },
+      { name: 'Guessing', value: typeCounts['guessing'] || 0, color: '#3b82f6' },
+      { name: 'Correct', value: (total - analyses.length) || 0, color: '#10b981' }
     ].filter(d => d.value > 0);
 
     return { mastery, total, chartData };
@@ -114,8 +112,6 @@ export default function TeacherPage() {
       .sort((a, b) => b.failRate - a.failRate);
   }, [responses]);
 
-  // --- Fetch AI Insights ---
-
   const fetchInsights = async (topic: string) => {
     if (!user || !teacherDoc) return;
     setLoading(true);
@@ -125,7 +121,6 @@ export default function TeacherPage() {
         ?.filter(r => !r.isCorrect && topicKeywords.some(kw => (r.lessonId || '').toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      // Fallback for demo if no real data yet
       const inputResponses = relevantResponses.length > 5 ? relevantResponses : [
         "Mitochondria is only in plant cells.",
         "Cells are the same as bricks.",
@@ -216,7 +211,6 @@ export default function TeacherPage() {
           </Button>
         </header>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             { label: t.teacher.participation, value: stats.total, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
@@ -239,15 +233,12 @@ export default function TeacherPage() {
           ))}
         </div>
 
-        {/* Main Content Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Left: Misunderstanding Analysis & At-Risk */}
           <div className="lg:col-span-4 space-y-12">
             <Card className="pro-card p-10 space-y-8">
               <div className="space-y-2">
-                <CardTitle className="text-2xl font-black font-headline tracking-tighter text-foreground uppercase">Cognitive Distribution</CardTitle>
-                <CardDescription className="font-medium">Types of misunderstanding detected across class</CardDescription>
+                <CardTitle className="text-2xl font-black font-headline tracking-tighter text-foreground uppercase">{t.teacher.cognitiveDistribution}</CardTitle>
+                <CardDescription className="font-medium">{t.teacher.misunderstandingTypes}</CardDescription>
               </div>
               <div className="h-[280px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -278,15 +269,15 @@ export default function TeacherPage() {
                   <div className="p-3 bg-rose-500 rounded-2xl text-white">
                     <AlertCircle className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-2xl font-black font-headline tracking-tighter text-rose-800 uppercase">At-Risk Students</CardTitle>
+                  <CardTitle className="text-2xl font-black font-headline tracking-tighter text-rose-800 uppercase">{t.teacher.atRisk}</CardTitle>
                 </div>
               </CardHeader>
               <div className="p-4">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent border-rose-100">
-                      <TableHead className="font-black text-[10px] uppercase text-rose-900/40">Student UID</TableHead>
-                      <TableHead className="text-right font-black text-[10px] uppercase text-rose-900/40">Failure Rate</TableHead>
+                      <TableHead className="font-black text-[10px] uppercase text-rose-900/40">{t.teacher.studentUid}</TableHead>
+                      <TableHead className="text-right font-black text-[10px] uppercase text-rose-900/40">{t.teacher.failureRate}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -299,7 +290,7 @@ export default function TeacherPage() {
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={2} className="text-center py-10 text-muted-foreground italic font-medium">All students currently on track.</TableCell>
+                        <TableCell colSpan={2} className="text-center py-10 text-muted-foreground italic font-medium">{t.teacher.onTrack}</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
@@ -308,7 +299,6 @@ export default function TeacherPage() {
             </Card>
           </div>
 
-          {/* Right: AI Insights & Intervention */}
           <div className="lg:col-span-8 space-y-12">
             <Tabs defaultValue="Cell Biology" className="w-full" onValueChange={setActiveTopic}>
               <div className="bg-white/50 backdrop-blur-sm p-2 rounded-[2.5rem] shadow-xl border-2 inline-flex mb-8">
