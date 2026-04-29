@@ -6,7 +6,7 @@ import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles, LayoutGrid, Beaker, Calculator, Landmark } from 'lucide-react';
+import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles, LayoutGrid, Beaker, Calculator, Landmark, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
@@ -18,7 +18,7 @@ const LESSONS = [
     subject: 'Biology',
     duration: '15 min',
     icon: Beaker,
-    description: 'Master the fundamental building blocks of complex life and their intricate functions.',
+    description: 'Master the fundamental building blocks of life and their intricate functions.',
     difficulty: 'Introductory'
   },
   {
@@ -62,94 +62,99 @@ export default function LearnPage() {
 
   if (!user) return null;
 
-  const completionRate = Math.round(((progress?.completedLessons?.length || 0) / LESSONS.length) * 100);
+  const completedCount = progress?.completedLessons?.length || 0;
+  const completionRate = Math.round((completedCount / LESSONS.length) * 100);
 
   return (
-    <div className="min-h-screen pb-24 md:pt-24 bg-background">
+    <div className="min-h-screen pb-24 md:pt-24 hero-gradient">
       <Navigation />
       <div className="max-w-6xl mx-auto px-6 space-y-12">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-700">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[11px]">
-              <LayoutGrid className="w-4 h-4" />
-              Learning Journey
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-1000">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
+              <Sparkles className="w-4 h-4" />
+              Your Academic Bridge
             </div>
-            <h1 className="text-6xl font-black font-headline text-foreground tracking-tighter leading-none">
-              Student Portal
+            <h1 className="text-6xl md:text-7xl font-black font-headline text-foreground tracking-tighter leading-none">
+              Learning <span className="text-primary">Journey</span>
             </h1>
             <p className="text-xl text-muted-foreground font-medium max-w-xl">
-              Elevate your understanding with AI-guided personalized education.
+              Personalized AI paths designed to help you master complex topics through intuitive explanations.
             </p>
           </div>
           
-          <div className="bg-white p-6 rounded-[2.5rem] border-2 shadow-sm flex items-center gap-8 min-w-[320px] relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-5">
-               <Sparkles className="w-20 h-20 text-primary" />
+          <div className="bg-white p-8 rounded-[3rem] border-2 shadow-2xl flex items-center gap-8 min-w-[340px] relative overflow-hidden group">
+             <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:rotate-12 transition-transform duration-700">
+               <Trophy className="w-32 h-32 text-primary" />
              </div>
-            <div className="flex-1 space-y-3 relative z-10">
-              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-muted-foreground">
-                <span>Current Mastery</span>
-                <span className="text-primary">{completionRate}%</span>
+            <div className="flex-1 space-y-4 relative z-10">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Class Mastery</span>
+                  <div className="text-4xl font-black text-primary leading-none">{completionRate}%</div>
+                </div>
+                <div className="text-right">
+                   <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Lessons</div>
+                   <div className="text-xl font-bold">{completedCount}/{LESSONS.length}</div>
+                </div>
               </div>
-              <Progress value={completionRate} className="h-3 rounded-full" />
-            </div>
-            <div className="h-16 w-16 rounded-[1.5rem] bg-primary/10 flex items-center justify-center text-primary relative z-10">
-              <Sparkles className="w-8 h-8" />
+              <Progress value={completionRate} className="h-3 rounded-full bg-primary/10" />
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-10">
-          {LESSONS.map((lesson) => {
+        <div className="grid grid-cols-1 gap-12">
+          {LESSONS.map((lesson, idx) => {
             const isCompleted = progress?.completedLessons?.includes(lesson.id);
             const Icon = lesson.icon;
             return (
-              <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                <Card className="pro-card group overflow-hidden border-2 rounded-[2.5rem]">
+              <Link key={lesson.id} href={`/lesson/${lesson.id}`} className="block">
+                <Card className="pro-card group overflow-hidden">
                   <div className="flex flex-col md:flex-row h-full">
-                    <div className="w-full md:w-32 h-32 md:h-auto bg-primary/5 flex items-center justify-center shrink-0 border-r border-border/50">
-                      <Icon className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-500" />
+                    <div className="w-full md:w-48 h-48 md:h-auto bg-primary/5 flex items-center justify-center shrink-0 border-r border-border/50 relative">
+                       <div className="absolute top-6 left-6 text-primary/10 text-6xl font-black">{idx + 1}</div>
+                       <Icon className="w-16 h-16 text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 relative z-10" />
                     </div>
-                    <div className="flex-1 p-8 flex flex-col justify-between">
-                      <div className="space-y-4">
+                    <div className="flex-1 p-10 flex flex-col justify-between">
+                      <div className="space-y-6">
                         <div className="flex items-start justify-between">
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             <div className="flex items-center gap-3">
-                              <Badge className="bg-primary/90 text-white border-none font-black px-3 py-1 shadow-sm rounded-full text-[9px] uppercase tracking-widest">
+                              <Badge className="bg-primary/10 text-primary border-none font-black px-4 py-1.5 shadow-none rounded-full text-[9px] uppercase tracking-widest">
                                 {lesson.subject}
                               </Badge>
-                              <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/10 font-black uppercase tracking-widest text-[9px] px-3 py-1">
+                              <Badge variant="secondary" className="bg-secondary/50 text-muted-foreground border-none font-black uppercase tracking-widest text-[9px] px-4 py-1.5">
                                 {lesson.difficulty}
                               </Badge>
                             </div>
-                            <CardTitle className="text-3xl font-black font-headline group-hover:text-primary transition-colors tracking-tight">
+                            <CardTitle className="text-4xl font-black font-headline group-hover:text-primary transition-colors tracking-tighter">
                               {lesson.title}
                             </CardTitle>
                           </div>
                           {isCompleted && (
-                            <div className="bg-green-50 p-2 rounded-xl border border-green-100 shadow-sm animate-in zoom-in-90">
-                              <CheckCircle2 className="text-green-500 h-6 w-6" />
+                            <div className="bg-green-500 p-3 rounded-2xl shadow-xl shadow-green-500/20 animate-in zoom-in-90 rotate-12">
+                              <CheckCircle2 className="text-white h-6 w-6" />
                             </div>
                           )}
                         </div>
-                        <CardDescription className="text-lg leading-relaxed text-muted-foreground line-clamp-2 font-medium">
+                        <CardDescription className="text-xl leading-relaxed text-muted-foreground/80 line-clamp-2 font-medium">
                           {lesson.description}
                         </CardDescription>
                       </div>
                       
-                      <div className="pt-6 flex items-center justify-between border-t border-border mt-6">
-                        <div className="flex items-center gap-8 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
+                      <div className="pt-8 flex items-center justify-between border-t border-border/50 mt-10">
+                        <div className="flex items-center gap-10 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                           <span className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-primary/60" />
+                            <Clock className="w-4 h-4 text-primary" />
                             {lesson.duration}
                           </span>
                           <span className="flex items-center gap-2">
-                            <BookOpen className="w-4 h-4 text-primary/60" />
-                            AI Adaptive
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            AI Adaptive Path
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-[10px] group-hover:translate-x-2 transition-transform">
-                          Continue Learning <ChevronRight className="w-4 h-4" />
+                        <div className="flex items-center gap-3 text-primary font-black uppercase tracking-[0.1em] text-[11px] group-hover:translate-x-3 transition-transform duration-500">
+                          {isCompleted ? 'Review Lesson' : 'Begin Module'} <ChevronRight className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
