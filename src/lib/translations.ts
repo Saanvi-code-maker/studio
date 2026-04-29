@@ -271,7 +271,7 @@ export const translations = {
       },
       'math-1': {
         title: 'उन्नत ज्यामिति',
-        topic: 'गणित',
+        topic: 'गणಿತ',
         description: 'स्थानिक संबंधों, तार्किक प्रमाणों और ज्यामितीय गुणों का अन्वेषण करें।',
         questions: [
           {
