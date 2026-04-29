@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -12,7 +11,8 @@ import {
   Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useTranslation } from '@/hooks/use-translation';
 import { useStore } from '@/lib/store';
 import {
@@ -26,14 +26,23 @@ import {
 export const Navigation = () => {
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
+  const db = useFirestore();
   const { t, lang } = useTranslation();
   const { setLanguage } = useStore();
 
+  const userDocRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'users', user.uid);
+  }, [db, user]);
+
+  const { data: profile } = useDoc(userDocRef);
+  const isTeacher = profile?.role === 'teacher';
+
   const navItems = [
     { label: t.nav.learn, href: '/learn', icon: BookOpen },
-    { label: t.nav.teacher, href: '/teacher', icon: LayoutDashboard },
+    { label: t.nav.teacher, href: '/teacher', icon: LayoutDashboard, teacherOnly: true },
     { label: t.nav.profile, href: '/profile', icon: User },
-  ];
+  ].filter(item => !item.teacherOnly || isTeacher);
 
   const handleLanguageChange = (val: string) => {
     setLanguage(val);
@@ -41,7 +50,6 @@ export const Navigation = () => {
 
   return (
     <>
-      {/* Desktop Header */}
       <nav className="fixed top-0 left-0 right-0 glass-nav z-50 h-20 hidden md:block px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between h-full">
           <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 active:scale-95 group">
@@ -105,7 +113,6 @@ export const Navigation = () => {
         </div>
       </nav>
 
-      {/* Mobile Bottom Bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-border z-50 md:hidden h-20 px-4 flex items-center justify-around">
         {!isUserLoading && user ? (
           navItems.map((item) => {
@@ -137,18 +144,6 @@ export const Navigation = () => {
                 <LogIn className="h-5 w-5" />
                 {t.nav.signIn}
               </Link>
-              <div className="flex-1">
-                 <Select value={lang} onValueChange={handleLanguageChange}>
-                  <SelectTrigger className="h-10 rounded-xl border-none bg-secondary/30 font-black text-[10px] uppercase tracking-widest focus:ring-0">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl">
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="hi">Hindi</SelectItem>
-                    <SelectItem value="kn">Kannada</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
           </div>
         ) : (
           <div className="h-10 w-full bg-secondary/10 animate-pulse rounded-xl" />

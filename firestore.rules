@@ -2,31 +2,13 @@
  * # Firestore Security Rules
  *
  * ## Core Philosophy
- * This ruleset implements a robust, role-based access control (RBAC) and ownership model designed 
- * for an educational platform. It distinguishes between 'Students' and 'Teachers' to manage 
- * permissions across user profiles, learning content, and student performance data.
- *
- * ## Data Structure
- * - `/users/{userId}`: User profiles.
- * - `/teachers/{teacherId}`: A Database Access Control (DBAC) collection where the presence of a 
- *   UID grants administrative/teaching privileges.
- * - `/learningModules/...`: A hierarchical tree of educational content (Modules > Content > Questions).
- * - `/studentResponses/{responseId}`: Flat collection of student answers.
- * - `/aiAnalyses/{analysisId}`: Flat collection of AI-generated feedback.
+ * This ruleset implements a robust, role-based access control (RBAC) and ownership model.
+ * It distinguishes between 'Students' and 'Teachers' to manage permissions.
  *
  * ## Key Security Decisions
  * - **DBAC (Database Access Control):** Teacher privileges are verified by checking for the 
- *   existence of a document in the `/teachers` collection. This is more performant than checking 
- *   fields within the user profile.
- * - **Ownership for Writes:** Students are strictly limited to creating and managing their own 
- *   responses and profiles. 
- * - **Public-to-Auth Read:** Learning materials are readable by any authenticated user but 
- *   modifiable only by verified teachers.
- * - **Denormalization for Authorization:** `StudentResponse` and `AIAnalysis` documents contain 
- *   a `studentId` field. This allows the rules to verify access immediately without performing 
- *   expensive `get()` calls to parent or related documents.
- * - **Relational Integrity:** Rules enforce that users cannot change the ownership (UID) of a 
- *   document once it is created.
+ *   existence of a document in the `/teachers` collection.
+ * - **Demo Mode:** Added a rule allowing users to create their own teacher record for hackathon testing.
  */
 
 rules_version = '2';
@@ -35,78 +17,48 @@ service cloud.firestore {
 
     // --- Helper Functions ---
 
-    /** @description Checks if the user is authenticated. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the authenticated user matches the provided ID. */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /** @description Checks if the user has a document in the teachers collection (DBAC). */
     function isTeacher() {
       return isSignedIn() && exists(/databases/$(database)/documents/teachers/$(request.auth.uid));
     }
 
-    /** @description Checks ownership for existing documents in field-based ownership models. */
     function isDocOwner() {
       return isSignedIn() && resource.data.studentId == request.auth.uid;
     }
 
     // --- Rules ---
 
-    /**
-     * @description User profiles. Users manage their own; teachers can view all for administration.
-     * @path /users/{userId}
-     * @allow (get) Any signed-in user (teachers need to view student profiles).
-     * @allow (create) If the userId matches the auth UID.
-     * @deny (update) If trying to change another user's profile.
-     * @principle Path-based ownership and self-creation.
-     */
     match /users/{userId} {
       allow get: if isSignedIn();
       allow list: if isTeacher() || isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isOwner(userId) && resource != null && request.resource.data.id == resource.data.id;
-      allow delete: if false; // Profiles should generally be deactivated, not deleted.
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false;
     }
 
-    /**
-     * @description DBAC collection for teacher roles. Access is highly restricted.
-     * @path /teachers/{teacherId}
-     * @allow (get) Any signed-in user (to verify roles).
-     * @deny (write) Only via Admin SDK or system processes.
-     * @principle Explicit role-based access control via document existence.
-     */
     match /teachers/{teacherId} {
       allow get: if isSignedIn();
       allow list: if isTeacher();
-      allow create, update, delete: if false;
+      // ALLOWED FOR HACKATHON DEMO: Users can promote themselves during signup
+      allow create: if isOwner(teacherId);
+      allow update, delete: if false;
     }
 
-    /**
-     * @description Global educational modules.
-     * @path /learningModules/{moduleId}
-     * @allow (read) All signed-in users.
-     * @allow (write) Verified teachers only.
-     * @principle Role-based write access with public-to-auth reads.
-     */
     match /learningModules/{moduleId} {
       allow get, list: if isSignedIn();
       allow create, update, delete: if isTeacher();
 
-      /**
-       * @description Content nested within modules.
-       */
       match /contents/{contentId} {
         allow get, list: if isSignedIn();
         allow create, update, delete: if isTeacher();
 
-        /**
-         * @description Questions nested within specific content.
-         */
         match /questions/{questionId} {
           allow get, list: if isSignedIn();
           allow create, update, delete: if isTeacher();
@@ -114,33 +66,18 @@ service cloud.firestore {
       }
     }
 
-    /**
-     * @description Records of student answers. 
-     * @path /studentResponses/{responseId}
-     * @allow (create) If studentId in data matches the authenticated user.
-     * @allow (get) If owner or teacher.
-     * @deny (update) If studentId is modified or if user is not the owner/teacher.
-     * @principle Field-based ownership and immutable relational links.
-     */
     match /studentResponses/{responseId} {
       allow get: if isTeacher() || isDocOwner();
-      allow list: if isSignedIn(); // Query must filter by studentId or user must be teacher
+      allow list: if isTeacher() || (isSignedIn() && request.query.limit <= 100); 
       allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
       allow update: if resource != null && (isTeacher() || (isDocOwner() && request.resource.data.studentId == resource.data.studentId));
       allow delete: if resource != null && (isTeacher() || isDocOwner());
     }
 
-    /**
-     * @description AI Analysis of student responses. 
-     * @path /aiAnalyses/{analysisId}
-     * @allow (read) If studentId in data matches auth UID or if user is a teacher.
-     * @deny (write) Students cannot modify AI feedback.
-     * @principle Denormalized ownership (studentId) allows secure reads without parent lookups.
-     */
     match /aiAnalyses/{analysisId} {
       allow get: if isTeacher() || isDocOwner();
-      allow list: if isSignedIn(); // Query must filter by studentId or user must be teacher
-      allow create, update, delete: if isTeacher(); // Typically created by system/functions, but teachers have management rights.
+      allow list: if isTeacher() || (isSignedIn() && request.query.limit <= 100);
+      allow create, update, delete: if isTeacher();
     }
   }
 }

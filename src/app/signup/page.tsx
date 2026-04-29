@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Loader2, User as UserIcon, Mail, Lock, Sparkles, AlertCircle } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { GraduationCap, Loader2, User as UserIcon, Mail, Lock, Sparkles, AlertCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isTeacher, setIsTeacher] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -50,23 +51,32 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = userCredential.user;
 
-      // Initialize user profile in Firestore
+      // 1. Initialize user profile in Firestore
       await setDoc(doc(db, 'users', newUser.uid), {
         id: newUser.uid,
         displayName: name,
         email: email,
-        role: 'student',
+        role: isTeacher ? 'teacher' : 'student',
         languagePreference: 'en',
         completedLessons: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
+      // 2. If teacher, create DBAC record for security rules
+      if (isTeacher) {
+        await setDoc(doc(db, 'teachers', newUser.uid), {
+          id: newUser.uid,
+          email: email,
+          assignedAt: new Date().toISOString()
+        });
+      }
+
       toast({
         title: "Account created!",
-        description: "Welcome to ShikshaSetu, " + name + "!",
+        description: `Welcome to ShikshaSetu, ${name}! Logged in as ${isTeacher ? 'Teacher' : 'Student'}.`,
       });
-      router.push('/learn');
+      router.push(isTeacher ? '/teacher' : '/learn');
     } catch (err: any) {
       let message = "Something went wrong. Please try again.";
       if (err.code === 'auth/email-already-in-use') message = "This email is already registered.";
@@ -97,9 +107,9 @@ export default function SignupPage() {
         <div className="absolute top-0 right-0 p-4 opacity-10">
           <Sparkles className="w-16 h-16 text-primary" />
         </div>
-        <div className="bg-accent h-2 w-full" />
+        <div className={isTeacher ? "bg-primary h-2 w-full" : "bg-accent h-2 w-full"} />
         <CardHeader className="space-y-4 flex flex-col items-center pt-8 text-center">
-          <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center text-accent mb-2 -rotate-3 hover:rotate-0 transition-transform">
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-2 -rotate-3 hover:rotate-0 transition-transform ${isTeacher ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
             <GraduationCap className="w-10 h-10" />
           </div>
           <div>
@@ -119,6 +129,20 @@ export default function SignupPage() {
                 <AlertDescription className="text-xs font-bold">{error}</AlertDescription>
               </Alert>
             )}
+
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl border-2 border-dashed">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl ${isTeacher ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-black uppercase tracking-tight">Join as Educator</Label>
+                  <p className="text-[10px] text-muted-foreground font-medium">Grants access to dashboard</p>
+                </div>
+              </div>
+              <Switch checked={isTeacher} onCheckedChange={setIsTeacher} />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">{t.auth.fullName}</Label>
               <div className="relative">
@@ -165,7 +189,7 @@ export default function SignupPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-6 pb-8">
-            <Button className="w-full h-12 text-lg font-bold shadow-lg bg-accent hover:bg-accent/90 text-accent-foreground" type="submit" disabled={isLoading}>
+            <Button className={`w-full h-12 text-lg font-bold shadow-lg ${isTeacher ? 'bg-primary hover:bg-primary/90' : 'bg-accent hover:bg-accent/90'} text-white`} type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin h-5 w-5 mr-2" />
