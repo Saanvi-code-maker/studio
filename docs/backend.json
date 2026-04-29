@@ -1,71 +1,56 @@
 {
   "entities": {
-    "StudentProfile": {
+    "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "StudentProfile",
+      "title": "User",
       "type": "object",
-      "description": "Represents a student user's profile information, excluding authentication details.",
+      "description": "Represents a user of the application, either a student or a teacher, with their basic profile information.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the StudentProfile entity."
+          "description": "Unique identifier for the User entity."
         },
-        "name": {
+        "displayName": {
           "type": "string",
-          "description": "The full name of the student."
+          "description": "The user's display name."
         },
         "email": {
           "type": "string",
-          "description": "The email address of the student, used for identification.",
+          "description": "The user's email address, used for authentication (password not stored).",
           "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the application (student or teacher)."
         },
         "languagePreference": {
           "type": "string",
-          "description": "The preferred language code of the student (e.g., 'en', 'es')."
+          "description": "The user's preferred language for the application interface and content (e.g., 'en', 'es')."
         },
-        "assignedTeacherId": {
+        "createdAt": {
           "type": "string",
-          "description": "Reference to the TeacherProfile entity if this student is assigned to a specific teacher. (Relationship: TeacherProfile 1:N StudentProfile)"
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was last updated.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
-        "name",
+        "displayName",
         "email",
-        "languagePreference"
-      ]
-    },
-    "TeacherProfile": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "TeacherProfile",
-      "type": "object",
-      "description": "Represents a teacher user's profile information, excluding authentication details.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the TeacherProfile entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The full name of the teacher."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address of the teacher, used for identification.",
-          "format": "email"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "email"
+        "role",
+        "createdAt"
       ]
     },
     "LearningModule": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "LearningModule",
       "type": "object",
-      "description": "Represents a structured learning module or course, available in a specific language.",
+      "description": "Represents a structured learning unit or course module within a specific subject.",
       "properties": {
         "id": {
           "type": "string",
@@ -77,19 +62,19 @@
         },
         "description": {
           "type": "string",
-          "description": "A brief description of the learning module's content and objectives."
+          "description": "A brief description of what the module covers."
         },
         "subject": {
           "type": "string",
-          "description": "The subject area this module belongs to (e.g., 'Mathematics', 'Science')."
+          "description": "The subject category this module belongs to (e.g., 'Mathematics', 'Science')."
         },
-        "orderIndex": {
+        "order": {
           "type": "number",
-          "description": "The sequential order of this module within a curriculum or subject category."
+          "description": "The sequential order of this module within its subject or a learning path."
         },
         "languageCode": {
           "type": "string",
-          "description": "The language code for this version of the learning module (e.g., 'en', 'es')."
+          "description": "The language code for this module's content (e.g., 'en', 'es')."
         }
       },
       "required": [
@@ -97,47 +82,56 @@
         "title",
         "description",
         "subject",
-        "orderIndex",
+        "order",
         "languageCode"
       ]
     },
-    "Lesson": {
+    "LearningContent": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Lesson",
+      "title": "LearningContent",
       "type": "object",
-      "description": "Represents an individual lesson within a learning module, available in a specific language.",
+      "description": "Represents an individual piece of learning material within a module, such as a lesson, explanation, or visual aid.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Lesson entity."
+          "description": "Unique identifier for the LearningContent entity."
         },
-        "learningModuleId": {
+        "moduleId": {
           "type": "string",
-          "description": "Reference to the LearningModule this lesson belongs to. (Relationship: LearningModule 1:N Lesson)"
+          "description": "Reference to the LearningModule this content belongs to. (Relationship: LearningModule 1:N LearningContent)"
         },
         "title": {
           "type": "string",
-          "description": "The title of the lesson."
+          "description": "The title or heading of the content piece."
         },
-        "content": {
+        "contentType": {
           "type": "string",
-          "description": "The main educational content or text of the lesson."
+          "description": "The type of content (e.g., 'text', 'image', 'video', 'audio')."
         },
-        "orderIndex": {
+        "contentBody": {
+          "type": "string",
+          "description": "The main textual body of the content, if applicable (e.g., a markdown lesson)."
+        },
+        "mediaUrl": {
+          "type": "string",
+          "description": "URL to external media if contentType is 'image', 'video', or 'audio'.",
+          "format": "uri"
+        },
+        "orderInModule": {
           "type": "number",
-          "description": "The sequential order of this lesson within its learning module."
+          "description": "The sequential order of this content within its parent module."
         },
         "languageCode": {
           "type": "string",
-          "description": "The language code for this version of the lesson (e.g., 'en', 'es')."
+          "description": "The language code for this specific content item (e.g., 'en', 'es')."
         }
       },
       "required": [
         "id",
-        "learningModuleId",
+        "moduleId",
         "title",
-        "content",
-        "orderIndex",
+        "contentType",
+        "orderInModule",
         "languageCode"
       ]
     },
@@ -145,15 +139,15 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Question",
       "type": "object",
-      "description": "Represents an interactive question presented to students, available in a specific language.",
+      "description": "Represents an assessment question presented to students to test their understanding.",
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique identifier for the Question entity."
         },
-        "lessonId": {
+        "learningContentId": {
           "type": "string",
-          "description": "Reference to the Lesson this question is associated with. (Relationship: Lesson 1:N Question)"
+          "description": "Reference to the LearningContent this question is associated with. (Relationship: LearningContent 1:N Question)"
         },
         "questionText": {
           "type": "string",
@@ -161,34 +155,34 @@
         },
         "questionType": {
           "type": "string",
-          "description": "The type of question (e.g., 'text', 'quiz', 'voice')."
+          "description": "The type of question format (e.g., 'textInput', 'multipleChoice', 'voiceInput')."
         },
         "options": {
           "type": "array",
-          "description": "An array of possible answer options for 'quiz' type questions.",
+          "description": "An array of possible answer options for 'multipleChoice' questions.",
           "items": {
             "type": "string"
           }
         },
         "correctAnswer": {
           "type": "string",
-          "description": "The correct answer to the question, or the ID of the correct option for quiz questions."
-        },
-        "difficultyLevel": {
-          "type": "number",
-          "description": "An integer representing the difficulty level of the question (e.g., 1-5)."
+          "description": "The correct answer to the question. For multiple choice, this could be the text of the correct option or an identifier."
         },
         "languageCode": {
           "type": "string",
-          "description": "The language code for this version of the question (e.g., 'en', 'es')."
+          "description": "The language code for this question (e.g., 'en', 'es')."
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "The perceived difficulty level of the question (e.g., 'easy', 'medium', 'hard')."
         }
       },
       "required": [
         "id",
-        "lessonId",
+        "learningContentId",
         "questionText",
         "questionType",
-        "difficultyLevel",
+        "correctAnswer",
         "languageCode"
       ]
     },
@@ -196,7 +190,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "StudentResponse",
       "type": "object",
-      "description": "Records a student's answer or attempt for a specific question.",
+      "description": "Records a student's answer to a specific question, including their response and when it was submitted.",
       "properties": {
         "id": {
           "type": "string",
@@ -204,212 +198,74 @@
         },
         "studentId": {
           "type": "string",
-          "description": "Reference to the StudentProfile who submitted this response. (Relationship: StudentProfile 1:N StudentResponse)"
+          "description": "Reference to the User (student) who submitted this response. (Relationship: User 1:N StudentResponse)"
         },
         "questionId": {
           "type": "string",
-          "description": "Reference to the Question to which this response applies. (Relationship: Question 1:N StudentResponse)"
+          "description": "Reference to the Question that was answered. (Relationship: Question 1:N StudentResponse)"
         },
-        "responseContent": {
+        "responseValue": {
           "type": "string",
-          "description": "The actual content of the student's response (e.g., text input, selected option ID, voice transcription)."
+          "description": "The actual answer provided by the student."
         },
         "submittedAt": {
           "type": "string",
-          "description": "The timestamp when the student submitted the response.",
+          "description": "Timestamp when the student submitted their response.",
           "format": "date-time"
-        },
-        "isCorrect": {
-          "type": "boolean",
-          "description": "Indicates whether the student's response was objectively correct."
-        },
-        "score": {
-          "type": "number",
-          "description": "A numeric score assigned to the response, typically between 0 and 1."
-        },
-        "aiEvaluationStatus": {
-          "type": "string",
-          "description": "The AI's classification of the student's understanding (e.g., 'correct', 'incorrect', 'partial_knowledge', 'confused', 'guessing')."
-        },
-        "aiConfidenceScore": {
-          "type": "number",
-          "description": "A numeric value (0-1) indicating the AI's confidence in its evaluation of the response."
         }
       },
       "required": [
         "id",
         "studentId",
         "questionId",
-        "responseContent",
-        "submittedAt",
-        "isCorrect",
-        "score",
-        "aiEvaluationStatus",
-        "aiConfidenceScore"
+        "responseValue",
+        "submittedAt"
       ]
     },
-    "Explanation": {
+    "AIAnalysis": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Explanation",
+      "title": "AIAnalysis",
       "type": "object",
-      "description": "Represents an AI-generated explanation provided to a student based on their response, available in a specific language.",
+      "description": "Stores the results of the AI's analysis of a student's response, including identified issues and generated explanations.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Explanation entity."
+          "description": "Unique identifier for the AIAnalysis entity."
         },
         "studentResponseId": {
           "type": "string",
-          "description": "Reference to the StudentResponse this explanation is for. (Relationship: StudentResponse 1:1 Explanation)"
+          "description": "Reference to the StudentResponse that was analyzed. (Relationship: StudentResponse 1:1 AIAnalysis)"
         },
-        "generatedText": {
+        "analysisResultType": {
           "type": "string",
-          "description": "The text content of the AI-generated explanation."
+          "description": "The type of understanding identified by the AI (e.g., 'confusion', 'guessing', 'partialKnowledge', 'correct')."
         },
-        "explanationStyle": {
+        "explanationText": {
           "type": "string",
-          "description": "The style of the explanation (e.g., 'analogy', 'story', 'simple_language', 'visual_hint')."
+          "description": "The generated textual explanation provided by the AI to address the student's understanding."
+        },
+        "explanationType": {
+          "type": "string",
+          "description": "The format or style of the explanation (e.g., 'simpleLanguage', 'story', 'imageDescription')."
         },
         "imageUrl": {
           "type": "string",
-          "description": "An optional URL to an image or visual aid accompanying the explanation.",
+          "description": "URL to a supplementary image, if the explanation type involves visual aids.",
           "format": "uri"
         },
-        "languageCode": {
+        "generatedAt": {
           "type": "string",
-          "description": "The language code of the generated explanation (e.g., 'en', 'es')."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "The timestamp when the explanation was generated.",
+          "description": "Timestamp when the AI analysis and explanation were generated.",
           "format": "date-time"
         }
       },
       "required": [
         "id",
         "studentResponseId",
-        "generatedText",
-        "explanationStyle",
-        "languageCode",
-        "createdAt"
-      ]
-    },
-    "LearningProgress": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "LearningProgress",
-      "type": "object",
-      "description": "Tracks a student's progress within a specific learning module.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the LearningProgress entity."
-        },
-        "studentId": {
-          "type": "string",
-          "description": "Reference to the StudentProfile whose progress is being tracked. (Relationship: StudentProfile 1:N LearningProgress)"
-        },
-        "learningModuleId": {
-          "type": "string",
-          "description": "Reference to the LearningModule this progress record is for. (Relationship: LearningModule 1:N LearningProgress)"
-        },
-        "currentLessonId": {
-          "type": "string",
-          "description": "Reference to the Lesson the student is currently working on or last accessed within this module. (Relationship: Lesson 1:1 LearningProgress)"
-        },
-        "completedLessonIds": {
-          "type": "array",
-          "description": "An array of IDs of lessons that the student has completed within this module. (References to Lesson)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "lastActivityAt": {
-          "type": "string",
-          "description": "The timestamp of the student's last activity within this module.",
-          "format": "date-time"
-        },
-        "completionPercentage": {
-          "type": "number",
-          "description": "The percentage of the module completed by the student (0-100)."
-        },
-        "overallScore": {
-          "type": "number",
-          "description": "The student's aggregated score for all completed questions within this module."
-        }
-      },
-      "required": [
-        "id",
-        "studentId",
-        "learningModuleId",
-        "currentLessonId",
-        "completedLessonIds",
-        "lastActivityAt",
-        "completionPercentage",
-        "overallScore"
-      ]
-    },
-    "Misconception": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Misconception",
-      "type": "object",
-      "description": "Aggregated data representing common misconceptions identified among students, relevant for teacher insights.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Misconception entity."
-        },
-        "learningModuleId": {
-          "type": "string",
-          "description": "Reference to the LearningModule where this misconception is observed. (Relationship: LearningModule 1:N Misconception)"
-        },
-        "lessonId": {
-          "type": "string",
-          "description": "Reference to the Lesson where this misconception is most frequently encountered. (Relationship: Lesson 1:N Misconception)"
-        },
-        "questionId": {
-          "type": "string",
-          "description": "Reference to the Question that often triggers this misconception. (Relationship: Question 1:N Misconception)"
-        },
-        "misconceptionDescription": {
-          "type": "string",
-          "description": "A description of the common misunderstanding or error."
-        },
-        "commonIncorrectResponses": {
-          "type": "array",
-          "description": "An array of common incorrect answers or response patterns observed for this misconception.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "studentCountAffected": {
-          "type": "number",
-          "description": "The number of students who have demonstrated this specific misconception."
-        },
-        "severityLevel": {
-          "type": "string",
-          "description": "The perceived severity or impact of this misconception (e.g., 'low', 'medium', 'high')."
-        },
-        "detectedAt": {
-          "type": "string",
-          "description": "The timestamp when this misconception was first detected or last updated.",
-          "format": "date-time"
-        },
-        "languageCode": {
-          "type": "string",
-          "description": "The language code relevant to this misconception data (e.g., 'en', 'es')."
-        }
-      },
-      "required": [
-        "id",
-        "learningModuleId",
-        "lessonId",
-        "questionId",
-        "misconceptionDescription",
-        "commonIncorrectResponses",
-        "studentCountAffected",
-        "severityLevel",
-        "detectedAt",
-        "languageCode"
+        "analysisResultType",
+        "explanationText",
+        "explanationType",
+        "generatedAt"
       ]
     }
   },
@@ -422,162 +278,130 @@
   "firestore": {
     "structure": [
       {
-        "path": "/studentProfiles/{studentId}",
+        "path": "/users/{userId}",
         "definition": {
-          "entityName": "StudentProfile",
+          "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/StudentProfile"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores individual student profiles, accessible only by the owning student (`studentId` matches `request.auth.uid`). Includes `assignedTeacherId` for referencing the student's assigned teacher.",
+          "description": "Stores individual user profiles, accessible by the user themselves (read/write) and teachers (read). The `userId` matches `request.auth.uid`. Includes `role` for general identification but relies on `/teachers/{teacherId}` for explicit DBAC.",
           "params": [
             {
-              "name": "studentId",
-              "description": "The unique identifier of the student, matching their Firebase Authentication UID."
+              "name": "userId",
+              "description": "The unique ID of the user, matching Firebase Authentication UID."
             }
           ]
         }
       },
       {
-        "path": "/teacherProfiles/{teacherId}",
+        "path": "/teachers/{teacherId}",
         "definition": {
-          "entityName": "TeacherProfile",
+          "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/TeacherProfile"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores individual teacher profiles, accessible only by the owning teacher (`teacherId` matches `request.auth.uid`). The existence of a document here identifies a user as a teacher.",
+          "description": "A top-level collection used for Database Access Control (DBAC). The mere existence of a document here (where `teacherId` matches `request.auth.uid`) grants teacher privileges. No specific data beyond the UID is required, though a full user profile can be mirrored.",
           "params": [
             {
               "name": "teacherId",
-              "description": "The unique identifier of the teacher, matching their Firebase Authentication UID."
+              "description": "The unique ID of a teacher, matching Firebase Authentication UID."
             }
           ]
         }
       },
       {
-        "path": "/learningModules/{learningModuleId}",
+        "path": "/learningModules/{moduleId}",
         "definition": {
           "entityName": "LearningModule",
           "schema": {
             "$ref": "#/backend/entities/LearningModule"
           },
-          "description": "Publicly accessible collection for all learning modules. Read access is global. Write access is restricted to authorized teachers/admins.",
+          "description": "Globally accessible learning modules. All signed-in students and teachers can read. Only teachers can create, update, or delete modules. This structure supports QAPs for listing all available modules.",
           "params": [
             {
-              "name": "learningModuleId",
-              "description": "The unique identifier for a learning module."
+              "name": "moduleId",
+              "description": "The unique ID of the learning module."
             }
           ]
         }
       },
       {
-        "path": "/learningModules/{learningModuleId}/lessons/{lessonId}",
+        "path": "/learningModules/{moduleId}/contents/{contentId}",
         "definition": {
-          "entityName": "Lesson",
+          "entityName": "LearningContent",
           "schema": {
-            "$ref": "#/backend/entities/Lesson"
+            "$ref": "#/backend/entities/LearningContent"
           },
-          "description": "Subcollection of learning modules, storing individual lessons. Inherits public read access from its parent module.",
+          "description": "Individual pieces of learning content nested within specific learning modules. All signed-in students and teachers can read. Only teachers can manage (create, update, delete) content. Includes denormalized `moduleId` for direct content-to-module association, which also supports efficient queries.",
           "params": [
             {
-              "name": "learningModuleId",
-              "description": "The unique identifier for the parent learning module."
+              "name": "moduleId",
+              "description": "The unique ID of the parent learning module."
             },
             {
-              "name": "lessonId",
-              "description": "The unique identifier for a lesson within the module."
+              "name": "contentId",
+              "description": "The unique ID of the learning content item."
             }
           ]
         }
       },
       {
-        "path": "/learningModules/{learningModuleId}/lessons/{lessonId}/questions/{questionId}",
+        "path": "/learningModules/{moduleId}/contents/{contentId}/questions/{questionId}",
         "definition": {
           "entityName": "Question",
           "schema": {
             "$ref": "#/backend/entities/Question"
           },
-          "description": "Subcollection of lessons, storing questions. Inherits public read access from its parent lesson and module.",
+          "description": "Assessment questions nested within specific learning content. All signed-in students and teachers can read. Only teachers can manage (create, update, delete) questions. Includes denormalized `learningContentId` for direct question-to-content association, supporting efficient queries and QAPs for listing questions within content.",
           "params": [
             {
-              "name": "learningModuleId",
-              "description": "The unique identifier for the parent learning module."
+              "name": "moduleId",
+              "description": "The unique ID of the parent learning module."
             },
             {
-              "name": "lessonId",
-              "description": "The unique identifier for the parent lesson."
+              "name": "contentId",
+              "description": "The unique ID of the parent learning content item."
             },
             {
               "name": "questionId",
-              "description": "The unique identifier for a question within the lesson."
+              "description": "The unique ID of the question."
             }
           ]
         }
       },
       {
-        "path": "/studentResponses/{studentResponseId}",
+        "path": "/studentResponses/{responseId}",
         "definition": {
           "entityName": "StudentResponse",
           "schema": {
             "$ref": "#/backend/entities/StudentResponse"
           },
-          "description": "Stores student responses to questions. Includes denormalized `studentId` and `assignedTeacherId` for authorization independence. Accessible by the student owner and their assigned teacher.",
+          "description": "Records individual student answers to questions. Students can read/write their own responses. Teachers can read all responses (for dashboard/insights). Crucially, includes `studentId` (already in schema) for authorization independence, allowing `request.auth.uid == resource.data.studentId` rules for robust QAPs and atomic operations.",
           "params": [
             {
-              "name": "studentResponseId",
-              "description": "The unique identifier for a student's response."
+              "name": "responseId",
+              "description": "The unique ID of the student's response."
             }
           ]
         }
       },
       {
-        "path": "/explanations/{explanationId}",
+        "path": "/aiAnalyses/{analysisId}",
         "definition": {
-          "entityName": "Explanation",
+          "entityName": "AIAnalysis",
           "schema": {
-            "$ref": "#/backend/entities/Explanation"
+            "$ref": "#/backend/entities/AIAnalysis"
           },
-          "description": "Stores AI-generated explanations for student responses. Includes denormalized `studentId` and `assignedTeacherId` for authorization independence. Accessible by the student owner and their assigned teacher.",
+          "description": "Stores AI-generated analyses and explanations tied to student responses. Students can read their own analyses. Teachers can read all analyses. **CRITICAL: This document must include a denormalized `studentId` (copied from the associated `StudentResponse`) for authorization independence, enabling `request.auth.uid == resource.data.studentId` in security rules without fetching parent documents.** Also includes `studentResponseId` for 1:1 association.",
           "params": [
             {
-              "name": "explanationId",
-              "description": "The unique identifier for an AI-generated explanation."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/learningProgresses/{learningProgressId}",
-        "definition": {
-          "entityName": "LearningProgress",
-          "schema": {
-            "$ref": "#/backend/entities/LearningProgress"
-          },
-          "description": "Tracks student progress within learning modules. Includes denormalized `studentId` and `assignedTeacherId` for authorization independence. Accessible by the student owner and their assigned teacher.",
-          "params": [
-            {
-              "name": "learningProgressId",
-              "description": "The unique identifier for a student's learning progress record."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/misconceptions/{misconceptionId}",
-        "definition": {
-          "entityName": "Misconception",
-          "schema": {
-            "$ref": "#/backend/entities/Misconception"
-          },
-          "description": "Aggregated data on common student misconceptions, primarily for teacher insights. Readable by authenticated teachers. Write access is restricted to Cloud Functions.",
-          "params": [
-            {
-              "name": "misconceptionId",
-              "description": "The unique identifier for an identified misconception."
+              "name": "analysisId",
+              "description": "The unique ID of the AI analysis."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure for ShikshaSetu prioritizes secure, scalable, and debuggable access control by strictly adhering to the core design principles, especially Authorization Independence and Structural Segregation.\n\n**Authorization Independence (CRITICAL) & Denormalization:**\nTo eliminate the need for `get()` calls in security rules, which can break atomic operations and complicate debugging, authorization-relevant fields are denormalized. Specifically:\n\n1.  **Student-specific Data (`StudentResponse`, `Explanation`, `LearningProgress`):** These entities are primarily owned by a student but may also need to be accessible by an assigned teacher. Therefore, the `studentId` (corresponding to `request.auth.uid`) and the `assignedTeacherId` (denormalized from the `StudentProfile` of the `studentId`) are explicitly included in each document. This allows for direct authorization checks within rules, like `request.auth.uid == resource.data.studentId` or `request.auth.uid == resource.data.assignedTeacherId`, without needing to fetch parent documents.\n2.  **User Profiles (`StudentProfile`, `TeacherProfile`):** These are top-level collections, directly identified by the user's UID (`studentId` or `teacherId`), making access control straightforward (`request.auth.uid == studentId`). The `assignedTeacherId` in `StudentProfile` is a reference, not for direct rule authorization on the StudentProfile itself, but for denormalization into student-generated data.\n\n**Structural Segregation & Query-Aware Security Rules (QAPs):**\n\n1.  **Public Content (`LearningModule`, `Lesson`, `Question`):** These collections represent static, curriculum content that is globally readable by all users (students, teachers, even unauthenticated users if desired, though the app implies logged-in users). Their hierarchical structure (`/learningModules/{learningModuleId}/lessons/{lessonId}/questions/{questionId}`) is efficient for organizing content, and since all documents within these collections share a 'public read' security posture, security rules are simple and broad (`allow read: true`). This inherently supports QAPs as any list query on these collections is secure.\n2.  **Private User Data (`StudentProfile`, `TeacherProfile`):** These are top-level collections. `StudentProfile` documents are owned by the respective `studentId`, and `TeacherProfile` documents by `teacherId`. QAPs for these are trivial: a student queries their own profile, a teacher queries their own profile. For teachers querying students, a teacher's `teacherProfile` can list `assignedStudentIds`, and then the teacher can query `studentProfiles` where `id` is in `assignedStudentIds` (requiring `get()` in the rule or denormalization if individual student profiles need to be read without a `get()`). The primary goal is teacher *insights*.\n3.  **Collaborative/Private-but-shared Data (`StudentResponse`, `Explanation`, `LearningProgress`):** These are top-level collections to allow for flexible querying by both `studentId` and `assignedTeacherId`. For students, listing their own responses or progress uses `where('studentId', '==', request.auth.uid)`. For teachers, listing responses/progress for their students uses `where('assignedTeacherId', '==', request.auth.uid)`. This design ensures that all `list` operations are implicitly secured by the `where` clause matching the `request.auth.uid` against a denormalized field, satisfying QAPs.\n4.  **Teacher-Specific Insights (`Misconception`):** This collection is designed to aggregate data for teachers. It's readable by any authenticated user who is identified as a teacher (i.e., `exists(/teacherProfiles/request.auth.uid)`). This segregation ensures students cannot access this aggregate data, while teachers can perform list queries without needing complex filtering, supporting QAPs.\n\nThis structure ensures a clear separation of concerns, simplifies security rules dramatically, and enables efficient, secure querying for all defined user roles and data types, aligning with the core principles for a robust Firestore design."
+    "reasoning": "The Firestore data structure is designed to adhere strictly to the CORE DESIGN PRINCIPLES and DESIGN STRATEGY MANDATES, prioritizing Authorization Independence, Clarity of Intent, DBAC, and QAPs. \n\n1.  **Authorization Independence (Denormalization Strategy):**\n    *   **User Profiles (`/users/{userId}`):** User profiles are stored under `/users/{userId}`, where `userId` is directly derived from `request.auth.uid`. This path-based ownership inherently provides authorization independence, as users can only access their own document directly. \n    *   **Teacher Roles (`/teachers/{teacherId}`):** A dedicated top-level collection `/teachers/{teacherId}` is used for Database Access Control (DBAC). The mere existence of a document at `/teachers/{request.auth.uid}` explicitly grants teacher privileges, eliminating the need for `get()` calls on `User` profiles to check roles in rules, thus ensuring authorization independence for role checks.\n    *   **Student Responses (`/studentResponses/{responseId}`):** To ensure authorization independence, each `StudentResponse` document includes the `studentId` field. This allows security rules to evaluate access (`request.auth.uid == resource.data.studentId`) without needing to fetch any parent document, supporting atomic operations.\n    *   **AI Analysis (`/aiAnalyses/{analysisId}`):** Similarly, each `AIAnalysis` document **critically denormalizes the `studentId`** (copied from its associated `StudentResponse`). This enables direct authorization checks (`request.auth.uid == resource.data.studentId`) within the rules, completely independent of fetching the parent `StudentResponse` or `User` document. \n    *   **Learning Content (`/learningModules/.../questions`):** Learning content, modules, and questions are public for students (read-only) and managed by teachers (read/write). Their hierarchical structure (`/learningModules/{moduleId}/contents/{contentId}/questions/{questionId}`) primarily serves organization and efficient querying, rather than defining unique authorization per parent. Since their access posture is uniform, no specific denormalization for sub-collections is required beyond the inherent rule for the collection itself.\n\n2.  **QAPs (Secure List Operations):**\n    *   **Public Content (`/learningModules`, `/learningModules/{moduleId}/contents`, `/learningModules/{moduleId}/contents/{contentId}/questions`):** These collections are designed for broad `list` access by all authenticated users (students and teachers), fulfilling QAPs. Teachers have `create`/`update`/`delete` access, which is controlled by the `isTeacher()` DBAC check.\n    *   **Student-Specific Data (`/studentResponses`, `/aiAnalyses`):** For students, `list` operations are secured by explicitly filtering on the denormalized `studentId` (e.g., `db.collection('studentResponses').where('studentId', '==', auth.uid)`). Rules ensure `request.auth.uid == resource.data.studentId` for individual document access. For teachers, `list` access is granted across all documents in these collections, secured by the `isTeacher()` DBAC check.\n    *   **User Profiles (`/users`):** Students can `list` their own profile, teachers can `list` all profiles, which is handled by a combination of `request.auth.uid == userId` and `isTeacher()` rules, supporting QAPs.\n\nThis structure ensures a clear, debuggable, and scalable security model by minimizing rule complexity and maximizing authorization independence through strategic denormalization and structural segregation."
   }
 }
