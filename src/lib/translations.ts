@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'hi' | 'kn';
 
 export const translations = {
@@ -106,6 +107,20 @@ export const translations = {
       studentUid: 'Student UID',
       failureRate: 'Failure Rate',
       onTrack: 'All students currently on track.',
+      planner: 'AI Lesson Planner',
+      plannerDesc: 'Generate specialized lesson plans to address classroom gaps.',
+      progress: 'Progress Tracker',
+      studentName: 'Student Name',
+      biology: 'Biology',
+      math: 'Math',
+      history: 'History',
+      weakAreas: 'Weak Areas',
+      generatePlan: 'Generate Plan',
+      lessonTitle: 'Lesson Plan:',
+      objectives: 'Objectives',
+      activities: 'Activities',
+      assessment: 'Assessment',
+      adaptiveTips: 'Adaptive Tips',
     },
     content: {
       'biology-1': {
@@ -219,7 +234,7 @@ export const translations = {
       subtitle: 'प्रोफ़ाइल',
       management: 'खाता प्रबंधन',
       identity: 'पहचान अपडेट करें',
-      displayName: 'प्रदर्शित नाम',
+      displayName: 'प्रदर्शಿತ नाम',
       language: 'प्राथमिक भाषा',
       verifiedEducator: 'सत्यापित शिक्षक',
       studentScholar: 'छात्र विद्वान',
@@ -254,6 +269,20 @@ export const translations = {
       studentUid: 'छात्र आईडी',
       failureRate: 'विफलता दर',
       onTrack: 'सभी छात्र अभी ट्रैक पर हैं।',
+      planner: 'AI पाठ योजनाकार',
+      plannerDesc: 'कक्षा के अंतराल को दूर करने के लिए विशेष पाठ योजनाएं बनाएं।',
+      progress: 'प्रगति ट्रैकर',
+      studentName: 'छात्र का नाम',
+      biology: 'जीव विज्ञान',
+      math: 'गणित',
+      history: 'इतिहास',
+      weakAreas: 'कमजोर क्षेत्र',
+      generatePlan: 'योजना बनाएं',
+      lessonTitle: 'पाठ योजना:',
+      objectives: 'उद्देश्य',
+      activities: 'गतिविधियां',
+      assessment: 'आकलन',
+      adaptiveTips: 'अनुकूलन युक्तियाँ',
     },
     content: {
       'biology-1': {
@@ -271,7 +300,7 @@ export const translations = {
       },
       'math-1': {
         title: 'उन्नत ज्यामिति',
-        topic: 'गणಿತ',
+        topic: 'गणित',
         description: 'स्थानिक संबंधों, तार्किक प्रमाणों और ज्यामितीय गुणों का अन्वेषण करें।',
         questions: [
           {
@@ -402,6 +431,20 @@ export const translations = {
       studentUid: 'ವಿದ್ಯಾರ್ಥಿ ಐಡಿ',
       failureRate: 'ವಿಫಲತೆ ದರ',
       onTrack: 'ಎಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿಗಳು ಪ್ರಸ್ತುತ ಸರಿಯಾದ ಹಾದಿಯಲ್ಲಿದ್ದಾರೆ.',
+      planner: 'AI ಪಾಠ ಯೋಜಕ',
+      plannerDesc: 'ತರಗತಿಯ ಅಂತರವನ್ನು ಹೋಗಲಾಡಿಸಲು ವಿಶೇಷ ಪಾಠ ಯೋಜನೆಗಳನ್ನು ತಯಾರಿಸಿ.',
+      progress: 'ಪ್ರಗತಿ ಟ್ರ್ಯಾಕರ್',
+      studentName: 'ವಿದ್ಯಾರ್ಥಿಯ ಹೆಸರು',
+      biology: 'ಜೀವಶಾಸ್ತ್ರ',
+      math: 'ಗಣಿತ',
+      history: 'ಇತಿಹಾಸ',
+      weakAreas: 'ದುರ್ಬಲ ಪ್ರದೇಶಗಳು',
+      generatePlan: 'ಯೋಜನೆ ತಯಾರಿಸಿ',
+      lessonTitle: 'ಪಾಠದ ಯೋಜನೆ:',
+      objectives: 'ಗುರಿಗಳು',
+      activities: 'ಚಟುವಟಿಕೆಗಳು',
+      assessment: 'ಮೌಲ್ಯಮಾಪನ',
+      adaptiveTips: 'ಅಡಾಪ್ಟಿವ್ ಸಲಹೆಗಳು',
     },
     content: {
       'biology-1': {
