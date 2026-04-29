@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, User, GraduationCap, LogIn, LayoutDashboard, Sparkles } from 'lucide-react';
+import { 
+  BookOpen, 
+  User, 
+  GraduationCap, 
+  LogIn, 
+  LayoutDashboard 
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/firebase';
 
@@ -30,9 +36,9 @@ export const Navigation = () => {
             </span>
           </Link>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {user ? (
-              <>
+              <div className="flex items-center gap-2 bg-secondary/30 p-1.5 rounded-[1.5rem] border border-border/50">
                 {navItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.startsWith(item.href);
@@ -41,18 +47,18 @@ export const Navigation = () => {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2 text-sm font-black transition-all px-5 py-2.5 rounded-2xl group",
+                        "flex items-center gap-2 text-[10px] font-black transition-all px-5 py-2.5 rounded-[1.2rem] group",
                         isActive 
-                          ? "text-primary bg-primary/10 shadow-sm" 
-                          : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                          ? "text-primary bg-white shadow-md shadow-primary/5" 
+                          : "text-muted-foreground hover:text-primary hover:bg-white/50"
                       )}
                     >
-                      <Icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive && "animate-pulse")} />
-                      <span className="uppercase tracking-widest text-[11px]">{item.label}</span>
+                      <Icon className={cn("h-4 w-4 transition-transform group-hover:scale-110", isActive && "text-primary")} />
+                      <span className="uppercase tracking-widest">{item.label}</span>
                     </Link>
                   );
                 })}
-              </>
+              </div>
             ) : (
               <Link
                 href="/login"
@@ -77,14 +83,14 @@ export const Navigation = () => {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 transition-all p-2 rounded-xl min-w-[64px]",
+                  "flex flex-col items-center gap-1 transition-all p-2 rounded-xl min-w-[72px]",
                   isActive ? "text-primary scale-110" : "text-muted-foreground"
                 )}
               >
                 <Icon className={cn("h-6 w-6", isActive && "stroke-[2.5px]")} />
-                <span className="text-[10px] font-black uppercase tracking-tighter">{item.label}</span>
+                <span className="text-[9px] font-black uppercase tracking-tighter">{item.label}</span>
                 {isActive && (
-                  <div className="w-1 h-1 bg-primary rounded-full mt-0.5" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-0.5" />
                 )}
               </Link>
             );

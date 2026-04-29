@@ -3,10 +3,20 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navigation } from '@/components/Navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CheckCircle2, ChevronRight, Clock, Loader2, Sparkles, LayoutGrid, Beaker, Calculator, Landmark, Trophy } from 'lucide-react';
+import { 
+  CheckCircle2, 
+  ChevronRight, 
+  Clock, 
+  Loader2, 
+  Sparkles, 
+  Beaker, 
+  Calculator, 
+  Landmark, 
+  Trophy 
+} from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/lib/store';
 import { useUser } from '@/firebase';
@@ -63,13 +73,14 @@ export default function LearnPage() {
   if (!user) return null;
 
   const completedCount = progress?.completedLessons?.length || 0;
-  const completionRate = Math.round((completedCount / LESSONS.length) * 100);
+  const totalLessons = LESSONS.length;
+  const completionRate = Math.round((completedCount / totalLessons) * 100);
 
   return (
     <div className="min-h-screen pb-24 md:pt-24 hero-gradient">
       <Navigation />
       <div className="max-w-6xl mx-auto px-6 space-y-12">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-1000">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in fade-in duration-1000 slide-in-from-bottom-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
               <Sparkles className="w-4 h-4" />
@@ -95,7 +106,7 @@ export default function LearnPage() {
                 </div>
                 <div className="text-right">
                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Lessons</div>
-                   <div className="text-xl font-bold">{completedCount}/{LESSONS.length}</div>
+                   <div className="text-xl font-bold">{completedCount}/{totalLessons}</div>
                 </div>
               </div>
               <Progress value={completionRate} className="h-3 rounded-full bg-primary/10" />

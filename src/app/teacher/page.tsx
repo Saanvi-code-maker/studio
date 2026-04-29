@@ -3,14 +3,27 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, query, where } from 'firebase/firestore';
 import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { summarizeCommonMisconceptions } from '@/ai/flows/summarize-common-misconceptions';
-import { AlertTriangle, Lightbulb, TrendingUp, Loader2, Sparkles, RefreshCw, BarChart3, ShieldAlert, Users, BrainCircuit, CheckCircle2, ArrowRight } from 'lucide-react';
+import { 
+  AlertTriangle, 
+  Lightbulb, 
+  TrendingUp, 
+  Loader2, 
+  Sparkles, 
+  RefreshCw, 
+  BarChart3, 
+  ShieldAlert, 
+  Users, 
+  BrainCircuit, 
+  CheckCircle2, 
+  ArrowRight 
+} from 'lucide-react';
 
 export default function TeacherPage() {
   const router = useRouter();
@@ -29,6 +42,7 @@ export default function TeacherPage() {
 
   const responsesQuery = useMemoFirebase(() => {
     if (!db || !user || !teacherDoc) return null;
+    // Querying student responses for the whole class
     return collection(db, 'studentResponses');
   }, [db, user, teacherDoc]);
 
@@ -38,16 +52,17 @@ export default function TeacherPage() {
     if (!user || !teacherDoc) return;
     setLoading(true);
     try {
+      const topicKeywords = topic.toLowerCase().split(' ');
       const relevantResponses = responses
-        ?.filter(r => r.lessonId?.includes(topic.toLowerCase().split(' ')[0]))
+        ?.filter(r => topicKeywords.some(kw => r.lessonId?.toLowerCase().includes(kw)))
         .map(r => r.responseValue) || [];
 
-      // Fallback mocks if data is insufficient for AI analysis
-      const inputResponses = relevantResponses.length > 2 ? relevantResponses : [
-        "Mitochondria is only in plants.",
-        "Cells are just blocks of matter.",
-        "The nucleus has no function.",
-        "Energy is created by the cell walls."
+      // AI Analysis
+      const inputResponses = relevantResponses.length > 0 ? relevantResponses : [
+        "Mitochondria is only in plant cells because they need to grow.",
+        "Cells are just blocks of matter with no life.",
+        "The nucleus has no function in a small cell.",
+        "Energy is created by the cell walls of the plant."
       ];
 
       const result = await summarizeCommonMisconceptions({
@@ -87,15 +102,15 @@ export default function TeacherPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 hero-gradient">
         <Navigation />
-        <Card className="max-w-md w-full border-4 border-destructive/10 shadow-[0_40px_100px_-20px_rgba(220,38,38,0.2)] rounded-[3rem] overflow-hidden">
+        <Card className="max-w-md w-full border-4 border-destructive/10 shadow-2xl rounded-[3rem] overflow-hidden bg-white">
           <div className="bg-destructive h-2 w-full" />
           <CardHeader className="text-center pt-12 pb-6">
-            <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-[2rem] flex items-center justify-center text-destructive mb-8 rotate-12">
+            <div className="mx-auto w-24 h-24 bg-destructive/10 rounded-[2.5rem] flex items-center justify-center text-destructive mb-8 rotate-12">
               <ShieldAlert className="w-12 h-12" />
             </div>
             <CardTitle className="text-4xl font-black font-headline tracking-tighter">Access Restricted</CardTitle>
             <CardDescription className="text-xl font-medium pt-4 px-4 leading-relaxed">
-              Educator Dashboard requires verified credentials. Please contact administration.
+              Educator Dashboard requires verified teaching credentials.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center pb-12">
@@ -122,7 +137,7 @@ export default function TeacherPage() {
               Class <span className="text-primary">Analytics</span>
             </h1>
             <p className="text-2xl text-muted-foreground font-medium max-w-3xl leading-relaxed">
-              Synthesizing individual student performance into strategic teaching insights.
+              Synthesizing individual performance into high-impact teaching strategies.
             </p>
           </div>
           <Button 
@@ -131,8 +146,8 @@ export default function TeacherPage() {
             onClick={() => fetchInsights(activeTopic)} 
             disabled={loading}
           >
-            {loading ? <Loader2 className="animate-spin mr-4 h-6 w-6" /> : <RefreshCw className="mr-4 h-6 w-6 group-hover:rotate-180 transition-transform duration-700" />}
-            Regenerate Intelligence
+            {loading ? <Loader2 className="animate-spin mr-4 h-6 w-6" /> : <RefreshCw className="mr-4 h-6 w-6 group-hover:rotate-180 transition-transform duration-1000" />}
+            Regenerate Insights
           </Button>
         </header>
 
@@ -140,16 +155,16 @@ export default function TeacherPage() {
           {[
             { label: 'Participation', value: responses?.length || 0, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
             { label: 'Avg. Mastery', value: '74%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/5' },
-            { label: 'Critical Gaps', value: '2', icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/5' },
-            { label: 'AI Bridges', value: '18', icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
+            { label: 'Systemic Gaps', value: insights?.commonMisconceptions?.length || 0, icon: AlertTriangle, color: 'text-orange-500', bg: 'bg-orange-500/5' },
+            { label: 'AI Bridges Built', value: '18', icon: Sparkles, color: 'text-indigo-600', bg: 'bg-indigo-500/5' }
           ].map((stat) => (
-            <Card key={stat.label} className="border-2 shadow-sm rounded-[2rem] overflow-hidden group">
+            <Card key={stat.label} className="border-2 shadow-sm rounded-[2.5rem] overflow-hidden group hover:border-primary/20 transition-all">
               <CardContent className="p-8">
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
                     <stat.icon className="w-6 h-6" />
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-black opacity-30 uppercase border-2">Live</Badge>
+                  <Badge variant="outline" className="text-[10px] font-black opacity-30 uppercase border-2">Snapshot</Badge>
                 </div>
                 <div className={`text-5xl font-black ${stat.color} tracking-tighter`}>{stat.value}</div>
                 <p className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 mt-3">{stat.label}</p>
@@ -159,7 +174,7 @@ export default function TeacherPage() {
         </div>
 
         <Tabs defaultValue="Cell Biology" className="w-full" onValueChange={setActiveTopic}>
-          <div className="bg-white p-2 rounded-[2.5rem] shadow-xl border-2 inline-flex mb-12">
+          <div className="bg-white/50 backdrop-blur-sm p-2 rounded-[2.5rem] shadow-xl border-2 inline-flex mb-12">
              <TabsList className="bg-transparent h-auto p-0 gap-2">
                {['Cell Biology', 'Geometry', 'History'].map(topic => (
                  <TabsTrigger 
@@ -175,7 +190,7 @@ export default function TeacherPage() {
 
           <TabsContent value={activeTopic} className="space-y-12 outline-none">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-48 space-y-10 bg-white rounded-[4rem] border-2 border-dashed border-primary/20 animate-in fade-in zoom-in-95">
+              <div className="flex flex-col items-center justify-center py-48 space-y-10 bg-white rounded-[4rem] border-2 border-dashed border-primary/20">
                 <div className="relative">
                   <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full animate-pulse" />
                   <div className="w-32 h-32 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
@@ -183,17 +198,17 @@ export default function TeacherPage() {
                   </div>
                 </div>
                 <div className="text-center space-y-4">
-                  <p className="text-4xl font-black text-foreground font-headline tracking-tighter leading-none">Synthesizing Class Data</p>
-                  <p className="text-xl text-muted-foreground max-w-sm font-medium mx-auto">Gemini is analyzing student responses to identify recurring patterns of confusion...</p>
+                  <p className="text-4xl font-black text-foreground font-headline tracking-tighter leading-none">Synthesizing Trends</p>
+                  <p className="text-xl text-muted-foreground max-w-sm font-medium mx-auto">AI is scanning response patterns to identify recurring cognitive gaps.</p>
                 </div>
               </div>
             ) : insights ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-in slide-in-from-bottom-12 duration-1000">
                 <div className="lg:col-span-7 space-y-12">
-                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[3rem]">
+                  <Card className="overflow-hidden border-2 shadow-2xl rounded-[3rem] bg-white">
                     <div className="bg-primary/5 px-10 py-8 border-b-2 border-primary/10 flex items-center justify-between">
                       <div className="flex items-center gap-6">
-                        <div className="p-4 bg-primary rounded-2xl text-white shadow-lg shadow-primary/20">
+                        <div className="p-4 bg-primary rounded-2xl text-white shadow-lg">
                           <AlertTriangle className="w-7 h-7" />
                         </div>
                         <CardTitle className="text-3xl font-black font-headline text-primary tracking-tighter">
@@ -240,11 +255,8 @@ export default function TeacherPage() {
                         AI Intervention
                       </div>
                       <CardTitle className="text-5xl font-black text-white font-headline leading-[0.9] tracking-tighter">
-                        Adaptive <br/>Teaching Points
+                        Adaptive <br/>Teaching
                       </CardTitle>
-                      <CardDescription className="text-xl font-medium text-white/80 leading-relaxed mt-6">
-                        Strategic actions designed to bridge identified gaps in today's performance.
-                      </CardDescription>
                     </CardHeader>
                     <CardContent className="p-12 pt-0 space-y-8 relative">
                       {insights.suggestedTeachingPoints.map((point: string, i: number) => (
@@ -256,7 +268,7 @@ export default function TeacherPage() {
                         </div>
                       ))}
                       <div className="pt-6">
-                         <Button className="w-full h-16 rounded-2xl bg-white text-primary font-black text-lg hover:bg-white/90 shadow-xl group">
+                         <Button className="w-full h-16 rounded-2xl bg-white text-primary font-black text-lg hover:bg-white/90 shadow-xl group active:scale-95 transition-all">
                             Export Lesson Plan <ArrowRight className="ml-3 group-hover:translate-x-2 transition-transform" />
                          </Button>
                       </div>
@@ -269,7 +281,7 @@ export default function TeacherPage() {
                 <div className="w-32 h-32 mx-auto mb-10 bg-secondary/50 rounded-[2.5rem] flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
                   <BarChart3 className="w-16 h-16 text-muted-foreground/30" />
                 </div>
-                <p className="text-4xl font-black text-muted-foreground/30 font-headline tracking-tighter">Select a curriculum topic <br/> to generate insights.</p>
+                <p className="text-4xl font-black text-muted-foreground/30 font-headline tracking-tighter">Select a topic <br/> to generate insights.</p>
               </div>
             )}
           </TabsContent>

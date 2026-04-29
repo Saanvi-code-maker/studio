@@ -1,14 +1,23 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, arrayUnion, setDoc, serverTimestamp } from 'firebase/firestore';
+import { 
+  doc, 
+  updateDoc, 
+  arrayUnion, 
+  setDoc, 
+  serverTimestamp 
+} from 'firebase/firestore';
 
 export interface StudentProgress {
-  userId: string;
+  id: string;
+  displayName: string;
+  email: string;
+  role: 'student' | 'teacher';
   completedLessons: string[];
-  lastAccessed: any;
-  responses: any[];
+  languagePreference: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const useStore = () => {
@@ -20,7 +29,7 @@ export const useStore = () => {
     return doc(db, 'users', user.uid);
   }, [db, user]);
 
-  const { data: progressData, isLoading } = useDoc(userDocRef);
+  const { data: progressData, isLoading } = useDoc<StudentProgress>(userDocRef);
 
   const saveResponseWithAnalysis = (
     lessonId: string, 
@@ -47,14 +56,15 @@ export const useStore = () => {
     // 1. Save to top-level studentResponses
     setDoc(doc(db, 'studentResponses', responseId), responseData);
 
-    // 2. If wrong, save AI Analysis
-    if (!isCorrect && analysis) {
+    // 2. If analysis exists (even if correct, though usually for incorrect), save it
+    if (analysis) {
       const analysisId = crypto.randomUUID();
+      // Crucial: Denormalize studentId for security rules as per backend.json
       setDoc(doc(db, 'aiAnalyses', analysisId), {
         id: analysisId,
         studentResponseId: responseId,
-        studentId: user.uid,
-        analysisResultType: 'incorrect',
+        studentId: user.uid, 
+        analysisResultType: isCorrect ? 'correct' : 'incorrect',
         explanationText: analysis.explanation,
         storyText: analysis.story,
         visualDescription: analysis.visual,
@@ -62,7 +72,7 @@ export const useStore = () => {
       });
     }
 
-    // 3. Update user profile
+    // 3. Update user profile last updated timestamp
     updateDoc(userDocRef, {
       updatedAt: serverTimestamp()
     });
