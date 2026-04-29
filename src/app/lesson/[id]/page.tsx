@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Navigation } from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,8 @@ import {
   RotateCcw,
   AlertCircle,
   HelpCircle,
-  Brain
+  Brain,
+  Send
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -119,24 +120,26 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     if (!finalAnswer || isCorrect !== null) return;
 
     setIsLoading(true);
-    const correct = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
     
-    let analysisResult;
     try {
+      // Step 1: Use AI to analyze the answer conceptually
+      const typeResult = await analyzeStudentAnswer({
+        question: currentQuestion.text,
+        studentAnswer: finalAnswer,
+        correctAnswer: currentQuestion.correctAnswer,
+      });
+
+      const correct = typeResult.isCorrect;
+      let analysisResult = null;
+
       if (!correct) {
-        const [bridgeResult, typeResult] = await Promise.all([
-          generateStudentExplanation({
-            question: currentQuestion.text,
-            studentAnswer: finalAnswer,
-            correctAnswer: currentQuestion.correctAnswer,
-            context: `Topic: ${lesson.topic}. ${lesson.title}.`
-          }),
-          analyzeStudentAnswer({
-            question: currentQuestion.text,
-            studentAnswer: finalAnswer,
-            correctAnswer: currentQuestion.correctAnswer,
-          })
-        ]);
+        // Step 2: If incorrect, generate a "Learning Bridge" explanation
+        const bridgeResult = await generateStudentExplanation({
+          question: currentQuestion.text,
+          studentAnswer: finalAnswer,
+          correctAnswer: currentQuestion.correctAnswer,
+          context: `Topic: ${lesson.topic}. ${lesson.title}.`
+        });
 
         analysisResult = { 
           explanation: bridgeResult.explanation, 
@@ -153,8 +156,11 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       saveResponseWithAnalysis(id, currentQuestion.id, finalAnswer, correct, analysisResult);
       setIsCorrect(correct);
     } catch (error) {
-      console.error("Analysis failed", error);
-      if (!correct) {
+      console.error("AI Analysis failed", error);
+      // Fallback logic
+      const simpleCorrect = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
+      setIsCorrect(simpleCorrect);
+      if (!simpleCorrect) {
         setExplanation({
           explanation: "It looks like there's a small misunderstanding. Let's try to look at this from a different angle.",
           story: "Imagine trying to find a specific house in a big city without a map. Sometimes we just need a new guide.",
@@ -162,7 +168,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           analysisType: 'confused'
         } as any);
       }
-      setIsCorrect(correct);
     } finally {
       setIsLoading(false);
     }
@@ -231,13 +236,18 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   </TabsList>
                   
                   <TabsContent value="text" className="space-y-4">
-                    <Input 
-                      placeholder="Type your explanation here..." 
-                      className="h-20 text-lg border-2 focus-visible:ring-primary rounded-2xl px-6"
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      disabled={isCorrect !== null || isLoading}
-                    />
+                    <div className="relative">
+                      <Textarea 
+                        placeholder="Explain your thinking in your own words..." 
+                        className="min-h-[160px] text-lg border-2 focus-visible:ring-primary rounded-2xl px-6 py-4 resize-none"
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        disabled={isCorrect !== null || isLoading}
+                      />
+                      <div className="absolute bottom-4 right-4 text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
+                        AI will judge conceptual accuracy
+                      </div>
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="quiz" className="space-y-4">
@@ -278,10 +288,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                 {isCorrect === null && (
                   <Button 
                     onClick={() => handleSubmit()} 
-                    className="w-full h-16 text-xl font-black rounded-2xl shadow-lg bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]" 
+                    className="w-full h-16 text-xl font-black rounded-2xl shadow-lg bg-primary hover:bg-primary/90 transition-all active:scale-[0.98] group" 
                     disabled={!answer || isLoading}
                   >
-                    {isLoading ? <Loader2 className="animate-spin h-6 w-6" /> : t.lesson.confirm}
+                    {isLoading ? <Loader2 className="animate-spin h-6 w-6" /> : (
+                      <>
+                        {t.lesson.confirm} <Send className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      </>
+                    )}
                   </Button>
                 )}
 
@@ -356,7 +370,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
 
                       <div className="relative aspect-video rounded-[2.5rem] overflow-hidden border-2 border-white/20 shadow-2xl group">
                         <Image 
-                          src={explanation.imageUrl || placeholder?.imageUrl || "https://picsum.photos/seed/concept/800/600"} 
+                          src={explanation.imageUrl || placeholder?.imageUrl || `https://picsum.photos/seed/${explanation.analysisType || 'concept'}/800/600`} 
                           alt={explanation.visual || lesson.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-1000"

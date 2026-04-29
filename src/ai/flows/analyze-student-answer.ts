@@ -19,14 +19,15 @@ const AnalyzeAnswerInputSchema = z.object({
 export type AnalyzeAnswerInput = z.infer<typeof AnalyzeAnswerInputSchema>;
 
 const AnalyzeAnswerOutputSchema = z.object({
+  isCorrect: z.boolean().describe('Whether the student\'s answer is conceptually correct.'),
   analysisType: z.enum(['confused', 'partial_understanding', 'guessing', 'correct'])
     .describe('The classification of the student\'s understanding.'),
-  explanation: z.string().describe('A simple, empathetic explanation of the analysis.'),
+  explanation: z.string().describe('A simple, empathetic explanation of the analysis for the teacher.'),
 });
 export type AnalyzeAnswerOutput = z.infer<typeof AnalyzeAnswerOutputSchema>;
 
 /**
- * Analyzes a student's answer using keyword heuristics and AI classification.
+ * Analyzes a student's answer using AI classification to determine conceptual correctness.
  */
 export async function analyzeStudentAnswer(input: AnalyzeAnswerInput): Promise<AnalyzeAnswerOutput> {
   return analyzeStudentAnswerFlow(input);
@@ -43,10 +44,13 @@ Correct Answer: {{{correctAnswer}}}
 Student's Answer: {{{studentAnswer}}}
 
 Instructions:
-1. Determine if the student is 'correct', 'confused' (misses the point), 'guessing' (uses tentative language), or has 'partial_understanding'.
-2. If the student uses words like "maybe", "I think", "perhaps", or "not sure", they are likely 'guessing'.
-3. If they are far from the correct answer or express frustration, they are 'confused'.
-4. Provide a simple, 1-2 sentence explanation for the teacher.
+1. Determine if the answer is conceptually 'isCorrect'. Note that students might use different words but express the same meaning.
+2. Classify the understanding level:
+   - 'correct': Answer is accurate and confident.
+   - 'guessing': Answer is correct or partially correct but uses tentative language like "maybe", "I think".
+   - 'partial_understanding': Answer identifies some parts of the concept but misses others.
+   - 'confused': Answer is incorrect or expresses fundamental misunderstanding.
+3. Provide a simple, 1-2 sentence explanation of your reasoning.
 
 Return the result as a JSON object matching the output schema.`,
 });
@@ -58,20 +62,7 @@ const analyzeStudentAnswerFlow = ai.defineFlow(
     outputSchema: AnalyzeAnswerOutputSchema,
   },
   async (input) => {
-    // Basic keyword matching heuristics to help the AI (or for fast-path if needed)
-    const lowerAnswer = input.studentAnswer.toLowerCase();
-    const guessingKeywords = ['maybe', 'i think', 'perhaps', 'guess', 'probably', 'not sure'];
-    const confusedKeywords = ["don't know", "confused", "hard", "what", "no idea", "clueless"];
-
-    const isGuessing = guessingKeywords.some(k => lowerAnswer.includes(k));
-    const isConfused = confusedKeywords.some(k => lowerAnswer.includes(k));
-
-    // Enhance the prompt context with heuristic hints
-    const { output } = await prompt({
-      ...input,
-      // We pass the input but the prompt logic handles the classification. 
-      // The AI is better at contextual keyword matching than a simple regex.
-    });
+    const { output } = await prompt(input);
 
     if (!output) {
       throw new Error('Failed to analyze student answer.');
