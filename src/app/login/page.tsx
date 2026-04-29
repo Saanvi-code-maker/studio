@@ -8,21 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Loader2, ArrowRight, Mail, Lock } from 'lucide-react';
+import { GraduationCap, Loader2, ArrowRight, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (!isUserLoading && user) {
       router.push('/learn');
@@ -34,6 +35,7 @@ export default function LoginPage() {
     if (!email || !password) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
@@ -41,11 +43,13 @@ export default function LoginPage() {
         description: "Successfully signed in to ShikshaSetu.",
       });
       router.push('/learn');
-    } catch (error: any) {
+    } catch (err: any) {
       let message = "Invalid credentials. Please try again.";
-      if (error.code === 'auth/user-not-found') message = "No account found with this email.";
-      if (error.code === 'auth/wrong-password') message = "Incorrect password.";
+      if (err.code === 'auth/user-not-found') message = "No account found with this email.";
+      if (err.code === 'auth/wrong-password') message = "Incorrect password.";
+      if (err.code === 'auth/invalid-credential') message = "Check your email and password.";
       
+      setError(message);
       toast({
         variant: "destructive",
         title: "Login Failed",
@@ -66,7 +70,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/20">
-      <Card className="w-full max-w-md border-2 shadow-2xl overflow-hidden">
+      <Card className="w-full max-w-md border-2 shadow-2xl overflow-hidden relative">
         <div className="bg-primary h-2 w-full" />
         <CardHeader className="space-y-4 flex flex-col items-center pt-8">
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-2 rotate-3 hover:rotate-0 transition-transform">
@@ -83,6 +87,12 @@ export default function LoginPage() {
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-5">
+            {error && (
+              <Alert variant="destructive" className="bg-destructive/5 text-destructive border-destructive/20">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs font-bold">{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
@@ -91,7 +101,7 @@ export default function LoginPage() {
                   id="email" 
                   type="email" 
                   placeholder="name@example.com" 
-                  className="pl-10 h-11"
+                  className="pl-10 h-11 border-2 focus-visible:ring-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required 
@@ -108,7 +118,7 @@ export default function LoginPage() {
                 <Input 
                   id="password" 
                   type="password" 
-                  className="pl-10 h-11"
+                  className="pl-10 h-11 border-2 focus-visible:ring-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required 
@@ -117,7 +127,7 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-6 pb-8">
-            <Button className="w-full h-12 text-lg font-bold shadow-lg" type="submit" disabled={isLoading}>
+            <Button className="w-full h-12 text-lg font-bold shadow-lg bg-primary hover:bg-primary/90" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin h-5 w-5 mr-2" />

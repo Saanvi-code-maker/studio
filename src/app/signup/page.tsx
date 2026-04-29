@@ -9,15 +9,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Loader2, User as UserIcon, Mail, Lock, Sparkles } from 'lucide-react';
+import { GraduationCap, Loader2, User as UserIcon, Mail, Lock, Sparkles, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const auth = useAuth();
   const db = useFirestore();
@@ -25,7 +27,6 @@ export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (!isUserLoading && user) {
       router.push('/learn');
@@ -36,15 +37,12 @@ export default function SignupPage() {
     e.preventDefault();
     if (!name || !email || !password) return;
     if (password.length < 6) {
-      toast({
-        variant: "destructive",
-        title: "Weak Password",
-        description: "Password must be at least 6 characters long.",
-      });
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setIsLoading(true);
+    setError(null);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const newUser = userCredential.user;
@@ -66,10 +64,12 @@ export default function SignupPage() {
         description: "Welcome to ShikshaSetu, " + name + "!",
       });
       router.push('/learn');
-    } catch (error: any) {
+    } catch (err: any) {
       let message = "Something went wrong. Please try again.";
-      if (error.code === 'auth/email-already-in-use') message = "This email is already registered.";
+      if (err.code === 'auth/email-already-in-use') message = "This email is already registered.";
+      if (err.code === 'auth/invalid-email') message = "Invalid email address.";
       
+      setError(message);
       toast({
         variant: "destructive",
         title: "Signup Failed",
@@ -110,6 +110,12 @@ export default function SignupPage() {
         </CardHeader>
         <form onSubmit={handleSignup}>
           <CardContent className="space-y-5">
+            {error && (
+              <Alert variant="destructive" className="bg-destructive/5 text-destructive border-destructive/20">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs font-bold">{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
@@ -117,7 +123,7 @@ export default function SignupPage() {
                 <Input 
                   id="name" 
                   placeholder="John Doe" 
-                  className="pl-10 h-11"
+                  className="pl-10 h-11 border-2 focus-visible:ring-accent"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required 
@@ -132,7 +138,7 @@ export default function SignupPage() {
                   id="email" 
                   type="email" 
                   placeholder="name@example.com" 
-                  className="pl-10 h-11"
+                  className="pl-10 h-11 border-2 focus-visible:ring-accent"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required 
@@ -147,7 +153,7 @@ export default function SignupPage() {
                   id="password" 
                   type="password" 
                   placeholder="Min. 6 characters"
-                  className="pl-10 h-11"
+                  className="pl-10 h-11 border-2 focus-visible:ring-accent"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required 
