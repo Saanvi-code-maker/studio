@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
 
@@ -29,8 +28,11 @@ export const useStore = () => {
   const { data: progressData, isLoading } = useDoc(progressRef);
 
   const saveResponse = (lessonId: string, questionId: string, answer: string, isCorrect: boolean) => {
-    if (!progressRef || !user) return;
-
+    if (!db || !user) return;
+    
+    const docRef = doc(db, 'users', user.uid);
+    const responseId = crypto.randomUUID();
+    
     const response = {
       lessonId,
       questionId,
@@ -39,24 +41,38 @@ export const useStore = () => {
       timestamp: new Date().toISOString(),
     };
 
-    updateDoc(progressRef, {
+    // 1. Update user profile
+    updateDoc(docRef, {
       responses: arrayUnion(response),
       lastAccessed: new Date().toISOString()
     }).catch(err => {
-      // If doc doesn't exist, create it (should be created on signup but safety first)
-      setDoc(progressRef, {
+      // If doc doesn't exist, create it
+      setDoc(docRef, {
         id: user.uid,
         responses: [response],
         completedLessons: [],
         lastAccessed: new Date().toISOString()
       }, { merge: true });
     });
+
+    // 2. Also save to top-level studentResponses for teacher visibility
+    const studentResponseRef = doc(db, 'studentResponses', responseId);
+    setDoc(studentResponseRef, {
+      id: responseId,
+      studentId: user.uid,
+      lessonId,
+      questionId,
+      responseValue: answer,
+      isCorrect,
+      submittedAt: new Date().toISOString()
+    });
   };
 
   const completeLesson = (lessonId: string) => {
-    if (!progressRef || !user) return;
+    if (!db || !user) return;
+    const docRef = doc(db, 'users', user.uid);
 
-    updateDoc(progressRef, {
+    updateDoc(docRef, {
       completedLessons: arrayUnion(lessonId),
       lastAccessed: new Date().toISOString()
     });
