@@ -66,7 +66,7 @@ export const useStore = () => {
     // 2. If analysis exists, save it to aiAnalyses
     if (analysis) {
       const analysisId = crypto.randomUUID();
-      // Crucial: Denormalize studentId for security rules as per backend.json
+      // CRITICAL: Denormalize studentId for security rules as per backend.json requirement
       setDoc(doc(db, 'aiAnalyses', analysisId), {
         id: analysisId,
         studentResponseId: responseId,
