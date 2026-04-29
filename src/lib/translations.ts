@@ -112,7 +112,7 @@ export const translations = {
     common: {
       back: 'पीछे',
       next: 'अगला',
-      submit: 'जಮಾ करें',
+      submit: 'जमा करें',
       save: 'सहेजें',
       update: 'अपडेट करें',
       cancel: 'रद्द करें',
@@ -175,7 +175,7 @@ export const translations = {
       displayName: 'प्रदर्शित नाम',
       language: 'प्राथमिक भाषा',
       verifiedEducator: 'सत्यापित शिक्षक',
-      studentScholar: 'छाತ್ರ विद्वान',
+      studentScholar: 'छात्र विद्वान',
       placeholderName: 'पूरा नाम दर्ज करें',
       updated: 'प्रोफ़ाइल अपडेट की गई',
       updatedDesc: 'आपके परिवर्तन सफलतापूर्वक सहेज लिए गए हैं।',
