@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useStore } from '@/lib/store';
 import { VoiceInterface } from '@/components/VoiceInterface';
 import { generateStudentExplanation } from '@/ai/flows/generate-student-explanation';
+import { analyzeStudentAnswer } from '@/ai/flows/analyze-student-answer';
 import { useUser } from '@/firebase';
 import { 
   ArrowLeft, 
@@ -20,10 +21,14 @@ import {
   Trophy, 
   BookOpen, 
   Lightbulb,
-  RotateCcw
+  RotateCcw,
+  AlertCircle,
+  HelpCircle,
+  Brain
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -78,7 +83,13 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
   
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState('');
-  const [explanation, setExplanation] = useState<{ text: string, story: string, visual: string } | null>(null);
+  const [explanation, setExplanation] = useState<{ 
+    text: string, 
+    story: string, 
+    visual: string,
+    analysisType?: string,
+    analysisExplanation?: string 
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
@@ -108,35 +119,52 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     const correct = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
     
     let analysisResult;
-    if (!correct) {
-      try {
-        const result = await generateStudentExplanation({
-          question: currentQuestion.text,
-          studentAnswer: finalAnswer,
-          correctAnswer: currentQuestion.correctAnswer,
-          context: `Topic: ${lesson.topic}. ${lesson.title}.`
-        });
-        analysisResult = { 
-          explanation: result.explanation, 
-          story: result.story, 
-          visual: result.visualDescription 
-        };
-        setExplanation(analysisResult);
-      } catch (error) {
-        analysisResult = { 
-          explanation: "Let's review this concept together. It seems there's a small misunderstanding.", 
-          story: "Think of it like a puzzle where one piece is just slightly turned the wrong way.", 
-          visual: "A puzzle piece fitting perfectly into place." 
-        };
-        setExplanation(analysisResult);
-      }
-    } else {
-      setExplanation(null);
-    }
+    try {
+      if (!correct) {
+        // Run both analysis flows for a comprehensive Learning Bridge
+        const [bridgeResult, typeResult] = await Promise.all([
+          generateStudentExplanation({
+            question: currentQuestion.text,
+            studentAnswer: finalAnswer,
+            correctAnswer: currentQuestion.correctAnswer,
+            context: `Topic: ${lesson.topic}. ${lesson.title}.`
+          }),
+          analyzeStudentAnswer({
+            question: currentQuestion.text,
+            studentAnswer: finalAnswer,
+            correctAnswer: currentQuestion.correctAnswer,
+          })
+        ]);
 
-    saveResponseWithAnalysis(id, currentQuestion.id, finalAnswer, correct, analysisResult);
-    setIsCorrect(correct);
-    setIsLoading(false);
+        analysisResult = { 
+          explanation: bridgeResult.explanation, 
+          story: bridgeResult.story, 
+          visual: bridgeResult.visualDescription,
+          analysisType: typeResult.analysisType,
+          analysisExplanation: typeResult.explanation
+        };
+        setExplanation(analysisResult);
+      } else {
+        setExplanation(null);
+      }
+
+      saveResponseWithAnalysis(id, currentQuestion.id, finalAnswer, correct, analysisResult);
+      setIsCorrect(correct);
+    } catch (error) {
+      console.error("Analysis failed", error);
+      // Fallback UI
+      if (!correct) {
+        setExplanation({
+          explanation: "It looks like there's a small misunderstanding. Let's try to look at this from a different angle.",
+          story: "Imagine trying to find a specific house in a big city without a map. Sometimes we just need a new guide.",
+          visual: "A friendly guide pointing the way on a map.",
+          analysisType: 'confused'
+        } as any);
+      }
+      setIsCorrect(correct);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNext = () => {
@@ -153,6 +181,15 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     setAnswer('');
     setExplanation(null);
     setIsCorrect(null);
+  };
+
+  const getAnalysisBadge = (type?: string) => {
+    switch(type) {
+      case 'guessing': return { label: 'Intuitive Guess', icon: HelpCircle, color: 'bg-amber-100 text-amber-700' };
+      case 'partial_understanding': return { label: 'Getting There', icon: Brain, color: 'bg-blue-100 text-blue-700' };
+      case 'confused': return { label: 'New Concept', icon: AlertCircle, color: 'bg-rose-100 text-rose-700' };
+      default: return { label: 'Learning Opportunity', icon: Sparkles, color: 'bg-primary/10 text-primary' };
+    }
   };
 
   return (
@@ -174,22 +211,22 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-7 space-y-6">
-            <Card className="pro-card shadow-xl overflow-hidden">
+            <Card className="pro-card shadow-xl overflow-hidden border-2">
               <CardHeader className="p-8 border-b bg-secondary/10">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">{lesson.topic}</span>
-                  <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground border-2 uppercase tracking-widest">
-                    Step {activeQuestionIndex + 1} of {lesson.questions.length}
+                  <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground border-2 uppercase tracking-widest px-3 py-1">
+                    Question {activeQuestionIndex + 1}
                   </Badge>
                 </div>
-                <CardTitle className="text-3xl font-black font-headline tracking-tighter leading-tight">{currentQuestion.text}</CardTitle>
+                <CardTitle className="text-3xl font-black font-headline tracking-tighter leading-tight text-foreground">{currentQuestion.text}</CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-8">
                 <Tabs defaultValue="quiz" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-8 bg-muted/50 p-1 rounded-2xl h-12">
-                    <TabsTrigger value="quiz" className="rounded-xl font-bold">Multiple Choice</TabsTrigger>
-                    <TabsTrigger value="text" className="rounded-xl font-bold">Written</TabsTrigger>
-                    <TabsTrigger value="voice" className="rounded-xl font-bold">Voice</TabsTrigger>
+                    <TabsTrigger value="quiz" className="rounded-xl font-bold">Options</TabsTrigger>
+                    <TabsTrigger value="text" className="rounded-xl font-bold">Write</TabsTrigger>
+                    <TabsTrigger value="voice" className="rounded-xl font-bold">Speak</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="text" className="space-y-4">
@@ -217,9 +254,9 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                           <RadioGroupItem value={option} id={option} className="sr-only" />
                           <Label 
                             htmlFor={option} 
-                            className={`flex items-center p-6 rounded-2xl border-2 transition-all cursor-pointer text-lg font-bold hover:shadow-md ${answer === option ? 'border-primary bg-primary/5 text-primary' : 'border-border bg-card'}`}
+                            className={`flex items-center p-6 rounded-2xl border-2 transition-all cursor-pointer text-lg font-bold hover:shadow-md ${answer === option ? 'border-primary bg-primary/5 text-primary shadow-inner' : 'border-border bg-card'}`}
                           >
-                            <span className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 text-xs ${answer === option ? 'bg-primary text-white border-primary' : 'border-border'}`}>
+                            <span className={`w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 text-xs font-black ${answer === option ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground'}`}>
                               {String.fromCharCode(65 + currentQuestion.options.indexOf(option))}
                             </span>
                             {option}
@@ -240,7 +277,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                 {isCorrect === null && (
                   <Button 
                     onClick={() => handleSubmit()} 
-                    className="w-full h-16 text-xl font-black rounded-2xl shadow-lg bg-primary hover:bg-primary/90 transition-all hover:scale-[1.01]" 
+                    className="w-full h-16 text-xl font-black rounded-2xl shadow-lg bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]" 
                     disabled={!answer || isLoading}
                   >
                     {isLoading ? <Loader2 className="animate-spin h-6 w-6" /> : 'Confirm Understanding'}
@@ -249,13 +286,19 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
 
                 {isCorrect === true && (
                   <div className="space-y-4 animate-in zoom-in-95 duration-500">
-                    <Alert className="bg-emerald-50 border-emerald-500/20 border-2 py-8 rounded-[2.5rem] relative overflow-hidden">
+                    <Alert className="bg-emerald-50 border-emerald-500/20 border-2 py-10 rounded-[2.5rem] relative overflow-hidden">
                        <div className="absolute top-0 right-0 p-4 opacity-[0.05]">
-                         <Trophy className="w-24 h-24 text-emerald-600" />
+                         <Trophy className="w-32 h-32 text-emerald-600" />
                        </div>
-                      <Trophy className="h-10 w-10 text-emerald-600 mb-2" />
-                      <AlertTitle className="text-3xl font-black text-emerald-700 tracking-tight">Exceptional Mastery!</AlertTitle>
-                      <AlertDescription className="text-emerald-600/80 text-lg font-medium">You've clearly bridged the gap on this concept. Ready for the next challenge?</AlertDescription>
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="bg-emerald-500 text-white p-4 rounded-full shadow-lg shadow-emerald-500/20">
+                          <Trophy className="h-8 w-8" />
+                        </div>
+                        <AlertTitle className="text-4xl font-black text-emerald-800 tracking-tighter">Perfect Bridge!</AlertTitle>
+                        <AlertDescription className="text-emerald-700/80 text-lg font-medium max-w-sm">
+                          Your understanding is crystal clear. You've successfully navigated this concept.
+                        </AlertDescription>
+                      </div>
                     </Alert>
                     <Button onClick={handleNext} className="w-full h-16 text-xl font-black bg-emerald-600 hover:bg-emerald-700 rounded-2xl shadow-xl shadow-emerald-600/20 active:scale-95 transition-all">
                       Continue Path
@@ -274,24 +317,38 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                     <Sparkles className="w-32 h-32" />
                   </div>
                   <div className="p-10 space-y-8 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white/15 rounded-2xl backdrop-blur-md">
-                        <Lightbulb className="w-6 h-6" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white/15 rounded-2xl backdrop-blur-md">
+                          <Lightbulb className="w-6 h-6" />
+                        </div>
+                        <h3 className="text-2xl font-black font-headline tracking-tighter">Learning Bridge</h3>
                       </div>
-                      <h3 className="text-2xl font-black font-headline tracking-tighter">Learning Bridge</h3>
+                      {explanation.analysisType && (
+                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md ${getAnalysisBadge(explanation.analysisType).color}`}>
+                          {getAnalysisBadge(explanation.analysisType).label}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="space-y-6">
-                      <p className="text-xl font-medium leading-relaxed text-white/90">
-                        {explanation.text}
-                      </p>
+                      <div className="space-y-3">
+                         <p className="text-xl font-bold leading-relaxed text-white">
+                          {explanation.text}
+                        </p>
+                        {explanation.analysisExplanation && (
+                          <p className="text-sm font-medium text-white/70 leading-relaxed italic">
+                            "{explanation.analysisExplanation}"
+                          </p>
+                        )}
+                      </div>
                       
                       <div className="bg-white/10 p-8 rounded-[2.5rem] border border-white/20 backdrop-blur-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                           <BookOpen className="w-16 h-16" />
                         </div>
                         <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-4">Conceptual Story</h4>
-                        <p className="text-xl font-bold leading-relaxed italic relative z-10">
+                        <p className="text-lg font-bold leading-relaxed italic relative z-10">
                           "{explanation.story}"
                         </p>
                       </div>
@@ -328,9 +385,9 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   <Sparkles className="w-12 h-12" />
                 </div>
                 <div className="space-y-3">
-                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter">AI Assistant Waiting</p>
+                  <p className="text-3xl font-black text-muted-foreground/30 font-headline tracking-tighter">Awaiting Insight</p>
                   <p className="text-sm font-medium text-muted-foreground/30 max-w-[200px] mx-auto leading-relaxed">
-                    Submit your thoughts for an instant, personalized learning bridge.
+                    Submit your answer to activate the AI Learning Bridge.
                   </p>
                 </div>
               </Card>
@@ -338,10 +395,13 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
             
             {isLoading && (
               <Card className="border-none bg-secondary/30 rounded-[3rem] p-16 text-center flex flex-col items-center justify-center space-y-8 animate-pulse">
-                <Loader2 className="w-16 h-16 text-primary animate-spin" />
-                <div className="space-y-2">
-                  <p className="text-2xl font-black text-primary/40 font-headline tracking-tighter">Building Knowledge Bridge</p>
-                  <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em]">Gemini is analyzing your path...</p>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
+                  <Loader2 className="w-16 h-16 text-primary animate-spin relative z-10" />
+                </div>
+                <div className="text-center space-y-3">
+                  <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter">Building Knowledge Bridge</p>
+                  <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[180px] mx-auto">Gemini is analyzing the context of your response...</p>
                 </div>
               </Card>
             )}

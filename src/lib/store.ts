@@ -36,7 +36,13 @@ export const useStore = () => {
     questionId: string, 
     answer: string, 
     isCorrect: boolean,
-    analysis?: { explanation: string, story: string, visual: string }
+    analysis?: { 
+      explanation: string, 
+      story: string, 
+      visual: string,
+      analysisType?: string,
+      analysisExplanation?: string
+    }
   ) => {
     if (!db || !user || !userDocRef) return;
     
@@ -56,7 +62,7 @@ export const useStore = () => {
     // 1. Save to top-level studentResponses
     setDoc(doc(db, 'studentResponses', responseId), responseData);
 
-    // 2. If analysis exists (even if correct, though usually for incorrect), save it
+    // 2. If analysis exists, save it to aiAnalyses
     if (analysis) {
       const analysisId = crypto.randomUUID();
       // Crucial: Denormalize studentId for security rules as per backend.json
@@ -64,10 +70,11 @@ export const useStore = () => {
         id: analysisId,
         studentResponseId: responseId,
         studentId: user.uid, 
-        analysisResultType: isCorrect ? 'correct' : 'incorrect',
+        analysisResultType: analysis.analysisType || (isCorrect ? 'correct' : 'incorrect'),
         explanationText: analysis.explanation,
         storyText: analysis.story,
         visualDescription: analysis.visual,
+        teacherFeedback: analysis.analysisExplanation || '',
         generatedAt: now
       });
     }
