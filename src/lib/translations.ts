@@ -106,6 +106,47 @@ export const translations = {
       studentUid: 'Student UID',
       failureRate: 'Failure Rate',
       onTrack: 'All students currently on track.',
+    },
+    content: {
+      'biology-1': {
+        title: 'Cell Biology Essentials',
+        topic: 'Biology',
+        description: 'Master the fundamental building blocks of life and their intricate functions.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'What is the "powerhouse of the cell" that produces energy?',
+            correctAnswer: 'Mitochondria',
+            options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Vacuole']
+          }
+        ]
+      },
+      'math-1': {
+        title: 'Advanced Geometry',
+        topic: 'Mathematics',
+        description: 'Explore spatial relationships, logical proofs, and geometric properties.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'What is the sum of angles in a triangle?',
+            correctAnswer: '180 degrees',
+            options: ['90 degrees', '180 degrees', '360 degrees', '270 degrees']
+          }
+        ]
+      },
+      'history-1': {
+        title: 'Foundations of Civilization',
+        topic: 'History',
+        description: 'Trace the development of early societies and the dawn of governance.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'Which civilization built the Pyramids of Giza?',
+            correctAnswer: 'Egyptians',
+            options: ['Romans', 'Greeks', 'Egyptians', 'Mayans']
+          }
+        ]
+      }
     }
   },
   hi: {
@@ -213,6 +254,47 @@ export const translations = {
       studentUid: 'छात्र आईडी',
       failureRate: 'विफलता दर',
       onTrack: 'सभी छात्र अभी ट्रैक पर हैं।',
+    },
+    content: {
+      'biology-1': {
+        title: 'कोशिका विज्ञान के मूल तत्व',
+        topic: 'जीव विज्ञान',
+        description: 'जीवन के मूलभूत निर्माण खंडों और उनके जटिल कार्यों में महारत हासिल करें।',
+        questions: [
+          {
+            id: 'q1',
+            text: 'ऊर्जा उत्पन्न करने वाले "कोशिका के पावरहाउस" को क्या कहा जाता है?',
+            correctAnswer: 'माइटोकॉन्ड्रिया',
+            options: ['नाभिक', 'माइटोकॉन्ड्रिया', 'राइबोसोम', 'रिक्तिका']
+          }
+        ]
+      },
+      'math-1': {
+        title: 'उन्नत ज्यामिति',
+        topic: 'गणित',
+        description: 'स्थानिक संबंधों, तार्किक प्रमाणों और ज्यामितीय गुणों का अन्वेषण करें।',
+        questions: [
+          {
+            id: 'q1',
+            text: 'त्रिभुज के कोणों का योग क्या होता है?',
+            correctAnswer: '180 डिग्री',
+            options: ['90 डिग्री', '180 डिग्री', '360 डिग्री', '270 डिग्री']
+          }
+        ]
+      },
+      'history-1': {
+        title: 'सभ्यता की नींव',
+        topic: 'इतिहास',
+        description: 'प्रारंभिक समाजों के विकास और शासन के उदय का पता लगाएं।',
+        questions: [
+          {
+            id: 'q1',
+            text: 'किस सभ्यता ने गीज़ा के पिरामिडों का निर्माण किया?',
+            correctAnswer: 'मिस्रवासी',
+            options: ['रोमन', 'यूनानी', 'मिस्रवासी', 'माया']
+          }
+        ]
+      }
     }
   },
   kn: {
@@ -288,7 +370,7 @@ export const translations = {
       displayName: 'ಹೆಸರು',
       language: 'ಪ್ರಾಥಮಿಕ ಭಾಷೆ',
       verifiedEducator: 'ಪರಿಶೀಲಿಸಿದ ಶಿಕ್ಷಕರು',
-      studentScholar: 'ವಿದ್ಯಾರ್ಥಿ ವಿದ್ವಾಂಸರು',
+      studentScholar: 'ಬೆಸ್ಟ್ ಸ್ಟೂಡೆಂಟ್',
       placeholderName: 'ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
       updated: 'ಪ್ರೊಫೈಲ್ ನವೀಕರಿಸಲಾಗಿದೆ',
       updatedDesc: 'ನಿಮ್ಮ ಬದಲಾವಣೆಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ.',
@@ -320,6 +402,47 @@ export const translations = {
       studentUid: 'ವಿದ್ಯಾರ್ಥಿ ಐಡಿ',
       failureRate: 'ವಿಫಲತೆ ದರ',
       onTrack: 'ಎಲ್ಲಾ ವಿದ್ಯಾರ್ಥಿಗಳು ಪ್ರಸ್ತುತ ಸರಿಯಾದ ಹಾದಿಯಲ್ಲಿದ್ದಾರೆ.',
+    },
+    content: {
+      'biology-1': {
+        title: 'ಕೋಶ ಜೀವಶಾಸ್ತ್ರದ ಅಗತ್ಯತೆಗಳು',
+        topic: 'ಜೀವಶಾಸ್ತ್ರ',
+        description: 'ಜೀವನದ ಮೂಲಭೂತ ಬಿಲ್ಡಿಂಗ್ ಬ್ಲಾಕ್‌ಗಳು ಮತ್ತು ಅವುಗಳ ಸಂಕೀರ್ಣ ಕಾರ್ಯಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಿ.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'ಶಕ್ತಿಯನ್ನು ಉತ್ಪಾದಿಸುವ "ಕೋಶದ ಪವರ್‌ಹೌಸ್" ಯಾವುದು?',
+            correctAnswer: 'ಮೈಟೊಕಾಂಡ್ರಿಯ',
+            options: ['ನ್ಯೂಕ್ಲಿಯಸ್', 'ಮೈಟೊಕಾಂಡ್ರಿಯ', 'ರೈಬೋಸೋಮ್', 'ವ್ಯಾಕ್ಯೂಲ್']
+          }
+        ]
+      },
+      'math-1': {
+        title: 'ಸುಧಾರಿತ ರೇಖಾಗಣಿತ',
+        topic: 'ಗಣಿತ',
+        description: 'ಸ್ಥಳೀಯ ಸಂಬಂಧಗಳು, ತಾರ್ಕಿಕ ಪುರಾವೆಗಳು ಮತ್ತು ಜ್ಯಾಮಿತೀಯ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'ತ್ರಿಕೋನದ ಕೋನಗಳ ಮೊತ್ತ ಎಷ್ಟು?',
+            correctAnswer: '180 ಡಿಗ್ರಿ',
+            options: ['90 ಡಿಗ್ರಿ', '180 ಡಿಗ್ರಿ', '360 ಡಿಗ್ರಿ', '270 ಡಿಗ್ರಿ']
+          }
+        ]
+      },
+      'history-1': {
+        title: 'ನಾಗರಿಕತೆಯ ಅಡಿಪಾಯ',
+        topic: 'ಇತಿಹಾಸ',
+        description: 'ಆರಂಭಿಕ ಸಮಾಜಗಳ ಅಭಿವೃದ್ಧಿ ಮತ್ತು ಆಡಳಿತದ ಉದಯವನ್ನು ಪತ್ತೆಹಚ್ಚಿ.',
+        questions: [
+          {
+            id: 'q1',
+            text: 'ಗೀಜಾದ ಪಿರಮಿಡ್‌ಗಳನ್ನು ನಿರ್ಮಿಸಿದ ನಾಗರಿಕತೆ ಯಾವುದು?',
+            correctAnswer: 'ಈಜಿಪ್ಟಿನವರು',
+            options: ['ರೋಮನ್ನರು', 'ಗ್ರೀಕರು', 'ಈಜಿಪ್ಟಿನವರು', 'ಮಯನ್ನರು']
+          }
+        ]
+      }
     }
   }
 };

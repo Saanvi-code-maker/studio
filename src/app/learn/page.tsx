@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -23,41 +22,17 @@ import { useUser } from '@/firebase';
 import { SplashScreen } from '@/components/SplashScreen';
 import { useTranslation } from '@/hooks/use-translation';
 
-const LESSONS = [
-  {
-    id: 'biology-1',
-    title: 'Cell Biology Essentials',
-    subject: 'Biology',
-    duration: '15 min',
-    icon: Beaker,
-    description: 'Master the fundamental building blocks of life and their intricate functions.',
-    difficulty: 'Introductory'
-  },
-  {
-    id: 'math-1',
-    title: 'Advanced Geometry',
-    subject: 'Mathematics',
-    duration: '20 min',
-    icon: Calculator,
-    description: 'Explore spatial relationships, logical proofs, and geometric properties.',
-    difficulty: 'Intermediate'
-  },
-  {
-    id: 'history-1',
-    title: 'Foundations of Civilization',
-    subject: 'History',
-    duration: '10 min',
-    icon: Landmark,
-    description: 'Trace the development of early societies and the dawn of governance.',
-    difficulty: 'Beginner'
-  }
-];
-
 export default function LearnPage() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const { progress, isLoading: isProgressLoading } = useStore();
   const { t } = useTranslation();
+
+  const LESSON_ICONS: Record<string, any> = {
+    'biology-1': Beaker,
+    'math-1': Calculator,
+    'history-1': Landmark,
+  };
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -71,8 +46,10 @@ export default function LearnPage() {
 
   if (!user) return null;
 
+  // Pull translated content IDs
+  const lessonIds = Object.keys(t.content);
   const completedCount = progress?.completedLessons?.length || 0;
-  const totalLessons = LESSONS.length;
+  const totalLessons = lessonIds.length;
   const completionRate = Math.round((completedCount / totalLessons) * 100);
 
   return (
@@ -83,7 +60,7 @@ export default function LearnPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px]">
               <Sparkles className="w-4 h-4" />
-              Your Academic Bridge
+              {t.learn.academicBridge}
             </div>
             <h1 className="text-6xl md:text-7xl font-black font-headline text-foreground tracking-tighter leading-none">
               {t.learn.title} <span className="text-primary">{t.learn.subtitle}</span>
@@ -114,11 +91,13 @@ export default function LearnPage() {
         </header>
 
         <div className="grid grid-cols-1 gap-12">
-          {LESSONS.map((lesson, idx) => {
-            const isCompleted = progress?.completedLessons?.includes(lesson.id);
-            const Icon = lesson.icon;
+          {lessonIds.map((id, idx) => {
+            const lesson = t.content[id as keyof typeof t.content];
+            const isCompleted = progress?.completedLessons?.includes(id);
+            const Icon = LESSON_ICONS[id] || Beaker;
+            
             return (
-              <Link key={lesson.id} href={`/lesson/${lesson.id}`} className="block">
+              <Link key={id} href={`/lesson/${id}`} className="block">
                 <Card className="pro-card group overflow-hidden">
                   <div className="flex flex-col md:flex-row h-full">
                     <div className="w-full md:w-48 h-48 md:h-auto bg-primary/5 flex items-center justify-center shrink-0 border-r border-border/50 relative">
@@ -131,10 +110,10 @@ export default function LearnPage() {
                           <div className="space-y-3">
                             <div className="flex items-center gap-3">
                               <Badge className="bg-primary/10 text-primary border-none font-black px-4 py-1.5 shadow-none rounded-full text-[9px] uppercase tracking-widest">
-                                {lesson.subject}
+                                {lesson.topic}
                               </Badge>
                               <Badge variant="secondary" className="bg-secondary/50 text-muted-foreground border-none font-black uppercase tracking-widest text-[9px] px-4 py-1.5">
-                                {lesson.difficulty}
+                                Beginner
                               </Badge>
                             </div>
                             <CardTitle className="text-4xl font-black font-headline group-hover:text-primary transition-colors tracking-tighter">
@@ -156,7 +135,7 @@ export default function LearnPage() {
                         <div className="flex items-center gap-10 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                           <span className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-primary" />
-                            {lesson.duration}
+                            15 min
                           </span>
                           <span className="flex items-center gap-2">
                             <Sparkles className="w-4 h-4 text-primary" />

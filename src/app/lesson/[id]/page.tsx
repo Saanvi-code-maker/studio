@@ -34,54 +34,14 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useTranslation } from '@/hooks/use-translation';
 
-const LESSON_DATA: Record<string, any> = {
-  'biology-1': {
-    title: 'The Living Cell',
-    topic: 'Cell Biology',
-    imageKey: 'cell-analogy',
-    questions: [
-      {
-        id: 'q1',
-        text: 'What is the "powerhouse of the cell" that produces energy?',
-        correctAnswer: 'Mitochondria',
-        options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Vacuole']
-      }
-    ]
-  },
-  'math-1': {
-    title: 'Geometry Foundations',
-    topic: 'Geometry',
-    imageKey: 'geometry-analogy',
-    questions: [
-      {
-        id: 'q1',
-        text: 'What is the sum of angles in a triangle?',
-        correctAnswer: '180 degrees',
-        options: ['90 degrees', '180 degrees', '360 degrees', '270 degrees']
-      }
-    ]
-  },
-  'history-1': {
-    title: 'Ancient Civilizations',
-    topic: 'History',
-    imageKey: 'history-analogy',
-    questions: [
-      {
-        id: 'q1',
-        text: 'Which civilization built the Pyramids of Giza?',
-        correctAnswer: 'Egyptians',
-        options: ['Romans', 'Greeks', 'Egyptians', 'Mayans']
-      }
-    ]
-  }
-};
-
 export default function LessonPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const { t } = useTranslation();
-  const lesson = LESSON_DATA[id] || LESSON_DATA['biology-1'];
+  
+  // Dynamic lesson data from translations
+  const lesson = (t.content[id as keyof typeof t.content] || t.content['biology-1']) as any;
   const { saveResponseWithAnalysis, completeLesson } = useStore();
   
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
@@ -113,7 +73,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
 
   const currentQuestion = lesson.questions[activeQuestionIndex];
   const progressPercent = ((activeQuestionIndex) / lesson.questions.length) * 100;
-  const placeholder = PlaceHolderImages.find(img => img.id === lesson.imageKey);
+  
+  // Map images for analogies
+  const imageMap: Record<string, string> = {
+    'biology-1': 'cell-analogy',
+    'math-1': 'geometry-analogy',
+    'history-1': 'history-analogy'
+  };
+  const placeholder = PlaceHolderImages.find(img => img.id === imageMap[id]);
 
   const handleSubmit = async (overrideAnswer?: string) => {
     const finalAnswer = overrideAnswer || answer;
@@ -122,7 +89,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
     setIsLoading(true);
     
     try {
-      // Step 1: Use AI to analyze the answer conceptually
       const typeResult = await analyzeStudentAnswer({
         question: currentQuestion.text,
         studentAnswer: finalAnswer,
@@ -133,12 +99,11 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       let analysisResult = null;
 
       if (!correct) {
-        // Step 2: If incorrect, generate a "Learning Bridge" explanation
         const bridgeResult = await generateStudentExplanation({
           question: currentQuestion.text,
           studentAnswer: finalAnswer,
           correctAnswer: currentQuestion.correctAnswer,
-          context: `Topic: ${lesson.topic}. ${lesson.title}.`
+          context: `Topic: ${lesson.topic}. ${lesson.title}. Language: ${t.nav.learn === 'ಕಲಿಯಿರಿ' ? 'Kannada' : t.nav.learn === 'सीखें' ? 'Hindi' : 'English'}`
         });
 
         analysisResult = { 
@@ -157,17 +122,8 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       setIsCorrect(correct);
     } catch (error) {
       console.error("AI Analysis failed", error);
-      // Fallback logic
       const simpleCorrect = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
       setIsCorrect(simpleCorrect);
-      if (!simpleCorrect) {
-        setExplanation({
-          explanation: "It looks like there's a small misunderstanding. Let's try to look at this from a different angle.",
-          story: "Imagine trying to find a specific house in a big city without a map. Sometimes we just need a new guide.",
-          visual: "A friendly guide pointing the way on a map.",
-          analysisType: 'confused'
-        } as any);
-      }
     } finally {
       setIsLoading(false);
     }
@@ -238,7 +194,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                   <TabsContent value="text" className="space-y-4">
                     <div className="relative">
                       <Textarea 
-                        placeholder="Explain your thinking in your own words..." 
+                        placeholder={t.lesson.write + "..."} 
                         className="min-h-[160px] text-lg border-2 focus-visible:ring-primary rounded-2xl px-6 py-4 resize-none"
                         value={answer}
                         onChange={(e) => setAnswer(e.target.value)}
@@ -374,7 +330,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                           alt={explanation.visual || lesson.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                          data-ai-hint={placeholder?.imageHint || "education concept"}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                         <div className="absolute bottom-6 left-6 right-6">
@@ -414,7 +369,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                 </div>
                 <div className="text-center space-y-3">
                   <p className="text-2xl font-black text-primary/60 font-headline tracking-tighter">{t.lesson.building}</p>
-                  <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[180px] mx-auto">Gemini is analyzing the context of your response...</p>
+                  <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] max-w-[180px] mx-auto">{t.lesson.analyzing}</p>
                 </div>
               </Card>
             )}
