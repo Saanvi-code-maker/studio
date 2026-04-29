@@ -1,12 +1,12 @@
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export interface StudentProgress {
   userId: string;
   completedLessons: string[];
-  lastAccessed: string;
+  lastAccessed: any;
   responses: {
     lessonId: string;
     questionId: string;
@@ -20,42 +20,44 @@ export const useStore = () => {
   const { user } = useUser();
   const db = useFirestore();
 
-  const progressRef = useMemoFirebase(() => {
+  const userDocRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid);
   }, [db, user]);
 
-  const { data: progressData, isLoading } = useDoc(progressRef);
+  const { data: progressData, isLoading } = useDoc(userDocRef);
 
   const saveResponse = (lessonId: string, questionId: string, answer: string, isCorrect: boolean) => {
-    if (!db || !user) return;
+    if (!db || !user || !userDocRef) return;
     
-    const docRef = doc(db, 'users', user.uid);
     const responseId = crypto.randomUUID();
+    const now = new Date().toISOString();
     
-    const response = {
+    const responseData = {
       lessonId,
       questionId,
       answer,
       isCorrect,
-      timestamp: new Date().toISOString(),
+      timestamp: now,
     };
 
-    // 1. Update user profile
-    updateDoc(docRef, {
-      responses: arrayUnion(response),
-      lastAccessed: new Date().toISOString()
+    // 1. Update user profile for student view
+    updateDoc(userDocRef, {
+      responses: arrayUnion(responseData),
+      updatedAt: serverTimestamp()
     }).catch(err => {
-      // If doc doesn't exist, create it
-      setDoc(docRef, {
+      // Initialize if doesn't exist (failsafe)
+      setDoc(userDocRef, {
         id: user.uid,
-        responses: [response],
+        email: user.email,
+        responses: [responseData],
         completedLessons: [],
-        lastAccessed: new Date().toISOString()
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       }, { merge: true });
     });
 
-    // 2. Also save to top-level studentResponses for teacher visibility
+    // 2. Save to top-level studentResponses for teacher visibility
     const studentResponseRef = doc(db, 'studentResponses', responseId);
     setDoc(studentResponseRef, {
       id: responseId,
@@ -64,17 +66,16 @@ export const useStore = () => {
       questionId,
       responseValue: answer,
       isCorrect,
-      submittedAt: new Date().toISOString()
+      submittedAt: now
     });
   };
 
   const completeLesson = (lessonId: string) => {
-    if (!db || !user) return;
-    const docRef = doc(db, 'users', user.uid);
+    if (!db || !user || !userDocRef) return;
 
-    updateDoc(docRef, {
+    updateDoc(userDocRef, {
       completedLessons: arrayUnion(lessonId),
-      lastAccessed: new Date().toISOString()
+      updatedAt: serverTimestamp()
     });
   };
 
