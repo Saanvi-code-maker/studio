@@ -51,15 +51,13 @@ export default function Home() {
     return <SplashScreen message="Initializing Academic Portal" />;
   }
 
-  const isTeacher = profile?.role === 'teacher';
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 hero-gradient relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full animate-pulse" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/5 blur-[120px] rounded-full animate-pulse" />
 
-      <div className="max-w-4xl w-full space-y-12 relative z-10 animate-in fade-in zoom-in duration-1000">
+      <div className="max-w-5xl w-full space-y-12 relative z-10 animate-in fade-in zoom-in duration-1000">
         <header className="text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-6 py-2 bg-white rounded-full border-2 border-primary/10 shadow-sm mb-4">
             <Sparkles className="w-4 h-4 text-primary animate-pulse" />
@@ -76,7 +74,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card 
             onClick={() => router.push('/learn')}
-            className="pro-card group p-10 cursor-pointer border-none shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_50px_80px_-20px_rgba(59,130,246,0.3)]"
+            className="pro-card group p-10 cursor-pointer border-none shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_50px_80px_-20px_rgba(59,130,246,0.3)] transition-all"
           >
             <div className="space-y-8">
               <div className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center text-primary group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
@@ -95,49 +93,26 @@ export default function Home() {
             </div>
           </Card>
 
-          {isTeacher ? (
-            <Card 
-              onClick={() => router.push('/teacher')}
-              className="pro-card group p-10 cursor-pointer border-none shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_50px_80px_-20px_rgba(14,165,233,0.3)]"
-            >
-              <div className="space-y-8">
-                <div className="w-20 h-20 bg-accent/10 rounded-[2rem] flex items-center justify-center text-accent group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
-                  <LayoutDashboard className="w-10 h-10" />
-                </div>
-                <div className="space-y-3">
-                  <h2 className="text-4xl font-black font-headline tracking-tighter">{t.nav.teacher}</h2>
-                  <p className="text-muted-foreground font-medium leading-relaxed">
-                    Analyze classroom performance, identify gaps, and generate adaptive lesson plans.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/50 flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-accent">Open Intelligence</span>
-                  <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-2 transition-transform" />
-                </div>
+          <Card 
+            onClick={() => router.push('/teacher')}
+            className="pro-card group p-10 cursor-pointer border-none shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_50px_80px_-20px_rgba(14,165,233,0.3)] transition-all"
+          >
+            <div className="space-y-8">
+              <div className="w-20 h-20 bg-accent/10 rounded-[2rem] flex items-center justify-center text-accent group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                <LayoutDashboard className="w-10 h-10" />
               </div>
-            </Card>
-          ) : (
-            <Card 
-              onClick={() => router.push('/profile')}
-              className="pro-card group p-10 cursor-pointer border-none bg-secondary/30"
-            >
-              <div className="space-y-8 opacity-60">
-                <div className="w-20 h-20 bg-muted rounded-[2rem] flex items-center justify-center text-muted-foreground">
-                  <GraduationCap className="w-10 h-10" />
-                </div>
-                <div className="space-y-3">
-                  <h2 className="text-4xl font-black font-headline tracking-tighter opacity-50">{t.nav.profile}</h2>
-                  <p className="text-muted-foreground font-medium leading-relaxed">
-                    View your achievements, change language, and manage your scholar profile.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-border/50 flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase tracking-widest">Scholar Settings</span>
-                  <ArrowRight className="w-5 h-5" />
-                </div>
+              <div className="space-y-3">
+                <h2 className="text-4xl font-black font-headline tracking-tighter">{t.nav.teacher}</h2>
+                <p className="text-muted-foreground font-medium leading-relaxed">
+                  Analyze classroom performance, identify gaps, and generate adaptive lesson plans.
+                </p>
               </div>
-            </Card>
-          )}
+              <div className="pt-6 border-t border-border/50 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-accent">Open Intelligence</span>
+                <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-2 transition-transform" />
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
