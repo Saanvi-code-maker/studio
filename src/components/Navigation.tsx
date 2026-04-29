@@ -8,22 +8,36 @@ import {
   User, 
   GraduationCap, 
   LogIn, 
-  LayoutDashboard 
+  LayoutDashboard,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/firebase';
 import { useTranslation } from '@/hooks/use-translation';
+import { useStore } from '@/lib/store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Navigation = () => {
   const pathname = usePathname();
   const { user, isUserLoading } = useUser();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const { setLanguage } = useStore();
 
   const navItems = [
     { label: t.nav.learn, href: '/learn', icon: BookOpen },
     { label: t.nav.teacher, href: '/teacher', icon: LayoutDashboard },
     { label: t.nav.profile, href: '/profile', icon: User },
   ];
+
+  const handleLanguageChange = (val: string) => {
+    setLanguage(val);
+  };
 
   return (
     <>
@@ -39,7 +53,21 @@ export const Navigation = () => {
             </span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-muted-foreground/60" />
+              <Select value={lang} onValueChange={handleLanguageChange}>
+                <SelectTrigger className="w-[140px] h-10 rounded-xl border-none bg-secondary/30 font-black text-[10px] uppercase tracking-widest focus:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-2">
+                  <SelectItem value="en" className="text-xs font-bold uppercase tracking-widest py-3">English</SelectItem>
+                  <SelectItem value="hi" className="text-xs font-bold uppercase tracking-widest py-3">हिन्दी (Hindi)</SelectItem>
+                  <SelectItem value="kn" className="text-xs font-bold uppercase tracking-widest py-3">ಕನ್ನಡ (Kannada)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {!isUserLoading && user ? (
               <div className="flex items-center gap-2 bg-secondary/30 p-1.5 rounded-[1.5rem] border border-border/50">
                 {navItems.map((item) => {
@@ -101,13 +129,27 @@ export const Navigation = () => {
             );
           })
         ) : !isUserLoading ? (
-          <Link
-            href="/login"
-            className="flex flex-col items-center gap-1 text-primary p-2"
-          >
-            <LogIn className="h-6 w-6" />
-            <span className="text-[10px] font-black uppercase tracking-tighter">{t.nav.signIn}</span>
-          </Link>
+          <div className="flex items-center gap-4 w-full px-6">
+             <Link
+                href="/login"
+                className="flex-1 flex items-center justify-center gap-2 text-primary p-2 font-black uppercase tracking-widest text-xs"
+              >
+                <LogIn className="h-5 w-5" />
+                {t.nav.signIn}
+              </Link>
+              <div className="flex-1">
+                 <Select value={lang} onValueChange={handleLanguageChange}>
+                  <SelectTrigger className="h-10 rounded-xl border-none bg-secondary/30 font-black text-[10px] uppercase tracking-widest focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
+                    <SelectItem value="kn">Kannada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+          </div>
         ) : (
           <div className="h-10 w-full bg-secondary/10 animate-pulse rounded-xl" />
         )}

@@ -32,6 +32,16 @@ export const useStore = () => {
 
   const { data: progressData, isLoading } = useDoc<StudentProgress>(userDocRef);
 
+  const setLanguage = async (lang: string) => {
+    if (userDocRef) {
+      await updateDoc(userDocRef, {
+        languagePreference: lang,
+        updatedAt: serverTimestamp()
+      });
+    }
+    localStorage.setItem('shikshasetu_lang', lang);
+  };
+
   const saveResponseWithAnalysis = (
     lessonId: string, 
     questionId: string, 
@@ -60,13 +70,10 @@ export const useStore = () => {
       studentId: user.uid,
     };
 
-    // 1. Save to top-level studentResponses
     setDoc(doc(db, 'studentResponses', responseId), responseData);
 
-    // 2. If analysis exists, save it to aiAnalyses
     if (analysis) {
       const analysisId = crypto.randomUUID();
-      // CRITICAL: Denormalize studentId for security rules as per backend.json requirement
       setDoc(doc(db, 'aiAnalyses', analysisId), {
         id: analysisId,
         studentResponseId: responseId,
@@ -80,7 +87,6 @@ export const useStore = () => {
       });
     }
 
-    // 3. Update user profile last updated timestamp
     updateDoc(userDocRef, {
       updatedAt: serverTimestamp()
     });
@@ -98,6 +104,7 @@ export const useStore = () => {
   return { 
     progress: progressData, 
     isLoading,
+    setLanguage,
     saveResponseWithAnalysis, 
     completeLesson 
   };

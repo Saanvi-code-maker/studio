@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { SplashScreen } from '@/components/SplashScreen';
 import { useTranslation } from '@/hooks/use-translation';
+import { useStore } from '@/lib/store';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -24,7 +25,8 @@ export default function ProfilePage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
+  const { setLanguage: setGlobalLanguage } = useStore();
 
   const userDocRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -34,7 +36,6 @@ export default function ProfilePage() {
   const { data: profile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
   const [displayName, setDisplayName] = useState('');
-  const [language, setLanguage] = useState('en');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -46,12 +47,11 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName || '');
-      setLanguage(profile.languagePreference || 'en');
     }
   }, [profile]);
 
   if (isUserLoading || isProfileLoading) {
-    return <SplashScreen message="Accessing Secure Profile" />;
+    return <SplashScreen message={t.common.loading} />;
   }
 
   if (!user) return null;
@@ -62,7 +62,6 @@ export default function ProfilePage() {
     try {
       await updateDoc(userDocRef, {
         displayName,
-        languagePreference: language,
         updatedAt: new Date().toISOString()
       });
       toast({
@@ -137,11 +136,11 @@ export default function ProfilePage() {
                 <Label htmlFor="language" className="font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground pl-1">{t.profile.language}</Label>
                 <div className="relative">
                   <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary z-10" />
-                  <Select value={language} onValueChange={setLanguage}>
+                  <Select value={lang} onValueChange={(val) => setGlobalLanguage(val)}>
                     <SelectTrigger id="language" className="h-14 pl-12 border-2 rounded-2xl focus:ring-primary font-bold text-lg">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl">
+                    <SelectContent className="rounded-2xl border-2">
                       <SelectItem value="en" className="font-bold py-3">English (US)</SelectItem>
                       <SelectItem value="hi" className="font-bold py-3">हिन्दी (Hindi)</SelectItem>
                       <SelectItem value="kn" className="font-bold py-3">ಕನ್ನಡ (Kannada)</SelectItem>
@@ -172,7 +171,7 @@ export default function ProfilePage() {
 
         <div className="text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
-            ShikshaSetu Secure Academic Profile • v1.0.4
+            ShikshaSetu Secure Academic Profile • v1.1.0
           </p>
         </div>
       </div>
