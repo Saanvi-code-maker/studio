@@ -8,7 +8,7 @@
  * ## Key Security Decisions
  * - **DBAC (Database Access Control):** Teacher privileges are verified by checking for the 
  *   existence of a document in the `/teachers` collection.
- * - **Demo Mode:** Added a rule allowing users to create their own teacher record for hackathon testing.
+ * - **Student Privacy:** Students can only read and create their own responses and analyses.
  */
 
 rules_version = '2';
@@ -46,7 +46,6 @@ service cloud.firestore {
     match /teachers/{teacherId} {
       allow get: if isSignedIn();
       allow list: if isTeacher();
-      // ALLOWED FOR HACKATHON DEMO: Users can promote themselves during signup
       allow create: if isOwner(teacherId);
       allow update, delete: if false;
     }
@@ -77,7 +76,9 @@ service cloud.firestore {
     match /aiAnalyses/{analysisId} {
       allow get: if isTeacher() || isDocOwner();
       allow list: if isTeacher() || (isSignedIn() && request.query.limit <= 100);
-      allow create, update, delete: if isTeacher();
+      // Allow students to create their own analysis records during the learning flow
+      allow create: if isSignedIn() && request.resource.data.studentId == request.auth.uid;
+      allow update, delete: if isTeacher();
     }
   }
 }

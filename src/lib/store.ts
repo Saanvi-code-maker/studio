@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -9,6 +8,8 @@ import {
   setDoc, 
   serverTimestamp 
 } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export interface StudentProgress {
   id: string;
@@ -34,9 +35,15 @@ export const useStore = () => {
 
   const setLanguage = async (lang: string) => {
     if (userDocRef) {
-      await updateDoc(userDocRef, {
+      updateDoc(userDocRef, {
         languagePreference: lang,
         updatedAt: serverTimestamp()
+      }).catch(err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: userDocRef.path,
+          operation: 'update',
+          requestResourceData: { languagePreference: lang }
+        }));
       });
     }
     localStorage.setItem('shikshasetu_lang', lang);
@@ -71,11 +78,18 @@ export const useStore = () => {
       studentId: user.uid,
     };
 
-    setDoc(doc(db, 'studentResponses', responseId), responseData);
+    const responseRef = doc(db, 'studentResponses', responseId);
+    setDoc(responseRef, responseData).catch(err => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: responseRef.path,
+        operation: 'create',
+        requestResourceData: responseData
+      }));
+    });
 
     if (analysis) {
       const analysisId = crypto.randomUUID();
-      setDoc(doc(db, 'aiAnalyses', analysisId), {
+      const analysisData = {
         id: analysisId,
         studentResponseId: responseId,
         studentId: user.uid, 
@@ -85,6 +99,14 @@ export const useStore = () => {
         visualDescription: analysis.visual,
         imageUrl: analysis.imageUrl || '',
         generatedAt: now
+      };
+      const analysisRef = doc(db, 'aiAnalyses', analysisId);
+      setDoc(analysisRef, analysisData).catch(err => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: analysisRef.path,
+          operation: 'create',
+          requestResourceData: analysisData
+        }));
       });
     }
 

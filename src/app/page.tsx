@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -21,7 +20,7 @@ export default function Home() {
         // Logged in users go to their learning journey
         router.push('/learn');
       } else {
-        // Unauthenticated users go directly to Login as per "Splash next Login" instruction
+        // Unauthenticated users go directly to Login
         router.push('/login');
       }
     }
