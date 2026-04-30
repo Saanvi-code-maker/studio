@@ -98,11 +98,11 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           question: currentQuestion.text,
           studentAnswer: finalAnswer,
           correctAnswer: currentQuestion.correctAnswer,
-          context: `Topic: ${lesson.topic}. ${lesson.title}. Language: ${t.nav.learn === 'ಕಲಿಯಿರಿ' ? 'Kannada' : t.nav.learn === 'सीखें' ? 'Hindi' : 'English'}`
+          context: `Topic: ${lesson.topic}. ${lesson.title}.`
         });
 
-        // Use the story/visual description to pick a consistent seeded image
-        const seedId = `${id}-${typeResult.analysisType}-${Math.floor(Math.random() * 100)}`;
+        // Consistent visual selection
+        const seedId = `${id}-${activeQuestionIndex}-${Math.floor(Math.random() * 100)}`;
 
         analysisResult = { 
           explanation: bridgeResult.explanation, 
@@ -114,17 +114,13 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           analysisExplanation: typeResult.explanation
         };
         setExplanation(analysisResult);
-      } else {
-        setExplanation(null);
       }
 
       saveResponseWithAnalysis(id, currentQuestion.id, finalAnswer, correct, analysisResult);
       setIsCorrect(correct);
     } catch (error) {
       console.error("AI Analysis failed", error);
-      // Basic fallback
-      const simpleCorrect = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
-      setIsCorrect(simpleCorrect);
+      setIsCorrect(finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase()));
     } finally {
       setIsLoading(false);
     }
@@ -292,7 +288,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         </div>
                         <div>
                           <h3 className="text-2xl font-black font-headline tracking-tighter text-foreground">{t.lesson.bridge}</h3>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">AI Pedagogical Intervention</p>
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">AI Learning Support</p>
                         </div>
                       </div>
                       <Badge className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getAnalysisBadge(explanation.analysisType).color}`}>
@@ -315,55 +311,42 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-border shadow-2xl group">
                           <Image 
-                            src={explanation.imageUrl || `https://picsum.photos/seed/${explanation.analysisType || 'concept'}/800/600`} 
+                            src={explanation.imageUrl || `https://picsum.photos/seed/${id}/800/600`} 
                             alt={explanation.visual}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                            data-ai-hint="educational visual"
+                            data-ai-hint="academic illustration"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
-                              <Play className="w-8 h-8 text-white fill-white" />
-                            </div>
-                          </div>
                           <div className="absolute bottom-6 left-6 right-6">
                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t.lesson.visualConcept}</p>
                             <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>
                           </div>
                         </div>
 
-                        <div className="bg-secondary/30 p-8 rounded-[2.5rem] border-2 border-dashed border-border space-y-6 flex flex-col justify-center relative overflow-hidden">
-                           <div className="absolute top-0 right-0 p-4 opacity-5 text-primary">
-                             <Map className="w-24 h-24" />
-                           </div>
-                          <div className="flex items-center gap-3 text-primary relative z-10">
-                            <LinkIcon className="w-5 h-5" />
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Concept Mindmap</h4>
+                        <div className="bg-secondary/30 p-8 rounded-[2.5rem] border-2 border-dashed border-border space-y-6 flex flex-col justify-center">
+                          <div className="flex items-center gap-3 text-primary">
+                            <Map className="w-5 h-5" />
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em]">Mindmap Points</h4>
                           </div>
-                          <div className="space-y-4 relative z-10">
+                          <div className="space-y-4">
                             {explanation.mindmap?.map((point, i) => (
-                              <div key={i} className="flex items-start gap-3 bg-white/50 p-3 rounded-xl border border-white/50 hover:bg-white transition-colors duration-300">
+                              <div key={i} className="flex items-start gap-3 bg-white/50 p-3 rounded-xl border border-white/50">
                                 <div className="w-2 h-2 mt-1.5 rounded-full bg-primary shrink-0" />
                                 <span className="text-xs font-bold text-muted-foreground leading-tight">{point}</span>
                               </div>
                             ))}
                           </div>
-                          <p className="text-sm font-bold text-muted-foreground leading-relaxed pt-4 border-t border-border relative z-10">
+                          <p className="text-sm font-bold text-muted-foreground leading-relaxed pt-4 border-t border-border">
                             {explanation.text}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-4">
-                      <Button onClick={resetState} className="h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95">
-                        <RotateCcw className="mr-3 h-5 w-5" /> {t.lesson.refine}
-                      </Button>
-                      <p className="text-[10px] text-center font-black uppercase tracking-[0.3em] text-muted-foreground/30">
-                        Synthesized by Gemini 1.5 Flash • Adaptive Learning Path
-                      </p>
-                    </div>
+                    <Button onClick={resetState} className="w-full h-16 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95">
+                      <RotateCcw className="mr-3 h-5 w-5" /> {t.lesson.refine}
+                    </Button>
                   </div>
                 </Card>
               </div>

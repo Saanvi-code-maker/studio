@@ -5,14 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { SplashScreen } from '@/components/SplashScreen';
-import { GraduationCap, BookOpen, LayoutDashboard, ArrowRight, Sparkles, GraduationCap as TeacherIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { BookOpen, LayoutDashboard, ArrowRight, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
 
 /**
  * Entry point for ShikshaSetu.
- * Acts as a Portal Selection screen for authenticated users and a router for guests.
+ * Acts as a Portal Selection screen for authenticated users.
  */
 export default function Home() {
   const { user, isUserLoading } = useUser();
@@ -27,16 +26,6 @@ export default function Home() {
   }, [db, user]);
 
   const { data: profile, isLoading: isProfileLoading } = useDoc(userDocRef);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Clean state for new sessions as requested
-      if (!window.sessionStorage.getItem('session_initialized')) {
-        localStorage.removeItem('current_lesson_state');
-        window.sessionStorage.setItem('session_initialized', 'true');
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
