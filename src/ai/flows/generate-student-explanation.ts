@@ -1,10 +1,6 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating personalized stories and visual explanations for students.
- *
- * - generateStudentExplanation - A function that handles the generation of a personalized story-based explanation.
- * - GenerateStudentExplanationInput - The input type for the generateStudentExplanation function.
- * - GenerateStudentExplanationOutput - The return type for the generateStudentExplanation function.
  */
 
 import { ai } from '@/ai/genkit';

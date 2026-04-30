@@ -2,10 +2,6 @@
 /**
  * @fileOverview This file defines a Genkit flow for analyzing student answers.
  * It classifies the student's understanding and provides a simple explanation.
- *
- * - analyzeStudentAnswer - Function to analyze a student's response.
- * - AnalyzeAnswerInput - Input schema for analysis.
- * - AnalyzeAnswerOutput - Output schema containing classification and explanation.
  */
 
 import { ai } from '@/ai/genkit';

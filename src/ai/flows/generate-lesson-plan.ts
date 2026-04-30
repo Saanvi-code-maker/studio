@@ -1,10 +1,6 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating adaptive lesson plans.
- *
- * - generateLessonPlan - A function that generates a structured lesson plan for a topic.
- * - LessonPlanInput - The input type for the generateLessonPlan function.
- * - LessonPlanOutput - The return type for the generateLessonPlan function.
  */
 
 import { ai } from '@/ai/genkit';

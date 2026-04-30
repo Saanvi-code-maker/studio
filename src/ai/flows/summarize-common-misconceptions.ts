@@ -1,11 +1,7 @@
 'use server';
 /**
  * @fileOverview This file implements a Genkit flow to analyze student responses
- * for a given topic and identify common mistakes or areas of confusion across the class.
- *
- * - summarizeCommonMisconceptions - A function that handles the common misconception summarization process.
- * - SummarizeCommonMisconceptionsInput - The input type for the summarizeCommonMisconceptions function.
- * - SummarizeCommonMisconceptionsOutput - The return type for the summarizeCommonMisconceptions function.
+ * for a given topic and identify common mistakes.
  */
 
 import {ai} from '@/ai/genkit';
