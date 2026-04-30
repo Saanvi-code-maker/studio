@@ -30,8 +30,7 @@ service cloud.firestore {
     match /teachers/{teacherId} {
       allow get: if isSignedIn();
       allow list: if isTeacher();
-      allow create: if isOwner(teacherId);
-      allow update, delete: if false;
+      allow create, update, delete: if isOwner(teacherId);
     }
 
     match /studentResponses/{responseId} {
