@@ -1,7 +1,11 @@
 'use server';
+/**
+ * @fileOverview Summarizes common classroom misconceptions for the Educator Dashboard.
+ */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const SummarizeInputSchema = z.object({
   topic: z.string(),
@@ -20,12 +24,20 @@ export async function summarizeCommonMisconceptions(input: z.infer<typeof Summar
 
 const prompt = ai.definePrompt({
   name: 'summarizeCommonMisconceptionsPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: gemini15Flash,
   input: { schema: SummarizeInputSchema },
   output: { schema: SummarizeOutputSchema },
-  prompt: `Analyze these student responses for Topic: {{{topic}}}. Identify misconceptions.
+  prompt: `You are an expert pedagogical analyst. 
+Analyze these student responses for Topic: {{{topic}}}. 
+Identify recurring cognitive gaps and systemic misconceptions.
+
 Responses:
-{{#each studentResponses}}- {{{this}}}{{/each}}`,
+{{#each studentResponses}}- {{{this}}}{{/each}}
+
+Instructions:
+1. List 3-4 specific common misconceptions.
+2. Provide an executive summary of the class's understanding.
+3. Suggest 2-3 targeted teaching points for intervention.`,
 });
 
 const summarizeCommonMisconceptionsFlow = ai.defineFlow(
@@ -35,7 +47,6 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
     outputSchema: SummarizeOutputSchema,
   },
   async (input) => {
-    // Standardized model call to resolve 404 connectivity issues
     const { output } = await prompt(input);
     if (!output) throw new Error('Failed to summarize common misconceptions.');
     return output;

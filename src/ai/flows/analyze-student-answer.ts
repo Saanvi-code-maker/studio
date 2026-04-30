@@ -1,10 +1,11 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for analyzing student answers.
+ * @fileOverview Analyzes student answers for cognitive patterns and correctness.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const AnalyzeAnswerInputSchema = z.object({
   question: z.string().describe('The question posed to the student.'),
@@ -27,7 +28,7 @@ export async function analyzeStudentAnswer(input: AnalyzeAnswerInput): Promise<A
 
 const prompt = ai.definePrompt({
   name: 'analyzeStudentAnswerPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: gemini15Flash,
   input: { schema: AnalyzeAnswerInputSchema },
   output: { schema: AnalyzeAnswerOutputSchema },
   config: {
@@ -42,7 +43,7 @@ Student's Answer: {{{studentAnswer}}}
 Instructions:
 1. Determine if the answer is conceptually 'isCorrect'.
 2. Classify the understanding level: 'correct', 'guessing', 'partial_understanding', 'confused'.
-3. Provide a simple, 1-2 sentence explanation of your reasoning.
+3. Provide a simple, 1-2 sentence explanation of your reasoning for a teacher's review.
 
 Return the result as a JSON object matching the output schema.`,
 });

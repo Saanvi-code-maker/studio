@@ -1,7 +1,11 @@
 'use server';
+/**
+ * @fileOverview AI Lesson Planner for teachers.
+ */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const LessonPlanInputSchema = z.object({
   topic: z.string(),
@@ -27,10 +31,11 @@ export async function generateLessonPlan(input: z.infer<typeof LessonPlanInputSc
 
 const prompt = ai.definePrompt({
   name: 'generateLessonPlanPrompt',
-  model: 'googleai/gemini-1.5-flash',
+  model: gemini15Flash,
   input: { schema: LessonPlanInputSchema },
   output: { schema: LessonPlanOutputSchema },
-  prompt: `Generate a high-fidelity adaptive lesson plan for Topic: {{{topic}}} {{#if gradeLevel}}Grade: {{{gradeLevel}}}{{/if}}.`,
+  prompt: `Generate a high-fidelity adaptive lesson plan for Topic: {{{topic}}} {{#if gradeLevel}}Grade: {{{gradeLevel}}}{{/if}}.
+Include specific learning objectives, a timed activity sequence, assessment methods, and tips for helping students with common misconceptions.`,
 });
 
 const generateLessonPlanFlow = ai.defineFlow(
