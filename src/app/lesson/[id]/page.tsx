@@ -99,6 +99,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           context: `Topic: ${lesson.topic}. ${lesson.title}.`
         });
 
+        // Use high-fidelity seed for dynamic illustrations
         const seedId = `${id}-${activeQuestionIndex}`;
 
         analysisResult = { 
@@ -117,6 +118,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       setIsCorrect(correct);
     } catch (error) {
       console.error("AI Analysis failed", error);
+      // Fallback simple check
       setIsCorrect(finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase()));
     } finally {
       setIsLoading(false);
@@ -310,6 +312,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                             alt={explanation.visual}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-1000"
+                            data-ai-hint="academic illustration"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                           <div className="absolute bottom-6 left-6 right-6">

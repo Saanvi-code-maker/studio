@@ -28,6 +28,7 @@ export async function generateStudentExplanation(input: GenerateStudentExplanati
 
 const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
   config: { temperature: 0.7 },
