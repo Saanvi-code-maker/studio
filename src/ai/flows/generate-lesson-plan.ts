@@ -56,14 +56,18 @@ const generateLessonPlanFlow = ai.defineFlow(
         if (retryCount >= maxRetries) {
           return {
             title: `Exploration of ${input.topic}`,
-            objectives: ["Define core principles", "Identify practical applications", "Synthesize concept relationships"],
-            activities: [
-              { title: "Introduction", duration: "10 min", description: "Hook students with a real-world problem." },
-              { title: "Exploration", duration: "25 min", description: "Hands-on collaborative group activity." },
-              { title: "Synthesis", duration: "15 min", description: "Class-wide sharing and bridge building." }
+            objectives: [
+              "Understand the fundamental principles of the topic",
+              "Identify core components and their relationships",
+              "Apply the concept to solve a real-world scenario"
             ],
-            assessment: "Formative assessment via student presentations.",
-            adaptiveTips: "Provide tiered scaffolding for students showing partial understanding."
+            activities: [
+              { title: "Hook & Introduction", duration: "10 min", description: "Engage students with a relevant analogy or problem." },
+              { title: "Collaborative Exploration", duration: "25 min", description: "Students work in groups to explore key concepts." },
+              { title: "Synthesis & Reflection", duration: "15 min", description: "Consolidate learning and address misconceptions." }
+            ],
+            assessment: "Formative exit ticket focusing on the main objective.",
+            adaptiveTips: "Provide tiered scaffolding and visual aids for students showing partial understanding."
           };
         }
         await new Promise(r => setTimeout(r, 1000));

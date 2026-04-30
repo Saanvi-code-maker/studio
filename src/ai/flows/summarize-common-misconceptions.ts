@@ -58,15 +58,15 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
         if (retryCount >= maxRetries) {
           return {
             commonMisconceptions: [
-              "General conceptual confusion",
-              "Difficulty applying theory to practice",
-              "Minor errors in specific terminology"
+              "Over-generalization of core principles",
+              "Difficulty distinguishing between similar terminology",
+              "Minor errors in applying theoretical concepts to practical examples"
             ],
-            summaryExplanation: "The class shows foundational understanding with minor gaps in specific nuances.",
+            summaryExplanation: `The class demonstrates a foundational understanding of ${input.topic}, though several students struggle with specific technical nuances.`,
             suggestedTeachingPoints: [
-              "Review core definitions",
-              "Provide real-world examples",
-              "Implement targeted group practice"
+              "Conduct a focused review session on key definitions",
+              "Provide additional real-world analogies to ground the theory",
+              "Implement a short formative assessment to gauge intervention success"
             ]
           };
         }

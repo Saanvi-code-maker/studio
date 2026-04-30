@@ -41,13 +41,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       return null;
     }
 
-    // Cleanup previous instance if any
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-      } catch (e) {}
-    }
-
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -60,6 +53,9 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
     };
 
     recognition.onerror = (event: any) => {
+      // "aborted" is a common non-critical error when switching states too fast.
+      if (event.error === 'aborted') return;
+      
       console.error('Speech recognition error:', event.error);
       setIsRecording(false);
       setStatus('error');
@@ -80,7 +76,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       if (transcript) {
         setStatus('processing');
         onResult(transcript);
-        // Small delay to show completion before resetting status
         setTimeout(() => setStatus('idle'), 800);
       }
     };
@@ -105,14 +100,18 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
     }
     
     if (isRecording) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
     } else {
       try {
         recognitionRef.current.start();
       } catch (err) {
-        // Fallback for re-starting if error state occurred
+        // If starting fails due to existing instance, re-init and try once more
         recognitionRef.current = initializeRecognition();
-        recognitionRef.current?.start();
+        try {
+          recognitionRef.current?.start();
+        } catch (e) {}
       }
     }
   };
