@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview AI Lesson Planner for teachers.
@@ -31,7 +30,6 @@ export async function generateLessonPlan(input: z.infer<typeof LessonPlanInputSc
 
 const prompt = ai.definePrompt({
   name: 'generateLessonPlanPrompt',
-  model: 'googleai/gemini-1.5-flash',
   input: { schema: LessonPlanInputSchema },
   output: { schema: LessonPlanOutputSchema },
   prompt: `Generate a high-fidelity adaptive lesson plan for Topic: {{{topic}}} {{#if gradeLevel}}Grade: {{{gradeLevel}}}{{/if}}.
