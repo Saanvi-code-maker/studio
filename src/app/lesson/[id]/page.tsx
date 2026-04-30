@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, use, useEffect } from 'react';
@@ -102,6 +101,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           context: `Topic: ${lesson.topic}. ${lesson.title}. Language: ${t.nav.learn === 'ಕಲಿಯಿರಿ' ? 'Kannada' : t.nav.learn === 'सीखें' ? 'Hindi' : 'English'}`
         });
 
+        // Use the story/visual description to pick a consistent seeded image
         const seedId = `${id}-${typeResult.analysisType}-${Math.floor(Math.random() * 100)}`;
 
         analysisResult = { 
@@ -122,6 +122,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
       setIsCorrect(correct);
     } catch (error) {
       console.error("AI Analysis failed", error);
+      // Basic fallback
       const simpleCorrect = finalAnswer.toLowerCase().includes(currentQuestion.correctAnswer.toLowerCase());
       setIsCorrect(simpleCorrect);
     } finally {
