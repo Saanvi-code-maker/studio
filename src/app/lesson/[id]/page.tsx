@@ -29,13 +29,13 @@ import {
   Send,
   Zap,
   Map,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Play
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useTranslation } from '@/hooks/use-translation';
 
 export default function LessonPage({ params }: { params: Promise<{ id: string }> }) {
@@ -318,9 +318,14 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                             alt={explanation.visual}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-1000"
-                            data-ai-hint="conceptual illustration"
+                            data-ai-hint="educational visual"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40">
+                              <Play className="w-8 h-8 text-white fill-white" />
+                            </div>
+                          </div>
                           <div className="absolute bottom-6 left-6 right-6">
                             <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">{t.lesson.visualConcept}</p>
                             <p className="text-xs font-bold text-white/80 italic">{explanation.visual}</p>

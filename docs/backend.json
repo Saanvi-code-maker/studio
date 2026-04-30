@@ -44,6 +44,7 @@
         "explanationText": { "type": "string" },
         "storyText": { "type": "string" },
         "visualDescription": { "type": "string" },
+        "mindmap": { "type": "array", "items": { "type": "string" } },
         "imageUrl": { "type": "string", "format": "uri" },
         "generatedAt": { "type": "string", "format": "date-time" }
       },

@@ -69,6 +69,7 @@ export const useStore = () => {
       explanation: string, 
       story: string, 
       visual: string,
+      mindmap: string[],
       imageUrl?: string,
       analysisType?: string,
       analysisExplanation?: string
@@ -108,6 +109,7 @@ export const useStore = () => {
         explanationText: analysis.explanation,
         storyText: analysis.story,
         visualDescription: analysis.visual,
+        mindmap: analysis.mindmap || [],
         imageUrl: analysis.imageUrl || '',
         generatedAt: now
       };
