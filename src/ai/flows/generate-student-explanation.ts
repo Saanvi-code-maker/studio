@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates personalized "Learning Bridges" for students.
@@ -44,7 +45,9 @@ Instructions:
 1. Provide a clear, non-judgmental explanation.
 2. Create a short story or analogy that makes the concept feel "real".
 3. Describe a simple visual that could represent this concept.
-4. Provide a 4-point mindmap summary of the key conceptual links.`,
+4. Provide a 4-point mindmap summary of the key conceptual links.
+
+Return the result as a JSON object matching the output schema.`,
 });
 
 const generateStudentExplanationFlow = ai.defineFlow(
