@@ -48,33 +48,31 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
   async (input) => {
     let retryCount = 0;
     const maxRetries = 2;
-    
     while (retryCount < maxRetries) {
       try {
         const { output } = await prompt(input);
-        if (!output) throw new Error('AI output was empty');
-        return output;
+        if (output) return output;
+        throw new Error('Empty output');
       } catch (error: any) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          // Robust fallback to ensure the dashboard remains functional
           return {
             commonMisconceptions: [
-              "General conceptual confusion regarding the topic",
-              "Difficulty connecting theoretical ideas to practical applications",
-              "Minor errors in specific terminology usage"
+              "General conceptual confusion",
+              "Difficulty applying theory to practice",
+              "Minor errors in specific terminology"
             ],
-            summaryExplanation: "The class shows a foundational understanding but struggles with specific nuances of the topic. Further review of key definitions is recommended.",
+            summaryExplanation: "The class shows foundational understanding with minor gaps in specific nuances.",
             suggestedTeachingPoints: [
-              "Review fundamental definitions and core concepts",
-              "Provide more real-world examples for clarity",
-              "Assign targeted practice modules for reinforcement"
+              "Review core definitions",
+              "Provide real-world examples",
+              "Implement targeted group practice"
             ]
           };
         }
-        await new Promise(resolve => setTimeout(resolve, 500 * retryCount));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
-    throw new Error('Unexpected flow termination');
+    throw new Error('Failed to summarize misconceptions.');
   }
 );

@@ -60,18 +60,18 @@ const analyzeStudentAnswerFlow = ai.defineFlow(
       try {
         const { output } = await prompt(input);
         if (output) return output;
+        throw new Error('Empty output');
       } catch (e) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          // Heuristic fallback
-          const simpleCorrect = input.studentAnswer.toLowerCase().trim() === input.correctAnswer.toLowerCase().trim();
+          const simpleCorrect = input.studentAnswer.toLowerCase().trim().includes(input.correctAnswer.toLowerCase().trim());
           return {
             isCorrect: simpleCorrect,
             analysisType: simpleCorrect ? 'correct' : 'confused',
-            explanation: "Analysis generated via automated heuristic due to bridge latency."
+            explanation: "Heuristic analysis provided due to AI bridge latency."
           };
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 800));
       }
     }
     throw new Error('Failed to analyze student answer.');

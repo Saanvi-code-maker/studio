@@ -50,23 +50,23 @@ const generateLessonPlanFlow = ai.defineFlow(
       try {
         const { output } = await prompt(input);
         if (output) return output;
+        throw new Error('Empty output');
       } catch (e) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          // Fallback lesson plan
           return {
-            title: `Introduction to ${input.topic}`,
-            objectives: ["Understand fundamental concepts", "Identify key components", "Apply knowledge to basic problems"],
+            title: `Exploration of ${input.topic}`,
+            objectives: ["Define core principles", "Identify practical applications", "Synthesize concept relationships"],
             activities: [
-              { title: "Conceptual Introduction", duration: "15 min", description: "Review core definitions and context." },
-              { title: "Collaborative Exercise", duration: "25 min", description: "Group work focusing on practical examples." },
-              { title: "Summary & Review", duration: "10 min", description: "Consolidate learning and address questions." }
+              { title: "Introduction", duration: "10 min", description: "Hook students with a real-world problem." },
+              { title: "Exploration", duration: "25 min", description: "Hands-on collaborative group activity." },
+              { title: "Synthesis", duration: "15 min", description: "Class-wide sharing and bridge building." }
             ],
-            assessment: "Observation during activities and a brief exit ticket.",
-            adaptiveTips: "Monitor students who struggle with the initial conceptual introduction and provide one-on-one analogies."
+            assessment: "Formative assessment via student presentations.",
+            adaptiveTips: "Provide tiered scaffolding for students showing partial understanding."
           };
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
     throw new Error('Failed to generate lesson plan.');

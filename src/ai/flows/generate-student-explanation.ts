@@ -62,23 +62,23 @@ const generateStudentExplanationFlow = ai.defineFlow(
       try {
         const { output } = await prompt(input);
         if (output) return output;
+        throw new Error('Empty output');
       } catch (e) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          // Fallback content to ensure student gets help
           return {
-            explanation: `The correct answer is "${input.correctAnswer}". It seems there might be a misunderstanding of how this concept connects to the broader topic.`,
-            story: "Imagine trying to build a bridge without a solid foundation—it's hard for the structure to hold. Learning is the same; each concept is a brick that supports the next.",
+            explanation: `The correct answer was "${input.correctAnswer}". Let's bridge the gap between your answer and the goal.`,
+            story: "Imagine trying to build a house on sand versus solid rock—the foundation makes all the difference in understanding.",
             visualDescription: "A lighthouse guiding a ship through a foggy sea.",
             mindmap: [
               "Identify core components",
               "Connect to existing knowledge",
-              "Analyze step-by-step logic",
+              "Analyze logical steps",
               "Validate with practical examples"
             ]
           };
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
       }
     }
     throw new Error('Failed to generate learning bridge.');
