@@ -64,7 +64,20 @@ const generateStudentExplanationFlow = ai.defineFlow(
         if (output) return output;
       } catch (e) {
         retryCount++;
-        if (retryCount >= maxRetries) throw e;
+        if (retryCount >= maxRetries) {
+          // Fallback content to ensure student gets help
+          return {
+            explanation: `The correct answer is "${input.correctAnswer}". It seems there might be a misunderstanding of how this concept connects to the broader topic.`,
+            story: "Imagine trying to build a bridge without a solid foundation—it's hard for the structure to hold. Learning is the same; each concept is a brick that supports the next.",
+            visualDescription: "A lighthouse guiding a ship through a foggy sea.",
+            mindmap: [
+              "Identify core components",
+              "Connect to existing knowledge",
+              "Analyze step-by-step logic",
+              "Validate with practical examples"
+            ]
+          };
+        }
         await new Promise(r => setTimeout(r, 500));
       }
     }

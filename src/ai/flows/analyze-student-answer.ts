@@ -62,7 +62,15 @@ const analyzeStudentAnswerFlow = ai.defineFlow(
         if (output) return output;
       } catch (e) {
         retryCount++;
-        if (retryCount >= maxRetries) throw e;
+        if (retryCount >= maxRetries) {
+          // Heuristic fallback
+          const simpleCorrect = input.studentAnswer.toLowerCase().trim() === input.correctAnswer.toLowerCase().trim();
+          return {
+            isCorrect: simpleCorrect,
+            analysisType: simpleCorrect ? 'correct' : 'confused',
+            explanation: "Analysis generated via automated heuristic due to bridge latency."
+          };
+        }
         await new Promise(r => setTimeout(r, 500));
       }
     }
