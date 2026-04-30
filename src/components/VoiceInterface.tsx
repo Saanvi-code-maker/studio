@@ -13,7 +13,7 @@ interface VoiceInterfaceProps {
 
 /**
  * A robust, language-aware Voice Interface component.
- * Standardizes recognition logic to prevent engine crashes.
+ * Standardizes recognition logic to prevent engine crashes and ensures correct locale mapping.
  */
 export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   const { lang } = useTranslation();
@@ -41,6 +41,13 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       return null;
     }
 
+    // Cleanup previous instance if any
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch (e) {}
+    }
+
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -56,7 +63,11 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       console.error('Speech recognition error:', event.error);
       setIsRecording(false);
       setStatus('error');
-      setErrorMessage("Microphone error. Please try again.");
+      if (event.error === 'not-allowed') {
+        setErrorMessage("Microphone access denied.");
+      } else {
+        setErrorMessage("Recognition error. Please try again.");
+      }
     };
 
     recognition.onend = () => {
@@ -69,7 +80,8 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       if (transcript) {
         setStatus('processing');
         onResult(transcript);
-        setTimeout(() => setStatus('idle'), 1000);
+        // Small delay to show completion before resetting status
+        setTimeout(() => setStatus('idle'), 800);
       }
     };
 
@@ -79,18 +91,26 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   useEffect(() => {
     recognitionRef.current = initializeRecognition();
     return () => {
-      if (recognitionRef.current) recognitionRef.current.abort();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {}
+      }
     };
   }, [initializeRecognition]);
 
   const handleToggleRecording = () => {
-    if (!recognitionRef.current) recognitionRef.current = initializeRecognition();
+    if (!recognitionRef.current) {
+      recognitionRef.current = initializeRecognition();
+    }
+    
     if (isRecording) {
       recognitionRef.current.stop();
     } else {
       try {
         recognitionRef.current.start();
       } catch (err) {
+        // Fallback for re-starting if error state occurred
         recognitionRef.current = initializeRecognition();
         recognitionRef.current?.start();
       }
