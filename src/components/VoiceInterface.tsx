@@ -13,7 +13,7 @@ interface VoiceInterfaceProps {
 
 /**
  * A robust, language-aware Voice Interface component.
- * It dynamically adjusts recognition based on the user's active translation (EN, HI, KN).
+ * Standardizes recognition logic to prevent engine crashes.
  */
 export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   const { lang } = useTranslation();
@@ -22,7 +22,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Map app languages to BCP-47 tags
   const getLanguageTag = (appLang: string) => {
     switch (appLang) {
       case 'hi': return 'hi-IN';
@@ -38,7 +37,7 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
     
     if (!SpeechRecognition) {
       setStatus('error');
-      setErrorMessage("Speech recognition is not supported in this browser. Try Chrome or Edge.");
+      setErrorMessage("Speech recognition not supported in this browser.");
       return null;
     }
 
@@ -57,13 +56,7 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       console.error('Speech recognition error:', event.error);
       setIsRecording(false);
       setStatus('error');
-      
-      let msg = "Microphone error. Please try again.";
-      if (event.error === 'not-allowed') msg = "Microphone access denied. Check browser permissions.";
-      if (event.error === 'no-speech') msg = "No speech detected. Try speaking again.";
-      if (event.error === 'network') msg = "Network error. Please check your connection.";
-      
-      setErrorMessage(msg);
+      setErrorMessage("Microphone error. Please try again.");
     };
 
     recognition.onend = () => {
@@ -86,24 +79,18 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   useEffect(() => {
     recognitionRef.current = initializeRecognition();
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
+      if (recognitionRef.current) recognitionRef.current.abort();
     };
   }, [initializeRecognition]);
 
   const handleToggleRecording = () => {
-    if (!recognitionRef.current) {
-      recognitionRef.current = initializeRecognition();
-    }
-
+    if (!recognitionRef.current) recognitionRef.current = initializeRecognition();
     if (isRecording) {
       recognitionRef.current.stop();
     } else {
       try {
         recognitionRef.current.start();
       } catch (err) {
-        console.error("Failed to start voice recognition:", err);
         recognitionRef.current = initializeRecognition();
         recognitionRef.current?.start();
       }
@@ -111,28 +98,22 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 p-10 border-2 border-dashed rounded-[3rem] bg-primary/5 transition-all animate-in fade-in duration-500">
+    <div className="flex flex-col items-center gap-6 p-10 border-2 border-dashed rounded-[3rem] bg-primary/5 animate-in fade-in duration-500">
       {status === 'error' && errorMessage && (
-        <Alert variant="destructive" className="rounded-2xl border-2 bg-white/50 backdrop-blur-sm">
+        <Alert variant="destructive" className="rounded-2xl">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="text-xs font-black uppercase tracking-tight">{errorMessage}</AlertDescription>
         </Alert>
       )}
 
       <div className="relative">
-        {isRecording && (
-          <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full animate-pulse" />
-        )}
+        {isRecording && <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full animate-pulse" />}
         <div className={cn(
           "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative z-10",
-          isRecording 
-            ? "bg-red-500 text-white scale-110 shadow-red-500/30" 
-            : "bg-white text-primary border-2 border-primary/10",
+          isRecording ? "bg-red-500 text-white scale-110 shadow-red-500/30" : "bg-white text-primary border-2 border-primary/10",
           status === 'processing' && "bg-primary text-white"
         )}>
-          {status === 'processing' ? (
-            <Loader2 className="animate-spin w-10 h-10" />
-          ) : (
+          {status === 'processing' ? <Loader2 className="animate-spin w-10 h-10" /> : (
             isRecording ? <Mic className="w-10 h-10" /> : <MicOff className="w-10 h-10 opacity-30" />
           )}
         </div>
@@ -140,12 +121,10 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       
       <div className="text-center space-y-3">
         <p className="text-xl font-black font-headline tracking-tighter text-foreground">
-          {status === 'listening' ? 'Listening...' : status === 'processing' ? 'Synthesizing...' : 'Speak your answer'}
+          {status === 'listening' ? 'Listening...' : status === 'processing' ? 'Processing...' : 'Speak Answer'}
         </p>
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 max-w-[200px] leading-relaxed">
-          {status === 'listening' 
-            ? `Detecting ${lang.toUpperCase()} speech...` 
-            : 'AI will interpret your voice input'}
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60">
+          Detecting {lang.toUpperCase()} speech...
         </p>
       </div>
 
@@ -153,9 +132,9 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
         onClick={handleToggleRecording}
         disabled={status === 'processing'}
         variant={isRecording ? "destructive" : "default"}
-        className="h-16 rounded-[1.5rem] w-full font-black text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all"
+        className="h-16 rounded-[1.5rem] w-full font-black text-lg shadow-xl"
       >
-        {isRecording ? "Finish Speaking" : "Start Voice Input"}
+        {isRecording ? "Stop" : "Start Voice Input"}
       </Button>
     </div>
   );

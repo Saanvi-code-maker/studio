@@ -23,7 +23,6 @@ export async function summarizeCommonMisconceptions(input: z.infer<typeof Summar
 
 const prompt = ai.definePrompt({
   name: 'summarizeCommonMisconceptionsPrompt',
-  model: 'googleai/gemini-1.5-flash',
   input: { schema: SummarizeInputSchema },
   output: { schema: SummarizeOutputSchema },
   prompt: `You are an expert pedagogical analyst. 

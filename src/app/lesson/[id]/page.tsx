@@ -27,9 +27,7 @@ import {
   Brain,
   Send,
   Zap,
-  Map,
-  Link as LinkIcon,
-  Play
+  Map
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -101,8 +99,7 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
           context: `Topic: ${lesson.topic}. ${lesson.title}.`
         });
 
-        // Use a consistent seeded image for visual bridge
-        const seedId = `${id}-${activeQuestionIndex}-${Math.floor(Math.random() * 1000)}`;
+        const seedId = `${id}-${activeQuestionIndex}`;
 
         analysisResult = { 
           explanation: bridgeResult.explanation, 
@@ -297,7 +294,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                     </header>
                     
                     <div className="grid grid-cols-1 gap-8">
-                      {/* Story Card */}
                       <div className="bg-primary/5 p-8 rounded-[2.5rem] border-2 border-primary/10 relative group hover:bg-white hover:border-primary transition-all duration-500">
                         <div className="absolute -top-4 left-8 bg-primary text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                            <BookOpen className="w-3 h-3" /> {t.lesson.conceptualStory}
@@ -307,7 +303,6 @@ export default function LessonPage({ params }: { params: Promise<{ id: string }>
                         </p>
                       </div>
 
-                      {/* Visual & Mindmap Section */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="relative aspect-square rounded-[2.5rem] overflow-hidden border-2 border-border shadow-2xl group">
                           <Image 

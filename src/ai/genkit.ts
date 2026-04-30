@@ -2,8 +2,8 @@ import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 /**
- * Genkit initialization for EduSense Learn.
- * We use the googleAI plugin and standardize on gemini-1.5-flash.
+ * Genkit initialization for ShikshaSetu.
+ * Standardizing on googleai/gemini-1.5-flash for maximum stability.
  */
 export const ai = genkit({
   plugins: [
