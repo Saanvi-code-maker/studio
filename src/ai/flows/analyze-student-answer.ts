@@ -54,10 +54,18 @@ const analyzeStudentAnswerFlow = ai.defineFlow(
     outputSchema: AnalyzeAnswerOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) {
-      throw new Error('Failed to analyze student answer.');
+    let retryCount = 0;
+    const maxRetries = 2;
+    while (retryCount < maxRetries) {
+      try {
+        const { output } = await prompt(input);
+        if (output) return output;
+      } catch (e) {
+        retryCount++;
+        if (retryCount >= maxRetries) throw e;
+        await new Promise(r => setTimeout(r, 500));
+      }
     }
-    return output;
+    throw new Error('Failed to analyze student answer.');
   }
 );

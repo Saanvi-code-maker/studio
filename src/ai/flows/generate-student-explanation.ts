@@ -18,7 +18,7 @@ const GenerateStudentExplanationOutputSchema = z.object({
   explanation: z.string().describe('Direct conceptual explanation of why the answer was wrong.'),
   story: z.string().describe('A 2-3 sentence relatable story or analogy to simplify the concept.'),
   visualDescription: z.string().describe('Text description for an illustrative image.'),
-  mindmap: z.array(z.string()).describe('4 key conceptual links describing the concept relationships.'),
+  mindmap: z.array(z.string()).describe('Exactly 4 key conceptual links describing the concept relationships.'),
 });
 export type GenerateStudentExplanationOutput = z.infer<typeof GenerateStudentExplanationOutputSchema>;
 
@@ -56,8 +56,18 @@ const generateStudentExplanationFlow = ai.defineFlow(
     outputSchema: GenerateStudentExplanationOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) throw new Error('Failed to generate explanation.');
-    return output;
+    let retryCount = 0;
+    const maxRetries = 2;
+    while (retryCount < maxRetries) {
+      try {
+        const { output } = await prompt(input);
+        if (output) return output;
+      } catch (e) {
+        retryCount++;
+        if (retryCount >= maxRetries) throw e;
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+    throw new Error('Failed to generate learning bridge.');
   }
 );

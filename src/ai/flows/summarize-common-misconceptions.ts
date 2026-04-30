@@ -46,8 +46,24 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
     outputSchema: SummarizeOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) throw new Error('Failed to summarize common misconceptions.');
-    return output;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount < maxRetries) {
+      try {
+        const { output } = await prompt(input);
+        if (!output) throw new Error('AI output was empty');
+        return output;
+      } catch (error: any) {
+        console.warn(`Genkit attempt ${retryCount + 1} failed:`, error.message);
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          // Final attempt with fallback or throw clear error
+          throw new Error('Our AI Bridge is temporarily busy. Please try again in a moment.');
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+      }
+    }
+    throw new Error('Failed to summarize common misconceptions.');
   }
 );
