@@ -30,7 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Clean state for new sessions
+      // Clean state for new sessions as requested
       if (!window.sessionStorage.getItem('session_initialized')) {
         localStorage.removeItem('current_lesson_state');
         window.sessionStorage.setItem('session_initialized', 'true');
