@@ -1,7 +1,6 @@
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for analyzing student answers.
- * It classifies the student's understanding and provides a simple explanation.
  */
 
 import { ai } from '@/ai/genkit';
@@ -22,9 +21,6 @@ const AnalyzeAnswerOutputSchema = z.object({
 });
 export type AnalyzeAnswerOutput = z.infer<typeof AnalyzeAnswerOutputSchema>;
 
-/**
- * Analyzes a student's answer using AI classification to determine conceptual correctness.
- */
 export async function analyzeStudentAnswer(input: AnalyzeAnswerInput): Promise<AnalyzeAnswerOutput> {
   return analyzeStudentAnswerFlow(input);
 }
@@ -44,12 +40,8 @@ Correct Answer: {{{correctAnswer}}}
 Student's Answer: {{{studentAnswer}}}
 
 Instructions:
-1. Determine if the answer is conceptually 'isCorrect'. Note that students might use different words but express the same meaning.
-2. Classify the understanding level:
-   - 'correct': Answer is accurate and confident.
-   - 'guessing': Answer is correct or partially correct but uses tentative language like "maybe", "I think".
-   - 'partial_understanding': Answer identifies some parts of the concept but misses others.
-   - 'confused': Answer is incorrect or expresses fundamental misunderstanding.
+1. Determine if the answer is conceptually 'isCorrect'.
+2. Classify the understanding level: 'correct', 'guessing', 'partial_understanding', 'confused'.
 3. Provide a simple, 1-2 sentence explanation of your reasoning.
 
 Return the result as a JSON object matching the output schema.`,
@@ -63,11 +55,9 @@ const analyzeStudentAnswerFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-
     if (!output) {
       throw new Error('Failed to analyze student answer.');
     }
-
     return output;
   }
 );

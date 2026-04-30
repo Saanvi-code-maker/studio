@@ -1,94 +1,112 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface VoiceInterfaceProps {
   onResult: (text: string) => void;
 }
 
 /**
- * A professional Voice Interface component that utilizes the Web Speech API.
- * It provides real-time feedback, error handling, and a high-fidelity UI.
+ * A robust, language-aware Voice Interface component.
+ * It dynamically adjusts recognition based on the user's active translation (EN, HI, KN).
  */
 export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
+  const { lang } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [status, setStatus] = useState<'idle' | 'listening' | 'processing' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
-  useEffect(() => {
-    // Check for browser support of the Speech Recognition API
+  // Map app languages to BCP-47 tags
+  const getLanguageTag = (appLang: string) => {
+    switch (appLang) {
+      case 'hi': return 'hi-IN';
+      case 'kn': return 'kn-IN';
+      default: return 'en-US';
+    }
+  };
+
+  const initializeRecognition = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
       setStatus('error');
-      setErrorMessage("Voice recognition is not supported in this browser. Please use Chrome or Edge for the best experience.");
-      return;
+      setErrorMessage("Speech recognition is not supported in this browser. Try Chrome or Edge.");
+      return null;
     }
 
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US'; // This could be dynamically set based on user language preference
+    recognition.lang = getLanguageTag(lang);
 
     recognition.onstart = () => {
       setStatus('listening');
       setIsRecording(true);
+      setErrorMessage(null);
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Speech recognition error', event.error);
+      console.error('Speech recognition error:', event.error);
       setIsRecording(false);
       setStatus('error');
       
-      let msg = "Something went wrong. Please try again.";
-      if (event.error === 'not-allowed') msg = "Microphone access denied. Please enable it in your browser settings.";
-      if (event.error === 'no-speech') msg = "No speech detected. Please speak closer to the microphone.";
+      let msg = "Microphone error. Please try again.";
+      if (event.error === 'not-allowed') msg = "Microphone access denied. Check browser permissions.";
+      if (event.error === 'no-speech') msg = "No speech detected. Try speaking again.";
+      if (event.error === 'network') msg = "Network error. Please check your connection.";
       
       setErrorMessage(msg);
     };
 
     recognition.onend = () => {
       setIsRecording(false);
-      if (status !== 'error' && status !== 'processing') {
-        setStatus('idle');
-      }
+      // Only reset to idle if we aren't in an error or processing state
+      setStatus((prev) => (prev === 'listening' ? 'idle' : prev));
     };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
-      setStatus('processing');
-      // Briefly show processing state for a smooth UI transition
-      setTimeout(() => {
+      if (transcript) {
+        setStatus('processing');
         onResult(transcript);
-        setStatus('idle');
-      }, 800);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        // Briefly delay the reset to idle for visual feedback
+        setTimeout(() => setStatus('idle'), 1000);
       }
     };
-  }, [onResult, status]);
+
+    return recognition;
+  }, [lang, onResult]);
+
+  useEffect(() => {
+    recognitionRef.current = initializeRecognition();
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, [initializeRecognition]);
 
   const handleToggleRecording = () => {
-    if (status === 'error' && !recognitionRef.current) return;
+    if (!recognitionRef.current) {
+      recognitionRef.current = initializeRecognition();
+    }
 
     if (isRecording) {
-      recognitionRef.current?.stop();
+      recognitionRef.current.stop();
     } else {
-      setErrorMessage(null);
       try {
+        recognitionRef.current.start();
+      } catch (err) {
+        console.error("Failed to start voice recognition:", err);
+        // If it was already running or errored, re-initialize
+        recognitionRef.current = initializeRecognition();
         recognitionRef.current?.start();
-      } catch (e) {
-        console.error("Failed to start recognition", e);
       }
     }
   };
@@ -110,7 +128,8 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
           "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 shadow-2xl relative z-10",
           isRecording 
             ? "bg-red-500 text-white scale-110 shadow-red-500/30" 
-            : "bg-white text-primary border-2 border-primary/10"
+            : "bg-white text-primary border-2 border-primary/10",
+          status === 'processing' && "bg-primary text-white"
         )}>
           {status === 'processing' ? (
             <Loader2 className="animate-spin w-10 h-10" />
@@ -125,13 +144,15 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
           {status === 'listening' ? 'Listening...' : status === 'processing' ? 'Synthesizing...' : 'Speak your answer'}
         </p>
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 max-w-[200px] leading-relaxed">
-          {status === 'listening' ? 'We are capturing your explanation' : 'AI is interpreting your voice input'}
+          {status === 'listening' 
+            ? `Detecting ${lang.toUpperCase()} speech...` 
+            : 'AI will interpret your voice input'}
         </p>
       </div>
 
       <Button 
         onClick={handleToggleRecording}
-        disabled={status === 'processing' || (status === 'error' && !recognitionRef.current)}
+        disabled={status === 'processing'}
         variant={isRecording ? "destructive" : "default"}
         className="h-16 rounded-[1.5rem] w-full font-black text-lg shadow-xl shadow-primary/20 active:scale-95 transition-all"
       >
