@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for generating adaptive lesson plans.
@@ -10,7 +9,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
 
 const LessonPlanInputSchema = z.object({
   topic: z.string().describe('The subject or specific topic for the lesson plan.'),
@@ -38,7 +36,7 @@ export async function generateLessonPlan(input: LessonPlanInput): Promise<Lesson
 
 const prompt = ai.definePrompt({
   name: 'generateLessonPlanPrompt',
-  model: googleAI.model('gemini-1.5-flash'),
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: LessonPlanInputSchema },
   output: { schema: LessonPlanOutputSchema },
   config: {
