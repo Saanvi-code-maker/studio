@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { SplashScreen } from '@/components/SplashScreen';
-import { GraduationCap, BookOpen, LayoutDashboard, ArrowRight, Sparkles } from 'lucide-react';
+import { GraduationCap, BookOpen, LayoutDashboard, ArrowRight, Sparkles, GraduationCap as TeacherIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';

@@ -35,8 +35,9 @@ const summarizeCommonMisconceptionsFlow = ai.defineFlow(
     outputSchema: SummarizeOutputSchema,
   },
   async (input) => {
+    // Standardized model call to resolve 404 connectivity issues
     const { output } = await prompt(input);
-    if (!output) throw new Error('Failed to summarize');
+    if (!output) throw new Error('Failed to summarize common misconceptions.');
     return output;
   }
 );

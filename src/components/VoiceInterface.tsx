@@ -32,6 +32,8 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
   };
 
   const initializeRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return null;
+    
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
@@ -66,7 +68,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
 
     recognition.onend = () => {
       setIsRecording(false);
-      // Only reset to idle if we aren't in an error or processing state
       setStatus((prev) => (prev === 'listening' ? 'idle' : prev));
     };
 
@@ -75,7 +76,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
       if (transcript) {
         setStatus('processing');
         onResult(transcript);
-        // Briefly delay the reset to idle for visual feedback
         setTimeout(() => setStatus('idle'), 1000);
       }
     };
@@ -104,7 +104,6 @@ export const VoiceInterface = ({ onResult }: VoiceInterfaceProps) => {
         recognitionRef.current.start();
       } catch (err) {
         console.error("Failed to start voice recognition:", err);
-        // If it was already running or errored, re-initialize
         recognitionRef.current = initializeRecognition();
         recognitionRef.current?.start();
       }
