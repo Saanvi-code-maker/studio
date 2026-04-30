@@ -1,14 +1,14 @@
 import { genkit } from 'genkit';
-import { googleAI, gemini15Flash } from '@genkit-ai/google-genai';
+import { googleAI } from '@genkit-ai/google-genai';
 
 /**
  * Genkit initialization for ShikshaSetu.
- * We use the type-safe model references from the googleAI plugin
- * to ensure correct API versioning and model identifiers.
+ * We use the 'googleai/gemini-1.5-flash' model identifier to ensure
+ * stable connectivity with the Google Generative AI plugin.
  */
 export const ai = genkit({
   plugins: [
     googleAI()
   ],
-  model: gemini15Flash,
+  model: 'googleai/gemini-1.5-flash',
 });

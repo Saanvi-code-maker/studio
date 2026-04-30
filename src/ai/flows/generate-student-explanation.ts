@@ -5,7 +5,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const GenerateStudentExplanationInputSchema = z.object({
   question: z.string().describe('The question asked.'),
@@ -29,7 +28,7 @@ export async function generateStudentExplanation(input: GenerateStudentExplanati
 
 const prompt = ai.definePrompt({
   name: 'generateStudentExplanationPrompt',
-  model: gemini15Flash,
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: GenerateStudentExplanationInputSchema },
   output: { schema: GenerateStudentExplanationOutputSchema },
   config: { temperature: 0.7 },

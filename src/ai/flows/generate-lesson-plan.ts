@@ -5,7 +5,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const LessonPlanInputSchema = z.object({
   topic: z.string(),
@@ -31,7 +30,7 @@ export async function generateLessonPlan(input: z.infer<typeof LessonPlanInputSc
 
 const prompt = ai.definePrompt({
   name: 'generateLessonPlanPrompt',
-  model: gemini15Flash,
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: LessonPlanInputSchema },
   output: { schema: LessonPlanOutputSchema },
   prompt: `Generate a high-fidelity adaptive lesson plan for Topic: {{{topic}}} {{#if gradeLevel}}Grade: {{{gradeLevel}}}{{/if}}.

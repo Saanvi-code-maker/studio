@@ -5,7 +5,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { gemini15Flash } from '@genkit-ai/google-genai';
 
 const SummarizeInputSchema = z.object({
   topic: z.string(),
@@ -24,7 +23,7 @@ export async function summarizeCommonMisconceptions(input: z.infer<typeof Summar
 
 const prompt = ai.definePrompt({
   name: 'summarizeCommonMisconceptionsPrompt',
-  model: gemini15Flash,
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: SummarizeInputSchema },
   output: { schema: SummarizeOutputSchema },
   prompt: `You are an expert pedagogical analyst. 
