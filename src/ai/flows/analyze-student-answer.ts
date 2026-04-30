@@ -27,6 +27,7 @@ export async function analyzeStudentAnswer(input: AnalyzeAnswerInput): Promise<A
 
 const prompt = ai.definePrompt({
   name: 'analyzeStudentAnswerPrompt',
+  model: 'googleai/gemini-1.5-flash',
   input: { schema: AnalyzeAnswerInputSchema },
   output: { schema: AnalyzeAnswerOutputSchema },
   config: {
