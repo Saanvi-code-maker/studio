@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth, useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { Navigation } from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2, LogOut, Save, User as UserIcon, Globe } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, LogOut, Save, User as UserIcon, Globe, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +37,7 @@ export default function ProfilePage() {
   const { data: profile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
   const [displayName, setDisplayName] = useState('');
+  const [isTeacher, setIsTeacher] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName || '');
+      setIsTeacher(profile.role === 'teacher');
     }
   }, [profile]);
 
@@ -57,13 +60,32 @@ export default function ProfilePage() {
   if (!user) return null;
 
   const handleSave = async () => {
-    if (!userDocRef) return;
+    if (!userDocRef || !db) return;
     setIsSaving(true);
     try {
+      const newRole = isTeacher ? 'teacher' : 'student';
+      
+      // 1. Update primary user document
       await updateDoc(userDocRef, {
         displayName,
+        role: newRole,
         updatedAt: new Date().toISOString()
       });
+
+      // 2. Manage the secondary 'teachers' security collection
+      const teacherRef = doc(db, 'teachers', user.uid);
+      if (isTeacher) {
+        // Ensure teacher record exists
+        await setDoc(teacherRef, {
+          id: user.uid,
+          email: user.email,
+          assignedAt: new Date().toISOString()
+        }, { merge: true });
+      } else {
+        // Remove teacher record if role downgraded
+        await deleteDoc(teacherRef);
+      }
+
       toast({
         title: t.profile.updated,
         description: t.profile.updatedDesc,
@@ -111,7 +133,7 @@ export default function ProfilePage() {
               </CardTitle>
               <CardDescription className="text-lg font-medium text-muted-foreground">{user.email}</CardDescription>
               <div className="pt-2">
-                <Badge className="bg-primary text-white border-none uppercase tracking-[0.2em] text-[9px] px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
+                <Badge className={`${profile?.role === 'teacher' ? 'bg-primary' : 'bg-accent'} text-white border-none uppercase tracking-[0.2em] text-[9px] px-4 py-1.5 rounded-full shadow-lg`}>
                   {profile?.role === 'teacher' ? t.profile.verifiedEducator : t.profile.studentScholar}
                 </Badge>
               </div>
@@ -149,6 +171,23 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            <div className="p-6 bg-muted/50 rounded-[2rem] border-2 border-dashed flex items-center justify-between group transition-all hover:bg-white hover:border-primary">
+              <div className="flex items-center gap-4">
+                <div className={`p-4 rounded-2xl shadow-lg transition-all ${isTeacher ? 'bg-primary text-white scale-110' : 'bg-secondary text-muted-foreground'}`}>
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm font-black uppercase tracking-widest leading-none">Educator Status</Label>
+                  <p className="text-[10px] font-bold text-muted-foreground/60 leading-relaxed max-w-[200px]">
+                    {isTeacher 
+                      ? "You have full access to the Teacher Intelligence Dashboard." 
+                      : "Upgrade to access class analytics and lesson planners."}
+                  </p>
+                </div>
+              </div>
+              <Switch checked={isTeacher} onCheckedChange={setIsTeacher} className="data-[state=checked]:bg-primary" />
+            </div>
           </CardContent>
           <CardFooter className="flex items-center justify-between bg-secondary/30 p-10 border-t">
             <Button 
@@ -171,7 +210,7 @@ export default function ProfilePage() {
 
         <div className="text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
-            ShikshaSetu Secure Academic Profile • v1.1.0
+            ShikshaSetu Secure Academic Profile • v1.2.0
           </p>
         </div>
       </div>

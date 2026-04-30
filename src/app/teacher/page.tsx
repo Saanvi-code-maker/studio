@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -41,7 +42,8 @@ import {
   BookOpen,
   Zap,
   Clock,
-  Lightbulb
+  Lightbulb,
+  UserCheck
 } from 'lucide-react';
 
 export default function TeacherPage() {
@@ -207,12 +209,15 @@ export default function TeacherPage() {
             </div>
             <CardTitle className="text-4xl font-black font-headline tracking-tighter">{t.teacher.restricted}</CardTitle>
             <CardDescription className="text-xl font-medium pt-4 px-4 leading-relaxed">
-              {t.teacher.restrictedDesc}
+              Educator credentials are required to access this dashboard.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center pb-12">
-            <Button size="lg" className="rounded-2xl font-black h-16 px-10 shadow-xl" onClick={() => router.push('/learn')}>
-              {t.teacher.returnStudent}
+          <CardContent className="flex flex-col gap-4 px-10 pb-12">
+            <Button size="lg" className="rounded-2xl font-black h-16 px-10 shadow-xl bg-primary" onClick={() => router.push('/profile')}>
+              <UserCheck className="mr-2 h-5 w-5" /> Verify in Profile
+            </Button>
+            <Button variant="ghost" className="font-bold text-muted-foreground" onClick={() => router.push('/learn')}>
+              Return to Student Portal
             </Button>
           </CardContent>
         </Card>
